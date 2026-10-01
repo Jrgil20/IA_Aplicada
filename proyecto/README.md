@@ -1,13 +1,13 @@
-# Proyecto de Semestre — IA Aplicada
+# Semester Project — Applied AI
 
-Este directorio contiene todo el material relacionado con el proyecto final de la cátedra de **Inteligencia Artificial Aplicada** (UCAB).
+This directory contains all materials related to the final project for the **Applied Artificial Intelligence** course (UCAB).
 
-## Documentos
+## Documents
 
-- [Propuesta Técnica: Edge Clean Copilot](./propuesta.md) — Documento central con la visión, hipótesis, arquitectura (Ports & Adapters) y cronograma de ejecución.
-- [Banco de Ideas](./ideas.md) — Ideas preliminares y alternativas evaluadas para el desarrollo del proyecto.
+- [Technical Proposal: Edge Clean Copilot](./propuesta.md) — Core document covering vision, hypotheses, architecture (Ports & Adapters), and execution timeline.
+- [Idea Bank](./ideas.md) — Preliminary ideas and evaluated alternatives for project development.
 
-## Estado del Proyecto
+## Project Status
 
-- **Fase Actual:** Fase 1 — Infraestructura y Teacher Model (Semanas 1-3)
-- **Objetivo Inmediato:** Preparación del entorno en NVIDIA DGX Spark y pipeline de generación sintética.
+- **Current Phase:** Phase 1 — Infrastructure and Teacher Model (Weeks 1-3)
+- **Immediate Objective:** Environment setup on NVIDIA DGX Spark and synthetic generation pipeline.

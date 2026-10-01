@@ -1,15 +1,15 @@
-# Laboratorios — IA Aplicada
+# Labs — Applied AI
 
-Directorio de seguimiento, código y entregas para las sesiones prácticas de laboratorio de la materia.
+Directory for tracking, code, and deliverables for the course practical laboratory sessions.
 
-## Estructura de Entregas
+## Deliverables Structure
 
-| Laboratorio | Tema / Título | Estado | Enlace |
+| Laboratory | Topic / Title | Status | Link |
 | :--- | :--- | :--- | :--- |
-| **Lab 01** | Configuración de Entorno & Inferencia Local | *Borrador* | [Ver Lab 01](./lab-01.md) |
-| **Lab 02** | *Pendiente por definir* | *Planificado* | — |
-| **Lab 03** | *Pendiente por definir* | *Planificado* | — |
+| **Lab 01** | Environment Setup & Local Inference | *Draft* | [View Lab 01](./lab-01.md) |
+| **Lab 02** | *To be determined* | *Planned* | — |
+| **Lab 03** | *To be determined* | *Planned* | — |
 
-## Convenciones de Trabajo
+## Working Conventions
 
-- Cada laboratorio se organizará en su respectiva subcarpeta o archivo `.md` con la bitácora de ejecución, resultados y scripts asociados.
+- Each lab will be organized in its respective subfolder or `.md` file with the execution log, results, and associated scripts.

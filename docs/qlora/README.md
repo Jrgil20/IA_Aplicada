@@ -1,50 +1,50 @@
-# Guía de Referencia: LoRA y QLoRA (PEFT)
+# Reference Guide: LoRA and QLoRA (PEFT)
 
-Guía técnica sobre adaptación eficiente de parámetros (PEFT) mediante **LoRA** (Low-Rank Adaptation) y **QLoRA** (Quantized Low-Rank Adaptation) para modelos de lenguaje.
+Technical guide on Parameter-Efficient Fine-Tuning (PEFT) via **LoRA** (Low-Rank Adaptation) and **QLoRA** (Quantized Low-Rank Adaptation) for language models.
 
 ---
 
-## 1. Fundamentos Teóricos
+## 1. Theoretical Foundations
 
-### 1.1 De Full Fine-Tuning a LoRA
-En el ajuste fino completo (*Full Fine-Tuning*), se actualizan todos los pesos de la red ($W \in \mathbb{R}^{d \times k}$), requiriendo almacenar en memoria los pesos, gradientes y estados del optimizador (e.g. AdamW necesita 8 bytes adicionales por parámetro en FP32).
+### 1.1 From Full Fine-Tuning to LoRA
+In full fine-tuning, all network weights ($W \in \mathbb{R}^{d \times k}$) are updated, requiring storage in memory of the weights, gradients, and optimizer states (e.g., AdamW requires 8 additional bytes per parameter in FP32).
 
-**LoRA** congela los pesos pre-entrenados $W_0$ y descompone la matriz de actualización $\Delta W$ en el producto de dos matrices de bajo rango:
+**LoRA** freezes the pre-trained weights $W_0$ and decomposes the update matrix $\Delta W$ into the product of two low-rank matrices:
 
-$$\Delta W = B \cdot A \quad \text{donde } A \in \mathbb{R}^{r \times k}, \; B \in \mathbb{R}^{d \times r}, \; r \ll \min(d, k)$$
+$$\Delta W = B \cdot A \quad \text{where } A \in \mathbb{R}^{r \times k}, \; B \in \mathbb{R}^{d \times r}, \; r \ll \min(d, k)$$
 
-La salida de la capa lineal durante la inferencia es:
+The output of the linear layer during inference is:
 
 $$h = W_0 x + \frac{\alpha}{r} (B \cdot A) x$$
 
-- **$r$ (Rank):** Rango de descomposición (típicamente 8, 16 o 32). Controla la capacidad expresiva de la adaptación.
-- **$\alpha$ (Alpha):** Factor de escala constante. Una convención común es fijar $\alpha = 2r$.
-- **Dropout:** Tasa de regularización aplicada a los adaptadores (típicamente 0.05 a 0.1).
+- **$r$ (Rank):** Decomposition rank (typically 8, 16, or 32). Controls the expressive capacity of the adaptation.
+- **$\alpha$ (Alpha):** Constant scaling factor. A common convention is to set $\alpha = 2r$.
+- **Dropout:** Regularization rate applied to adapters (typically 0.05 to 0.1).
 
 ---
 
-### 1.2 Innovaciones Clave de QLoRA (Dettmers et al., 2023)
+### 1.2 Key QLoRA Innovations (Dettmers et al., 2023)
 
-QLoRA permite entrenar adaptadores LoRA sobre un modelo base cuantizado a 4 bits sin degradar la precisión:
+QLoRA enables training LoRA adapters on a 4-bit quantized base model without degrading precision:
 
-1. **4-bit NormalFloat (NF4):** Tipo de datos óptimo para pesos que siguen una distribución normal centrada en cero, superando a FP4 e INT4 tradicionales en fidelidad de información.
-2. **Double Quantization (DQ):** Cuantiza las propias constantes de cuantización de los bloques de 64 parámetros, ahorrando un promedio de 0.37 bits por parámetro (~3 GB de ahorro en un modelo de 65B).
-3. **Paged Optimizers:** Utiliza paginación de memoria unificada de CUDA para mitigar picos de memoria (OOM) en el optimizador enviando páginas inactivas a RAM temporalmente.
+1. **4-bit NormalFloat (NF4):** Optimal data type for weights following a zero-centered normal distribution, outperforming traditional FP4 and INT4 in information fidelity.
+2. **Double Quantization (DQ):** Quantizes the quantization constants themselves for 64-parameter blocks, saving an average of 0.37 bits per parameter (~3 GB savings on a 65B model).
+3. **Paged Optimizers:** Uses CUDA unified memory paging to mitigate optimizer memory spikes (OOM) by temporarily offloading inactive pages to RAM.
 
 ---
 
-## 2. Target Modules para Arquitecturas Modernas (Qwen / Llama)
+## 2. Target Modules for Modern Architectures (Qwen / Llama)
 
-Para máxima retención y capacidad en tareas de razonamiento y Clean Architecture, se recomienda adaptar tanto las capas de atención como las del perceptrón multicapa (MLP):
+For maximum retention and capability on reasoning and Clean Architecture tasks, it is recommended to adapt both the attention layers and the multi-layer perceptron (MLP):
 
 ```python
 target_modules = [
-    # Capas de Atención
+    # Attention Layers
     "q_proj",
     "k_proj",
     "v_proj",
     "o_proj",
-    # Capas MLP / Feed-Forward
+    # MLP / Feed-Forward Layers
     "gate_proj",
     "up_proj",
     "down_proj"
@@ -53,7 +53,7 @@ target_modules = [
 
 ---
 
-## 3. Ejemplo Canónico con Hugging Face (`peft` + `bitsandbytes`)
+## 3. Canonical Example with Hugging Face (`peft` + `bitsandbytes`)
 
 ```python
 import torch
@@ -62,7 +62,7 @@ from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 
 model_id = "Qwen/Qwen2.5-Coder-1.5B"
 
-# 1. Configuración de Cuantización a 4 bits (NF4)
+# 1. 4-bit Quantization Config (NF4)
 bnb_config = BitsAndBytesConfig(
     load_in_4bit=True,
     bnb_4bit_quant_type="nf4",
@@ -70,7 +70,7 @@ bnb_config = BitsAndBytesConfig(
     bnb_4bit_use_double_quant=True,
 )
 
-# 2. Cargar modelo base cuantizado
+# 2. Load quantized base model
 model = AutoModelForCausalLM.from_pretrained(
     model_id,
     quantization_config=bnb_config,
@@ -78,10 +78,10 @@ model = AutoModelForCausalLM.from_pretrained(
     torch_dtype=torch.bfloat16,
 )
 
-# 3. Preparar modelo para entrenamiento en k-bits
+# 3. Prepare model for k-bit training
 model = prepare_model_for_kbit_training(model)
 
-# 4. Configurar hiperparámetros LoRA
+# 4. Configure LoRA hyperparameters
 peft_config = LoraConfig(
     r=16,
     lora_alpha=32,
@@ -97,27 +97,27 @@ model.print_trainable_parameters()
 
 ---
 
-## 4. Fusión de Adaptadores y Exportación
+## 4. Adapter Merging and Export
 
-Una vez finalizado el entrenamiento, los pesos de los adaptadores se fusionan con el modelo base original en precisión completa (FP16 o BF16) para permitir su cuantización a GGUF:
+Once training is complete, the adapter weights are merged with the original base model at full precision (FP16 or BF16) to enable GGUF quantization:
 
 ```python
 from peft import PeftModel
 from transformers import AutoModelForCausalLM
 
-# Cargar modelo base en FP16 (sin bitsandbytes)
+# Load base model in FP16 (without bitsandbytes)
 base_model = AutoModelForCausalLM.from_pretrained(
     "Qwen/Qwen2.5-Coder-1.5B",
     torch_dtype=torch.float16,
     device_map="cpu",
 )
 
-# Cargar y fusionar los adaptadores entrenados
+# Load and merge trained adapters
 model = PeftModel.from_pretrained(base_model, "./lora_output_dir")
 merged_model = model.merge_and_unload()
 
-# Guardar modelo consolidado para exportación a llama.cpp
+# Save consolidated model for llama.cpp export
 merged_model.save_pretrained("./merged_model_fp16")
 ```
 
-El modelo en `./merged_model_fp16` queda listo para ejecutarse a través de `convert_hf_to_gguf.py` y `llama-quantize`.
+The model at `./merged_model_fp16` is ready to be processed through `convert_hf_to_gguf.py` and `llama-quantize`.

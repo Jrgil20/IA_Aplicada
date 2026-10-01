@@ -1,35 +1,35 @@
-# Documentación Técnica — IA Aplicada
+# Technical Documentation — Applied AI
 
-> **Base de conocimiento AI-first.** Cada módulo (`/dgx`, `/cuda`, `/qlora`) es una unidad autocontenida con su propio `README.md` como punto de entrada. Los agentes deben consultar este índice para decidir qué módulo leer según la tarea activa; no es necesario cargar toda la documentación en contexto.
+> **AI-first knowledge base.** Each module (`/dgx`, `/cuda`, `/qlora`) is a self-contained unit with its own `README.md` as an entry point. Agents should consult this index to decide which module to read based on the active task; it is not necessary to load all documentation into context.
 
 ---
 
-## Módulos de Documentación
+## Documentation Modules
 
 ### 1. [NVIDIA DGX Spark (`/dgx`)](./dgx/README.md)
-Guía técnica y operativa para la estación de trabajo de supercómputo de escritorio (GB10 Grace Blackwell, 128 GB Unified Memory).
-- Arquitectura de hardware y especificaciones del superchip.
-- Stack de software NVIDIA DGX OS y contenedores NGC.
-- Metodología "Staging en Frío, Ráfaga en Caliente".
-- Enlaces a documentación oficial y playbooks.
+Technical and operational guide for the desktop supercomputing workstation (GB10 Grace Blackwell, 128 GB Unified Memory).
+- Hardware architecture and superchip specifications.
+- NVIDIA DGX OS software stack and NGC containers.
+- "Cold Staging, Hot Burst" methodology.
+- Links to official documentation and playbooks.
 
 ### 2. [CUDA & GPU Acceleration (`/cuda`)](./cuda/README.md)
-Conceptos de paralelismo y optimización en GPUs NVIDIA.
-- Streaming Multiprocessors, Warps y jerarquía de memoria.
-- Compute Capability y soporte por arquitectura (Ampere a Blackwell).
-- Variables de entorno críticas y toolchain de monitoreo (`nvidia-smi`, `nvtop`).
-- FlashAttention y optimización de memoria.
+Parallelism and optimization concepts for NVIDIA GPUs.
+- Streaming Multiprocessors, Warps, and memory hierarchy.
+- Compute Capability and architecture support (Ampere to Blackwell).
+- Critical environment variables and monitoring toolchain (`nvidia-smi`, `nvtop`).
+- FlashAttention and memory optimization.
 
 ### 3. [LoRA & QLoRA PEFT (`/qlora`)](./qlora/README.md)
-Guía de adaptación eficiente de parámetros para modelos de lenguaje.
-- Fundamentos matemáticos de descomposición de bajo rango ($W = W_0 + B \cdot A$).
-- Innovaciones de QLoRA: NormalFloat4 (NF4), Double Quantization y Paged Optimizers.
-- Selección de `target_modules` para arquitecturas Qwen y Llama.
-- Pipeline completo: entrenamiento, fusión (`merge_and_unload`) y preparación para GGUF.
+Guide to parameter-efficient fine-tuning for language models.
+- Mathematical foundations of low-rank decomposition ($W = W_0 + B \cdot A$).
+- QLoRA innovations: NormalFloat4 (NF4), Double Quantization, and Paged Optimizers.
+- Selection of `target_modules` for Qwen and Llama architectures.
+- Complete pipeline: training, merging (`merge_and_unload`), and preparation for GGUF.
 
 ---
 
-## Guías Rápidas
+## Quick Guides
 
-- [Comandos Útiles](./comandos-utiles.md) — Cheat sheet de comandos para terminal, hardware, llama.cpp y GGUF.
-- [Especificaciones de Entorno](./entorno.md) — Comparativa entre la estación DGX Spark y el entorno edge de despliegue.
+- [Useful Commands](./useful-commands.md) — Command cheat sheet for terminal, hardware, llama.cpp, and GGUF.
+- [Environment Specifications](./environment.md) — Comparison between the DGX Spark workstation and the edge deployment environment.

@@ -1,14 +1,14 @@
-# Laboratorio 01: Configuración de Entorno & Inferencia Local
+# Lab 01: Environment Setup & Local Inference
 
-> **Estado:** Borrador preliminar
+> **Status:** Preliminary draft
 
-## Objetivos
-- [ ] Validar compatibilidad de toolchains (Python, CUDA, PyTorch / llama.cpp).
-- [ ] Ejecutar inferencia de un modelo base pequeño en entorno local.
-- [ ] Medir latencia básica (tokens/s) y consumo de memoria.
+## Objectives
+- [ ] Validate toolchain compatibility (Python, CUDA, PyTorch / llama.cpp).
+- [ ] Run inference on a small base model in a local environment.
+- [ ] Measure baseline latency (tokens/s) and memory consumption.
 
-## Bitácora de Ejecución
-*(Se completará durante la sesión de laboratorio)*
+## Execution Log
+*(To be completed during the lab session)*
 
-## Conclusiones
-*(Pendiente)*
+## Conclusions
+*(Pending)*

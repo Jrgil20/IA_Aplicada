@@ -1,65 +1,65 @@
-# Inteligencia Artificial Aplicada — UCAB
+# Applied Artificial Intelligence — UCAB
 
-Repositorio central para la cátedra de **Inteligencia Artificial Aplicada** (Escuela de Ingeniería Informática, Universidad Católica Andrés Bello — Caracas, Venezuela).
+Central repository for the **Applied Artificial Intelligence** course (School of Computer Engineering, Universidad Católica Andrés Bello — Caracas, Venezuela).
 
-**Estudiante:** Jesús Rodolfo Gil Farías  
-**Período:** 2026-2027  
+**Student:** Jesús Rodolfo Gil Farías  
+**Term:** 2026-2027  
 
-> 🌐 **[English version available →](./en/README.md)**
+> 🌐 **[Versión en español disponible →](./es/README.md)**
 
 ---
 
-## Filosofía de Documentación: AI-First
+## Documentation Philosophy: AI-First
 
-> **La documentación de este repositorio está diseñada para consumo agéntico.**
+> **The documentation in this repository is designed for agentic consumption.**
 
-Todo el contenido en `/docs`, `/proyecto` y `/labs` sigue principios de **documentación AI-first**:
+All content in `/docs`, `/proyecto`, and `/labs` follows **AI-first documentation** principles:
 
-- **Audiencia primaria:** Agentes de IA (coding assistants, agentes autónomos, pipelines de RAG) que necesitan contexto estructurado para operar sobre el repositorio.
-- **Audiencia secundaria:** Humanos. Los documentos son perfectamente legibles por personas, pero las decisiones de formato priorizan la parsabilidad y el consumo automático.
+- **Primary audience:** AI agents (coding assistants, autonomous agents, RAG pipelines) that require structured context to operate on the repository.
+- **Secondary audience:** Humans. Documents are perfectly readable by humans, but formatting decisions prioritize parsability and automated consumption.
 
-### Convenciones AI-First aplicadas
+### Applied AI-First Conventions
 
-| Convención | Propósito |
+| Convention | Purpose |
 | :--- | :--- |
-| Encabezados jerárquicos consistentes (`#`, `##`, `###`) | Permiten navegación semántica y chunking por secciones. |
-| Tablas para datos estructurados | Extraíbles como key-value sin ambigüedad por un LLM. |
-| Bloques de código con lenguaje explícito (` ```bash `, ` ```python `) | Identificables como comandos ejecutables vs. texto explicativo. |
-| Listas con formato `- **Clave:** Valor` | Facilitan extracción de atributos sin parsing de prosa. |
-| Un concepto por archivo, un archivo por concepto | Reduce el tamaño de contexto necesario para cada consulta. |
-| `README.md` como índice en cada directorio | Proporciona al agente un mapa de navegación sin escanear el filesystem. |
-| Metadatos al inicio del documento (título, estado, propósito) | Permite al agente decidir rápidamente si el documento es relevante antes de leerlo completo. |
+| Consistent heading hierarchy (`#`, `##`, `###`) | Enables semantic navigation and chunking by section. |
+| Tables for structured data | Extractable as key-value pairs without ambiguity by an LLM. |
+| Code blocks with explicit language (` ```bash `, ` ```python `) | Identifiable as executable commands vs. explanatory text. |
+| Lists with `- **Key:** Value` format | Facilitates attribute extraction without prose parsing. |
+| One concept per file, one file per concept | Reduces context window overhead required for each query. |
+| `README.md` as index in each directory | Provides the agent with a navigation map without scanning the filesystem. |
+| Metadata at document start (title, status, purpose) | Allows the agent to quickly decide document relevance before reading in full. |
 
 > [!NOTE]
-> Los agentes que operen sobre este repositorio deben comenzar leyendo este `README.md` para obtener el mapa completo de navegación, y luego consultar el `README.md` de cada subdirectorio para profundizar en un módulo específico.
+> Agents operating on this repository should start by reading this `README.md` to obtain the complete navigation map, and then consult the `README.md` in each subdirectory to delve deeper into a specific module.
 
 ---
 
-## Estructura del Repositorio
+## Repository Structure
 
 ```
 .
-├── proyecto/     # Proyecto de semestre: Edge Clean Copilot, propuesta e ideas
-├── labs/         # Bitácoras, código y entregas de laboratorios prácticos
-└── docs/         # Base de conocimiento técnico (DGX Spark, CUDA, QLoRA, etc.)
+├── proyecto/     # Semester project: Edge Clean Copilot, proposal and ideas
+├── labs/         # Logs, code, and submissions for hands-on labs
+└── docs/         # Technical knowledge base (DGX Spark, CUDA, QLoRA, etc.)
 ```
 
-### Secciones
+### Sections
 
-- [**Proyecto (`/proyecto`)**](./proyecto/README.md):
-  - [Propuesta Técnica: Edge Clean Copilot](./proyecto/propuesta.md)
-  - [Banco de Ideas](./proyecto/ideas.md)
-- [**Laboratorios (`/labs`)**](./labs/README.md):
-  - [Lab 01: Configuración de Entorno & Inferencia Local](./labs/lab-01.md)
-- [**Documentación (`/docs`)**](./docs/README.md):
+- [**Project (`/proyecto`)**](./proyecto/README.md):
+  - [Technical Proposal: Edge Clean Copilot](./proyecto/propuesta.md)
+  - [Idea Bank](./proyecto/ideas.md)
+- [**Labs (`/labs`)**](./labs/README.md):
+  - [Lab 01: Environment Setup & Local Inference](./labs/lab-01.md)
+- [**Documentation (`/docs`)**](./docs/README.md):
   - [NVIDIA DGX Spark](./docs/dgx/README.md)
   - [CUDA & GPU Acceleration](./docs/cuda/README.md)
   - [LoRA & QLoRA (PEFT)](./docs/qlora/README.md)
-  - [Comandos Útiles](./docs/comandos-utiles.md)
-  - [Especificaciones de Entorno](./docs/entorno.md)
+  - [Useful Commands](./docs/useful-commands.md)
+  - [Environment Specifications](./docs/environment.md)
 
 ---
 
-## Licencia
+## License
 
-Distribuido bajo la licencia especificada en [LICENSE](./LICENSE).
+Distributed under the license specified in [LICENSE](./LICENSE).
