@@ -5,6 +5,8 @@ Repositorio central para la cátedra de **Inteligencia Artificial Aplicada** (Es
 **Estudiante:** Jesús Rodolfo Gil Farías  
 **Período:** 2026-2027  
 
+> 🌐 **[English version available →](./en/README.md)**
+
 ---
 
 ## Filosofía de Documentación: AI-First
