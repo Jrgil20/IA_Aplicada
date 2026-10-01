@@ -1,0 +1,86 @@
+Cliente,Asunto,Nº Ticket,Fecha de creación,Canal,Descripción del problema,Estado,Agente
+Tienda Moda Costanera,HORARIO DE ATENCIÓN,TK-0032,25/09/26,Teléfono,¿ATIENDEN LOS SÁBADOS? NECESITO RETIRAR UNA ENCOMIENDA.,abierto,Luis Ferrer
+Supermercados La Ceiba,Dirección de las oficinas,TK-0061,07 sep 2026,telefono,¿Cuál es la dirección exacta de la oficina de Valencia? No me aparece bien en el mapa.,abierto,Luis Ferrer
+Farmacia Salud Total,Mercancía dañada,TK-0057,04/09/2026,wsp,Recibimos la entrega PD-44856 con cuatro cajas aplastadas y mercancía dañada. Tengo fotos. Quiero reclamar el seguro.,Pendiente cliente,Luis Ferrer
+Laboratorios Cumbre,SISTEMA CAÍDO,tk14,20/09/26,wsp,"el sistema está caído desde esta mañan,a nadie en el almacén puede imprimir guías. estamos parados.",abierto,
+Pinturas Roraima,Error 500 al crear pedidos,TK-0043,11 sep 2026,Teléfono,Cuando intento crear un pedido nuevo me sale 'Error 500'. Tengo 12 pedidos por registrar hoy.,Cerrado,Carolina Ibarra
+Muebles Tamanaco,RIF equivocado,TK-0035,2026-09-19,web,La factura F-77147 salió con el RIF equivocado y no puedo declararla. El cierre fiscal es esta semana.,Pendiente cliente,Andrés Pacheco
+Pinturas Roraima,FACTURA SIN CORREGIR HACE 3 SEMANAS,TK-0007,12/09/2026,Correo,Llevamos tres semanas esperando que corrijan la factura F-72802. Nos van a retener el pago y esto ya es URGENTE.,en proceso,Luis Ferrer
+Hotel Mirador del Ávila,No se ve estado del envío,TK-0010,11 sep 2026,E-mail,En la app no aparece el estado del envío PD-45370; dice 'sin información' hace dos días.,en proceso,
+Panadería Doña Marisol,Paquete extraviado,tk63,2026-09-28,Teléfono,El pedido PD-41728 figura como entregado pero nadie lo recibió. Contenía equipos médicos y los necesitamos.,ABIERTO,Luis Ferrer
+Librería El Papiro,Mercancía dañada,TK-0025,24 sep 2026,web,Recibimos la entrega PD-42195 con cuatro cajas aplastadas y mercancía dañada. Tengo fotos. Quiero reclamar el seguro.,En proceso,Daniela Rojas
+Automotriz Los Próceres,Precios flete refrigerado,#0051,27/09/2026,telefono,¿Me pudeen mandar la lista de precios del flete refrigerado? Vendemos lácteos y estamos evaluando proveedores.,,
+Muebles Tamanaco,API devuelve timeout,TK-0045,02/09/26,correo ,Nuestra integración con su API de seguimiento devuelve timeout desde las 8 de la mañana. Se nos detuvo toda la facturación.,,Luis Ferrer
+Muebles Tamanaco,DEMOSTRACIÓN DE LA PLATAFORMA,TK-0055,04/09/26,wsp,me interesa una demostración de la plataforma de seguimiento para mi equipo de logística.,En proceso,Andrés Pacheco
+Electrodomésticos Hermanos Paz,Factura sin corregir hace 3 semanas,TK-0039,03/09/2026,E-mail,llevaoms tres semanas esperando que corrijan la factura f-38958. nos van a retener el pago y esto ya es urgente.,Cerrado,Carolina Ibarra
+Electrodomésticos Hermanos Paz,Solicitud de entrevista,TK-0062,29/09/2026,wsp,Soy periodist ade un medio económico y quisiera entrevistar a alguien de la gerencia sobre la logística del país.,,
+Automotriz Los Próceres,Demostración de la plataforma,tk0023,2026-09-24,WhatsApp,ME INTERESA UNA DEMOSTRACIÓN DE LA PLATAFORMA DE SEGUIMIENTO PARA MI EQUIPO DE LOGÍSTICA.,ABIERTO,Andrés Pacheco
+Pinturas Roraima,SOLICITUD DE EMPLEO,tk27,09-30-26,Teléfono,"buenas, soy conductor con licencia de quinta categoría y 6 años de experiencia. ¿tienen vacantes?",Cerrado,Carolina Ibarra
+Muebles Tamanaco,COBRO DUPLICADO,#0002,13 sep 2026,correo ,"Me cobraron dos veces el servicio de transporte pesado este mes. Quiero e lreembolso lo antes posible, ya hablé con mi banco.",Cerrado,Daniela Rojas
+Electrodomésticos Hermanos Paz,Queja por trato,TK-0028,18 sep 2026,E-mail,El personal del almacén de Maracaibo fue grosero con mi chofer cuando fue a retirar la mercancía. Lo considero inaceptable.,Pendiente cliente,Andrés Pacheco
+Supermercados La Ceiba,Descuento por volumen,#0022,26/09/2026,telefono,Subimos el volumen 40% este trimestre. ¿Aplica algún descuento por volumen?,ABIERTO,Daniela Rojas
+Automotriz Los Próceres,La competencia ofrece menos,TK-0024,09-03-26,wsp,"Otro operador nos ofrece 15% menos en el mismo servicio. Si no mejoran la tarifa esta semana, cambiamos de proveedor.",Cerrado,Carolina Ibarra
+Ópticas Visión Clara,NO LLEGAN CORREOS DE NOTIFICACIÓN,tk71,09/09/26,Correo,Desde hace unos días no me llegan los correos de notificación de entregas. Revisé el spam y nada.,En proceso,Daniela Rojas
+Automotriz Los Próceres,Demostración de la plataforma,TK-0023,2026-09-24,WhatsApp,ME INTERESA UNA DEMOSTRACIÓN DE LA PLATAFORMA DE SEGUIMIENTO PARA MI EQUIPO DE LOGÍSTICA.,ABIERTO,Andrés Pacheco
+Ferretería El Tornillo Feliz,Factura de agosto,tk33,2026-09-03,wsp,"No me llegó la factura del mes de agosto, la necesito como soporte para mi ocntabilidad.",,
+Tienda Moda Costanera,Dirección de las oficinas,TK-0029,09-14-26,Portal web,¿Cuál es la dirección exacta de la oficina de Valencia? No me aparece bien en el mapa.,En proceso,Yelitza Montero
+Panadería Doña Marisol,Exportar reporte,tk70,2026-09-04,correo ,no encuentro cómo exportar el reporte mensual a excel;a ntes había un botón.,Abierto,Carolina Ibarra
+Hotel Mirador del Ávila,Servicio de última milla,#0020,16/09/2026,correo ,¿Ofrecen servicio de última milla para tiendas pequeñas? Tenemos unos 200 envíos al mes.,Cerrado,Carolina Ibarra
+Textiles Ávila,RIF equivocado,TK-0003,2026-09-13,web,La factura F-57650 salió con el RIF equivocado y no puedo declararla. El cierre fiscal es esta semana.,Cerrado,Andrés Pacheco
+Farmacia Salud Total,API DEVUELVE TIMEOUT,#0013,2026-09-16,WhatsApp,Nuestra integración con su API de seguimiento devuelve timeout edsde las 8 de la mañana. Se nos detuvo toda la facturación.,En proceso,Daniela Rojas
+Farmacia Salud Total,Felicitación,#0077,09-23-26,web,"Quiero felicitar al conductor Ramón de la ruta Valencia, fue muy amable y cuidadoso con la carga.",abierto,
+Agroinsumos Barlovento,No llegan correos de notificación,tk47,09-17-26,web,Desde hace unos días no me llegan los correos de notificación de entregas. Revisé el spam y nada.,Pendiente cliente,Yelitza Montero
+Cooperativa Agrícola El Surco,FELICITACIÓN,tk26,12/09/26,WhatsApp,"Quiero felicitar al conductor Ramón de la ruta Valencia, fue muy amable y cuidadoso con la carga.",abierto,Andrés Pacheco
+Cooperativa Agrícola El Surco,Dirección de las oficinas,tk79,12/09/2026,wsp,¿Cuál es la dirección exacta de la oficina de Valencia? No me aparece bien en el mapa.,ABIERTO,Luis Ferrer
+Laboratorios Cumbre,Cotización de 40 pallets,#0072,20/09/2026,Correo,"necesitamos una cotización para mover 40 pallets de trnasporte pesado de valencia a maracaibo, salida a mediados de julio.",abierto,Daniela Rojas
+Automotriz Los Próceres,Felicitación,#0058,13/09/26,telefono,"Quiero felicitar al conductor Ramón de la ruta Valencia, fue muy amable y cuidadoso con la carga.",Cerrado,Daniela Rojas
+Librería El Papiro,Horario de atención,TK-0064,15 sep 2026,correo ,¿Atienden los sábados? Necesito retirar una encomienda.,en proceso,Andrés Pacheco
+Textiles Ávila,Monto distinto a cotización,TK-0005,18 sep 2026,WhatsApp,el monto de la factura no coincide con la cotización que me enviaron ($2446 vs $1760). ¿me pueden explicar?,,Yelitza Montero
+Laboratorios Cumbre,Descuento por volumen,TK-0075,13/09/2026,correo ,Subimos el volumen 40% este trimestre. ¿Aplica algún descuento por volumen?,Cerrado,Carolina Ibarra
+Electrodomésticos Hermanos Paz,Solicitud de entrevista,#0030,13 sep 2026,correo ,,en proceso,Andrés Pacheco
+Muebles Tamanaco,No se ve estado del envío,TK-0042,24 sep 2026,Portal web,En la app no aparece el estado del envío PD-42373; dice 'sin información' hace dos días.,En proceso,Yelitza Montero
+Electrodomésticos Hermanos Paz,Paquete extraviado,#0031,09/09/2026,telefono,El pedido PD-46549 figura como entregado pero nadie lo recibió. Contenía equipos médicos y los necesitamos.,Abierto,Daniela Rojas
+Ópticas Visión Clara,No puedo entrar a mi cuenta,tk48,19 sep 2026,correo ,Olvidé mi clave y el enlace de recuperación no llega a mi correo. Necesito entrar para ver unos envíos.,en proceso,Luis Ferrer
+Cooperativa Agrícola El Surco,NOTA DE CRÉDITO,#0067,2026-09-10,WhatsApp,Necesito una nota de crédito por el pedido PD-42760 que devolvimos completo.,abierto,
+Distribuidora Los Andes del Sur,Error 500 al crear pedidos,TK-0011,21/09/26,Portal web,Cuando intento crear un pedido nuevo me sale 'Error 500'. Tengo 12 pedidos por registrar hoy.,Abierto,Luis Ferrer
+Constructora Pico Naiguatá,Precios flete refrigerado,TK-0019,13/09/2026,E-mail,¿Me pueden mandar la lista de precios del flete refrigerado? Vendemos lácteos y estamos evaluando proveedores.,ABIERTO,Carolina Ibarra
+Automotriz Los Próceres,Cotización de 40 pallets,TK-0049,03/09/2026,correo ,"necesitamos una cotización para mover 40 pallets de última milla de valencia a maracaibo, salida a mediados de julio.",,Yelitza Montero
+Automotriz Los Próceres,Factura de julio,TK-0001,29/09/26,Portal web,"No me llegó la factura del mes de julio, la necesito como soporte para mi contabilidad.",abierto,Carolina Ibarra
+Cooperativa Agrícola El Surco,AMPLIAR COBERTURA,TK-0018,02/09/2026,correo ,Queremos ampliar el contrato actual para incluir etnregas en Barquisimeto y Puerto Ordaz. ¿Con quién hablo?,Cerrado,Daniela Rojas
+Panadería Doña Marisol,Renovación de contrato,#0074,07 sep 2026,E-mail,"Nuestro contrato vence en 30 días y queremos renovarlo, pero con mejores condiciones. Agendemos una reunión.",Pendiente cliente,Luis Ferrer
+Agroinsumos Barlovento,Pago en dos partes,tk40,22/09/2026,Portal web,¿Aceptan el pago en dos partes? La factura F-75963 vence elv iernes y tenemos un problema de caja.,Pendiente cliente,
+Laboratorios Cumbre,Cotización de 40 pallets,TK-0017,2026-09-27,Teléfono,"Necesitamos una cotización para mover 40 pallets de logística inversa de Valencia a Maracaibo, salida a mediados de agosto.",ABIERTO,Carolina Ibarra
+Electrodomésticos Hermanos Paz,No llegan correos de notificación,TK-0015,09-09-26,E-mail,Desde hace unos días no me llegan los correos de notificaicón de entregas. Revisé el spam y nada.,Cerrado,Andrés Pacheco
+Muebles Tamanaco,RIF equivocado,tk0035,2026-09-19,E-mail,La factura F-77147 salió con el RIF equivocado y no puedo declararla. El cierre fiscal es esta semana.,Pendiente cliente,Andrés Pacheco
+Cooperativa Agrícola El Surco,Monto distinto a cotización,tk37,21/09/2026,web,El monto de la factura on coincide con la cotización que me enviaron ($2134 vs $1989). ¿Me pueden explicar?,Abierto,
+Tienda Moda Costanera,Servicio de última milla,#0052,07 sep 2026,E-mail,¿Ofrecen serviico de última milla para tiendas pequeñas? Tenemos unos 200 envíos al mes.,en proceso,Andrés Pacheco
+Constructora Pico Naiguatá,Renovación de contrato,tk21,16/09/26,telefono,"Nuestro contrato vence en 30 días y queremos renovarlo, pero con mejores condiciones. Agendemos una reunión.",Cerrado,Carolina Ibarra
+Librería El Papiro,COBRO DUPLICADO,TK-0065,25/09/2026,correo ,"Me cobraron dos veces el servicio de almacenaje este mes. Quiero el reembolso lo antes posible, ya hablé con mi banco.",Pendiente cliente,Andrés Pacheco
+Panadería Doña Marisol,Precios flete refrigerado,TK-0073,03/09/26,WhatsApp,¿Me pueden mandar la lista de precios del flete refrigerado? Vendemos lácteos y estamos evaluando proveedores.,En proceso,Luis Ferrer
+Farmacia Salud Total,ERROR 500 AL CREAR PEDIDOS,#0069,2026-09-10,WhatsApp,Cuando intetno crear un pedido nuevo me sale 'Error 500'. Tengo 12 pedidos por registrar hoy.,,Daniela Rojas
+Distribuidora Los Andes del Sur,COBRO DUPLICADO,#0034,09-09-26,Portal web,"Me cobraron dos veces el servicio de última milla este mes. Quiero el reembolso lo antes posible, ya hablé con mi banco.",,Luis Ferrer
+Clínica Santa Verónica del Valle,Nota de crédito,TK-0004,25/09/26,telefono,Necesito una nota de crédito por el pedido PD-48486 que devolvimos completo.,,
+Café Páramo Gourmet,SISTEMA CAÍDO,TK-0046,2026-09-28,WhatsApp,"El sistema está caído desde esta mañana, nadie en el almacén puede imprimir guías. Estamos parados.",ABIERTO,Andrés Pacheco
+Automotriz Los Próceres,Pago en dos partes,TK-0008,05/09/2026,WhatsApp,,Cerrado,Daniela Rojas
+Electrodomésticos Hermanos Paz,LA COMPETENCIA OFRECE MENOS,TK-0076,2026-09-21,WhatsApp,"otro operador nos ofrece 15% menos en el mismo servicio. si no mejoran la tarifa esta semana, cambiamos de proveedor.",ABIERTO,
+Pinturas Roraima,No puedo entrar a mi cuenta,#0016,09-04-26,Correo,Olvidé mi clave y el enlace de recuperación no llega a mi correo. Necesito entrar para ver unos envíos.,abierto,
+Clínica Santa Verónica del Valle,Queja por trato,TK-0078,05 sep 2026,Teléfono,El personal del almacén de Maracaibo fue grosero con mi chofer cuando fue a retirar la mercancía. Lo considero inaceptable.,en proceso,Carolina Ibarra
+Automotriz Los Próceres,Descuento por volumen,tk54,09-20-26,Correo,Subimos el volumen 40% este trimestre. ¿Aplica algún descuento por volumen?,abierto,Luis Ferrer
+Panadería Doña Marisol,Portal no carga,tk41,2026-09-29,Teléfono,"El portal de seguimiento no carga desde ayer en la tarde, solo se queda la ruedita. Probé con dos navegadores.",ABIERTO,Luis Ferrer
+Ópticas Visión Clara,La competencia ofrece menos,TK-0056,2026-09-08,wsp,"Otro operador nos ofrece 15% menos en el mismo servicio. Si no mejoran la tarifa esta semana, cambiamos de proveedor.",,
+Cooperativa Agrícola El Surco,RIF equivocado,TK-0066,17/09/26,wsp,La factura F-40662 salió con el RIF equivocado y no puedo declararla. El cierre fiscal es esta semana.,en proceso,
+Librería El Papiro,Portal no carga,#0068,12 sep 2026,wsp,,Abierto,
+Farmacia Salud Total,Ampliar cobertura,TK-0050,09-03-26,Correo,Queremos ampliar el contrato actual para incluir entregas en Barquisimeto y Puerto Ordaz. ¿Con quién hablo?,En proceso,Yelitza Montero
+Farmacia Salud Total,PORTAL NO CARGA,tk9,14/09/26,telefono,"el portal de sgeuimiento no carga desde ayer en la tarde, solo se queda la ruedita. probé con dos navegadores.",Pendiente cliente,Daniela Rojas
+Hotel Mirador del Ávila,Exportar reporte,TK-0044,30 sep 2026,Portal web,No encuentro cómo exportar el reporte mensual a Excel; antes había un botón.,Abierto,Daniela Rojas
+Distribuidora Los Andes del Sur,Error 500 al crear pedidos,tk0011,21/09/26,Portal web,Cuando intento crear un pedido nuevo me sale 'Error 500'. Tengo 12 pedidos por registrar hoy.,Abierto,Luis Ferrer
+Tienda Moda Costanera,Dirección de las oficinas,tk0029,09-14-26,wsp,¿Cuál es la dirección exacta de la oficina de Valencia? No me aparece bien en el mapa.,En proceso,Yelitza Montero
+Automotriz Los Próceres,Quote request,tk81,09-24-26,correo ,"We need a quote for cold-chain transport from Valencia to Maracaibo, twice a week.",en proceso,
+Textiles Ávila,Exportar reporte,TK-0012,09-22-26,web,No encuentro cómo exportar el reporte mensua la Excel; antes había un botón.,,Andrés Pacheco
+Supermercados La Ceiba,Cambio de datos fiscales,tk38,18 sep 2026,E-mail,Quiero actualizar la razón social y la dirección fiscal para las próximas facturas.,,Yelitza Montero
+Cooperativa Agrícola El Surco,NOTA DE CRÉDITO,TK-0036,2026-09-25,WhatsApp,Necesito una nota de crédito por el pedido PD-42968 que devlovimos completo.,en proceso,Carolina Ibarra
+Automotriz Los Próceres,Cambio de datos fiscales,TK-0006,17 sep 2026,Correo,Quiero actualizar la razón social y la dirección fiscal para las próximas facturas.,Cerrado,Andrés Pacheco
+Café Páramo Gourmet,Solicitud de empleo,TK-0059,22 sep 2026,Correo,"Buenas, soy conductor con licencia de quinta categoría y 6 años de experiencia. ¿Tienen vacantes?",Cerrado,Andrés Pacheco
+Agroinsumos Barlovento,Queja por trato,TK-0060,27/09/26,Correo,El personal del almacén de Maracaibo fue grosero con mi chofer cuando fue a retirar la mercancía. Lo considero inaceptable.,en proceso,Yelitza Montero
+Café Páramo Gourmet,Renovación de contrato,TK-0053,2026-09-04,telefono,"Nuestro contrato vence en 30 días y queremos renovarlo, pero con mejores condiciones. Agendemos una reunión.",Abierto,
+Cooperativa Agrícola El Surco,Shipment tracking down,tk80,20/09/26,Portal web,"Hello, your tracking portal returns an error since this morning. We have 30 containers waiting.",Cerrado,Carolina Ibarra

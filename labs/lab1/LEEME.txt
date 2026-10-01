@@ -1,0 +1,23 @@
+PROYECTO 1 · MESA DE SOPORTE
+
+Mensaje de Marisela Quintero (jefa de TI):
+"Equipo, Daniela y Luis reciben unos 80 tickets al mes por correo, WhatsApp, teléfono y el portal. Hoy alguien los lee uno por uno en un Excel
+y los reparte. Es un desorden: formatos de fecha distintos, canales escritos de mil maneras, tickets duplicados, algunos sin descripción y hasta
+unos en inglés. Quiero que prueben si el modelo puede hacer ese trabajo sin que los datos salgan de la empresa."
+
+DATOS
+  tickets_tramontana.xlsx   (el Excel que usa soporte, tal cual)
+  tickets_tramontana.csv    (la misma tabla en CSV, para leerla con Python estándar en el Spark)
+
+QUÉ HAY QUE CONSTRUIR (tres componentes, uno por persona)
+  A. Clasificador: lee los tickets y, para cada uno, el modelo devuelve SOLO un JSON con "categoria" (facturacion, tecnico, ventas, otro)
+     y "urgencia" (baja, media, alta). Debe tolerar descripciones vacías, tickets en inglés y duplicados.
+  B. Resumidor: genera un resumen de una frase por ticket y un resumen del día/semana para la jefa de soporte.
+  C. Panel web: una página que muestra los tickets ya clasificados, filtrables por categoría y urgencia, con la cola ordenada por urgencia.
+  Integración: el panel muestra lo que producen A y B.
+
+CÓMO SABER QUE FUNCIONA
+  - Los 85 tickets quedan clasificados sin que el programa se caiga (los que fallan se marcan "sin_clasificar").
+  - Los duplicados se detectan.
+  - Los de urgencia alta salen primero en el panel.
+  (El profesor tiene una clave con las respuestas correctas para medir qué tan bien clasificó el modelo.)
