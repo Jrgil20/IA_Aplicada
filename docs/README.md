@@ -1,6 +1,6 @@
 # Documentación Técnica — IA Aplicada
 
-Índice central de guías, arquitecturas y manuales técnicos para el desarrollo de la materia y el proyecto semestral.
+> **Base de conocimiento AI-first.** Cada módulo (`/dgx`, `/cuda`, `/qlora`) es una unidad autocontenida con su propio `README.md` como punto de entrada. Los agentes deben consultar este índice para decidir qué módulo leer según la tarea activa; no es necesario cargar toda la documentación en contexto.
 
 ---
 
