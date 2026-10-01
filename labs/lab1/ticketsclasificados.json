@@ -1,0 +1,67 @@
+
+ucab-spark2@spark-dd8f:~/mesa-de-trabajo/lab1$ cat tickets_clasificados.json
+[
+  {
+    "ticket_id": "tk14",
+    "cliente": "Laboratorios Cumbre",
+    "asunto": "SISTEMA CAÍDO",
+    "canal": "wsp",
+    "fecha": "20/09/26",
+    "estado": "abierto",
+    "agente": "",
+    "es_duplicado": false,
+    "categoria": "tecnico",
+    "urgencia": "alta",
+    "resumen": "Sistema caído impidiendo impresión de guías en almacén de Laboratorios Cumbre"
+  },
+  {
+    "ticket_id": "TK-0043",
+    "cliente": "Pinturas Roraima",
+    "asunto": "Error 500 al crear pedidos",
+    "canal": "Teléfono",
+    "fecha": "11 sep 2026",
+    "estado": "Cerrado",
+    "agente": "Carolina Ibarra",
+    "es_duplicado": false,
+    "categoria": "tecnico",
+    "urgencia": "alta",
+    "resumen": "Cliente presenta error 500 al intentar crear pedidos nuevos, requiere solución técnica urgente"
+  },
+  {
+    "ticket_id": "TK-0035",
+    "cliente": "Muebles Tamanaco",
+    "asunto": "RIF equivocado",
+    "canal": "web",
+    "fecha": "2026-09-19",
+    "estado": "Pendiente cliente",
+    "agente": "Andrés Pacheco",
+    "es_duplicado": false,
+    "categoria": "facturacion",
+    "urgencia": "alta",
+    "resumen": "Factura con RIF incorrecto que impide la declaración fiscal antes del cierre de la semana."
+  },
+  {
+    "ticket_id": "TK-0007",
+    "cliente": "Pinturas Roraima",
+    "asunto": "FACTURA SIN CORREGIR HACE 3 SEMANAS",
+    "canal": "Correo",
+    "fecha": "12/09/2026",
+    "estado": "en proceso",
+    "agente": "Luis Ferrer",
+    "es_duplicado": false,
+    "categoria": "facturacion",
+    "urgencia": "alta",
+    "resumen": "Cliente Pinturas Roraima solicita corrección de factura F-72802 que lleva 3 semanas sin corregir, afectando el pago."
+  },
+  {
+    "ticket_id": "tk63",
+    "cliente": "Panadería Doña Marisol",
+    "asunto": "Paquete extraviado",
+    "canal": "Teléfono",
+    "fecha": "2026-09-28",
+    "estado": "ABIERTO",
+    "agente": "Luis Ferrer",
+    "es_duplicado": false,
+    "categoria": "tecnico",
+    "urgencia": "alta",
+    "resumen": "Paquete extraviado del pedido PD-41728 con equipos médico
