@@ -102,7 +102,7 @@ opencode --help
 Tienes dos formas de ejecutar OpenCode para generar `classify_tickets.py`:
 
 ### Opción A: Modo no interactivo (un solo comando directo)
-Ejecuta OpenCode pasándole directamente el prompt desde la terminal o leyendo el archivo `prompts.md`:
+Ejecuta OpenCode pasándole directamente el prompt desde la terminal:
 
 ```bash
 cd ~/mesa-de-trabajo/lab1
@@ -110,19 +110,72 @@ cd ~/mesa-de-trabajo/lab1
 opencode run "Write a complete, robust Python script named classify_tickets.py to classify support tickets from tickets_tramontana.csv using standard libraries only (csv, json, urllib.request). Connect to http://localhost:8080/v1/chat/completions. Read all 85 tickets, handle missing descriptions and English text, detect duplicate descriptions by flagging es_duplicado: true/false. For each ticket output JSON with categoria (facturacion/tecnico/ventas/otro), urgencia (baja/media/alta), and a one-sentence resumen. If an error occurs, fallback to sin_clasificar. Save output ordered by urgency (alta first) into tickets_clasificados.json and print summary counts."
 ```
 
-### Opción B: Modo interactivo
+### Opción B: Modo interactivo (Prompt detallado completo)
 Abre la consola de OpenCode dentro del directorio:
 
 ```bash
 cd ~/mesa-de-trabajo/lab1
 opencode
 ```
-Y dentro de la sesión interactiva, pega el contenido del prompt de [`prompts.md`](file:///home/jr_g/Develop/IA_Aplicada/labs/lab1/prompts.md).
 
-Al finalizar, verifica que `classify_tickets.py` fue creado:
+Y pega el siguiente prompt completo en el chat de OpenCode:
+
+```markdown
+Write a complete, robust Python script named `classify_tickets.py` to classify support tickets from `tickets_tramontana.csv` using a local LLM server running on `http://localhost:8080/v1`.
+
+### Data Details
+- Input file: `tickets_tramontana.csv`
+- Columns: `Cliente`, `Asunto`, `Nº Ticket`, `Fecha de creación`, `Canal`, `Descripción del problema`, `Estado`, `Agente`.
+- Edge cases in data:
+  1. Missing descriptions: some rows have empty "Descripción del problema"; use the "Asunto" column instead.
+  2. Language: some tickets are in English.
+  3. Dirty formats: ticket IDs formatted in different ways (e.g., `#0002`, `tk14`, `TK-0032`), dates in varied formats.
+  4. Duplicates: duplicate requests exist across different clients or agents.
+
+### Functional Requirements
+1. Standard libraries only (`csv`, `json`, `urllib.request` or `http.client`) so it runs without extra pip dependencies.
+2. Read all 85 tickets from `tickets_tramontana.csv`.
+3. Detect duplicate descriptions (normalize text by trimming and lowercasing) and flag `es_duplicado: true/false`.
+4. For each ticket, send a prompt to `http://localhost:8080/v1/chat/completions` using the local model.
+5. The LLM must return ONLY a raw JSON object with:
+   - "categoria": one of ["facturacion", "tecnico", "ventas", "otro"]
+   - "urgencia": one of ["baja", "media", "alta"]
+   - "resumen": a single concise sentence summarizing the issue.
+6. Error handling: If parsing fails or the LLM call times out, do NOT crash. Fall back gracefully to `categoria: "sin_clasificar"` and `urgencia: "sin_clasificar"`.
+7. Output: Save the full enriched list ordered with highest urgency first ("alta" > "media" > "baja" > "sin_clasificar") into `tickets_clasificados.json`.
+8. Print a clean summary table to stdout with counts per category and urgency, plus duplicates detected.
+```
+
+#### Template del System Message y User Message usado en el script:
+Si deseas que el script o el modelo use un template específico:
+
+**System Prompt:**
+```text
+You are a specialized support ticket classifier for an enterprise logistics platform.
+You must analyze the incoming support ticket and return ONLY valid JSON matching this schema:
+{
+  "categoria": "facturacion" | "tecnico" | "ventas" | "otro",
+  "urgencia": "baja" | "media" | "alta",
+  "resumen": "One-sentence summary"
+}
+Do not include markdown fences, thoughts, or explanatory text. Return strictly the JSON object.
+```
+
+**User Message:**
+```text
+Ticket ID: {ticket_id}
+Client: {cliente}
+Subject: {asunto}
+Channel: {canal}
+Description: {descripcion or asunto}
+
+Classify category and urgency. Provide a one-sentence summary.
+```
+
+Al finalizar en OpenCode, verifica que `classify_tickets.py` fue creado:
 ```bash
 ls -lh classify_tickets.py
-head -n 20 classify_tickets.py
+head -n 25 classify_tickets.py
 ```
 
 ---
