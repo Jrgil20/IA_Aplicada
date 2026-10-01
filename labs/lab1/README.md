@@ -97,85 +97,65 @@ opencode --help
 
 ---
 
-## Paso 4: Generar el clasificador con OpenCode
+## Paso 4: Generar o descargar el clasificador (`classify_tickets.py`)
 
-Tienes dos formas de ejecutar OpenCode para generar `classify_tickets.py`:
+Para evitar los errores típicos de modelos al generar este script:
+1. **Regla de duplicados:** Las descripciones vacías o menores a 10 caracteres **NO** son duplicadas entre sí (sino se marcan 84 duplicados falsos).
+2. **Strip de Markdown:** Si el modelo responde con ` ```json ... ``` `, debe limpiarse antes de hacer `json.loads`.
+3. **Endpoint:** Enviar el JSON directamente a `http://localhost:8080/v1/chat/completions`.
 
-### Opción A: Modo no interactivo (un solo comando directo)
-Ejecuta OpenCode pasándole directamente el prompt desde la terminal:
+Tienes tres opciones:
+
+### Opción A: Descargar directamente el script afinado y probado (Recomendado)
+Para asegurar que no haya fallas de sintaxis ni conteos incorrectos:
 
 ```bash
 cd ~/mesa-de-trabajo/lab1
-
-opencode run "Write a complete, robust Python script named classify_tickets.py to classify support tickets from tickets_tramontana.csv using standard libraries only (csv, json, urllib.request). Connect to http://localhost:8080/v1/chat/completions. Read all 85 tickets, handle missing descriptions and English text, detect duplicate descriptions by flagging es_duplicado: true/false. For each ticket output JSON with categoria (facturacion/tecnico/ventas/otro), urgencia (baja/media/alta), and a one-sentence resumen. If an error occurs, fallback to sin_clasificar. Save output ordered by urgency (alta first) into tickets_clasificados.json and print summary counts."
+curl -fsSL -o classify_tickets.py https://raw.githubusercontent.com/Jrgil20/IA_Aplicada/main/labs/lab1/classify_tickets.py
+chmod +x classify_tickets.py
 ```
 
-### Opción B: Modo interactivo (Prompt detallado completo)
-Abre la consola de OpenCode dentro del directorio:
+### Opción B: Generar con OpenCode (Modo no interactivo)
+```bash
+cd ~/mesa-de-trabajo/lab1
 
+opencode run "Write classify_tickets.py to classify tickets from tickets_tramontana.csv using standard library (csv, json, urllib.request) via http://localhost:8080/v1/chat/completions. IMPORTANT RULES: 1. Only non-empty descriptions with length > 10 chars can be duplicates; empty descriptions are NOT duplicates. 2. If model returns markdown codeblocks, strip them before json.loads. 3. Return JSON with categoria (facturacion/tecnico/ventas/otro), urgencia (baja/media/alta), and single-sentence resumen in Spanish. 4. Fallback to sin_clasificar on error. 5. Save output sorted by urgency into tickets_clasificados.json."
+```
+
+### Opción C: Modo interactivo en OpenCode (Prompt afinado)
+Abre OpenCode en `~/mesa-de-trabajo/lab1`:
 ```bash
 cd ~/mesa-de-trabajo/lab1
 opencode
 ```
 
-Y pega el siguiente prompt completo en el chat de OpenCode:
+Pega este prompt afinado:
 
 ```markdown
-Write a complete, robust Python script named `classify_tickets.py` to classify support tickets from `tickets_tramontana.csv` using a local LLM server running on `http://localhost:8080/v1`.
+Write a complete, robust Python script named `classify_tickets.py` to classify support tickets from `tickets_tramontana.csv` using a local LLM server running on `http://localhost:8080/v1/chat/completions`.
 
 ### Data Details
 - Input file: `tickets_tramontana.csv`
 - Columns: `Cliente`, `Asunto`, `Nº Ticket`, `Fecha de creación`, `Canal`, `Descripción del problema`, `Estado`, `Agente`.
 - Edge cases in data:
-  1. Missing descriptions: some rows have empty "Descripción del problema"; use the "Asunto" column instead.
-  2. Language: some tickets are in English.
-  3. Dirty formats: ticket IDs formatted in different ways (e.g., `#0002`, `tk14`, `TK-0032`), dates in varied formats.
-  4. Duplicates: duplicate requests exist across different clients or agents.
+  1. Missing descriptions: some rows have empty "Descripción del problema"; use the "Asunto" column as text to classify.
+  2. Empty descriptions are NOT duplicates of each other! Only non-empty descriptions (> 10 chars) can be flagged as duplicates.
+  3. Language: some tickets are in English.
+  4. Dirty ticket IDs and varied dates.
 
 ### Functional Requirements
-1. Standard libraries only (`csv`, `json`, `urllib.request` or `http.client`) so it runs without extra pip dependencies.
+1. Standard libraries only (`csv`, `json`, `urllib.request`, `re`) - no external pip dependencies.
 2. Read all 85 tickets from `tickets_tramontana.csv`.
-3. Detect duplicate descriptions (normalize text by trimming and lowercasing) and flag `es_duplicado: true/false`.
-4. For each ticket, send a prompt to `http://localhost:8080/v1/chat/completions` using the local model.
-5. The LLM must return ONLY a raw JSON object with:
+3. Normalize descriptions (lowercase, strip punctuation) to detect duplicate descriptions and flag `es_duplicado: true/false`.
+4. Call `http://localhost:8080/v1/chat/completions` with low temperature (0.1).
+5. Strip markdown code fences (```json ... ```) from the LLM output before parsing with `json.loads`.
+6. Output JSON fields:
    - "categoria": one of ["facturacion", "tecnico", "ventas", "otro"]
    - "urgencia": one of ["baja", "media", "alta"]
-   - "resumen": a single concise sentence summarizing the issue.
-6. Error handling: If parsing fails or the LLM call times out, do NOT crash. Fall back gracefully to `categoria: "sin_clasificar"` and `urgencia: "sin_clasificar"`.
-7. Output: Save the full enriched list ordered with highest urgency first ("alta" > "media" > "baja" > "sin_clasificar") into `tickets_clasificados.json`.
-8. Print a clean summary table to stdout with counts per category and urgency, plus duplicates detected.
-```
-
-#### Template del System Message y User Message usado en el script:
-Si deseas que el script o el modelo use un template específico:
-
-**System Prompt:**
-```text
-You are a specialized support ticket classifier for an enterprise logistics platform.
-You must analyze the incoming support ticket and return ONLY valid JSON matching this schema:
-{
-  "categoria": "facturacion" | "tecnico" | "ventas" | "otro",
-  "urgencia": "baja" | "media" | "alta",
-  "resumen": "One-sentence summary"
-}
-Do not include markdown fences, thoughts, or explanatory text. Return strictly the JSON object.
-```
-
-**User Message:**
-```text
-Ticket ID: {ticket_id}
-Client: {cliente}
-Subject: {asunto}
-Channel: {canal}
-Description: {descripcion or asunto}
-
-Classify category and urgency. Provide a one-sentence summary.
-```
-
-Al finalizar en OpenCode, verifica que `classify_tickets.py` fue creado:
-```bash
-ls -lh classify_tickets.py
-head -n 25 classify_tickets.py
+   - "resumen": single sentence in Spanish.
+7. Graceful error handling: On network timeout or parse failure, fallback to `categoria: "sin_clasificar"` and `urgencia: "sin_clasificar"`.
+8. Output: Save the full enriched list ordered with highest urgency first ("alta" > "media" > "baja" > "sin_clasificar") into `tickets_clasificados.json`.
+9. Print a clean summary table to stdout with counts per category and urgency, plus duplicates detected.
 ```
 
 ---
