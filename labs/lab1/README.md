@@ -30,22 +30,31 @@ ss -tlnp | grep 8080
 
 ---
 
-## Paso 1: Descargar los datos del problema vía `curl` o `wget`
+## Paso 1: Descargar los archivos del laboratorio vía `curl` o `wget`
 
-Descarga directa del dataset de tickets desde GitHub al directorio de trabajo en la Spark:
+Descarga los archivos del lab directamente desde nuestro repositorio (`Jrgil20/IA_Aplicada`) a `~/mesa-de-trabajo/lab1`:
 
 ```bash
+mkdir -p ~/mesa-de-trabajo/lab1
 cd ~/mesa-de-trabajo/lab1
 
-# Con wget:
-wget -O tickets_tramontana.csv https://raw.githubusercontent.com/rsanchezsoutec/tramontana-datos-ficticios/main/01_mesa_de_soporte/tickets_tramontana.csv
+# 1. Descargar dataset de tickets (CSV)
+curl -fsSL -o tickets_tramontana.csv https://raw.githubusercontent.com/Jrgil20/IA_Aplicada/main/labs/lab1/tickets_tramontana.csv
 
-# O con curl (si wget no está disponible):
-# curl -fsSL -o tickets_tramontana.csv https://raw.githubusercontent.com/rsanchezsoutec/tramontana-datos-ficticios/main/01_mesa_de_soporte/tickets_tramontana.csv
+# 2. Descargar script de verificación previa (preflight.sh)
+curl -fsSL -o preflight.sh https://raw.githubusercontent.com/Jrgil20/IA_Aplicada/main/labs/lab1/preflight.sh
+chmod +x preflight.sh
 
-# Confirmar 86 líneas (header + 85 tickets)
+# 3. Descargar archivo de prompts para OpenCode
+curl -fsSL -o prompts.md https://raw.githubusercontent.com/Jrgil20/IA_Aplicada/main/labs/lab1/prompts.md
+
+# (Opcional) Si prefieres usar wget en vez de curl:
+# wget -O tickets_tramontana.csv https://raw.githubusercontent.com/Jrgil20/IA_Aplicada/main/labs/lab1/tickets_tramontana.csv
+# wget -O preflight.sh https://raw.githubusercontent.com/Jrgil20/IA_Aplicada/main/labs/lab1/preflight.sh && chmod +x preflight.sh
+# wget -O prompts.md https://raw.githubusercontent.com/Jrgil20/IA_Aplicada/main/labs/lab1/prompts.md
+
+# Verificar que los 85 tickets están presentes (86 líneas con header)
 wc -l tickets_tramontana.csv
-head -n 5 tickets_tramontana.csv
 ```
 
 ---
@@ -76,24 +85,45 @@ $LLAMA_BIN \
 
 ## Paso 3: Configurar y verificar OpenCode CLI
 
-En otra terminal de PuTTY en `~/mesa-de-trabajo/lab1`, verifica OpenCode y asegúrate de que apunte a `http://localhost:8080/v1`:
+En otra terminal de PuTTY en `~/mesa-de-trabajo/lab1`, configura las variables de entorno para que OpenCode interactúe con el endpoint de `llama-server`:
 
 ```bash
-# Validar versión y ayuda
-opencode --help
-
-# Si OpenCode usa un archivo de configuración local o variables de entorno:
 export OPENAI_BASE_URL="http://localhost:8080/v1"
 export OPENAI_API_KEY="no-key-required"
+
+# Validar que opencode responda
+opencode --help
 ```
 
 ---
 
 ## Paso 4: Generar el clasificador con OpenCode
 
-Abre OpenCode en la carpeta `~/mesa-de-trabajo/lab1` pasándole el prompt detallado de [prompts.md](file:///home/jr_g/Develop/IA_Aplicada/labs/lab1/prompts.md) para que genere `classify_tickets.py`.
+Tienes dos formas de ejecutar OpenCode para generar `classify_tickets.py`:
 
-El script generado procesará `tickets_tramontana.csv`, se comunicará con `http://localhost:8080/v1/chat/completions` y guardará los resultados en `tickets_clasificados.json`.
+### Opción A: Modo no interactivo (un solo comando directo)
+Ejecuta OpenCode pasándole directamente el prompt desde la terminal o leyendo el archivo `prompts.md`:
+
+```bash
+cd ~/mesa-de-trabajo/lab1
+
+opencode run "Write a complete, robust Python script named classify_tickets.py to classify support tickets from tickets_tramontana.csv using standard libraries only (csv, json, urllib.request). Connect to http://localhost:8080/v1/chat/completions. Read all 85 tickets, handle missing descriptions and English text, detect duplicate descriptions by flagging es_duplicado: true/false. For each ticket output JSON with categoria (facturacion/tecnico/ventas/otro), urgencia (baja/media/alta), and a one-sentence resumen. If an error occurs, fallback to sin_clasificar. Save output ordered by urgency (alta first) into tickets_clasificados.json and print summary counts."
+```
+
+### Opción B: Modo interactivo
+Abre la consola de OpenCode dentro del directorio:
+
+```bash
+cd ~/mesa-de-trabajo/lab1
+opencode
+```
+Y dentro de la sesión interactiva, pega el contenido del prompt de [`prompts.md`](file:///home/jr_g/Develop/IA_Aplicada/labs/lab1/prompts.md).
+
+Al finalizar, verifica que `classify_tickets.py` fue creado:
+```bash
+ls -lh classify_tickets.py
+head -n 20 classify_tickets.py
+```
 
 ---
 
