@@ -7,7 +7,7 @@ Directory for tracking, code, and deliverables for the course practical laborato
 | Laboratory | Topic / Title | Status | Link |
 | :--- | :--- | :--- | :--- |
 | **Lab 01** | Environment Setup & Local Inference | *Draft* | [View Lab 01](./lab-01.md) |
-| **Lab 02** | *To be determined* | *Planned* | — |
+| **Lab 02** | Interactive Multimodal VLM (Gemma 3 + Webcam) | *Ready* | [View Lab 02](./lab-02.md) |
 | **Lab 03** | *To be determined* | *Planned* | — |
 
 ## Working Conventions
