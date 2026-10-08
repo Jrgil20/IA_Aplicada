@@ -65,15 +65,30 @@ ss -tlnp | grep 11434
 
 En la máquina física donde está conectada la webcam:
 
-### 1. Test de conectividad hacia la Spark
-Abre una terminal en tu PC (PowerShell, WSL o bash) y prueba que llegas al servicio (reemplaza `<IP_SPARK>` por la IP asignada a la Spark, ej. `192.168.1.50` o la IP de red del lab):
+### 1. Configurar IP estática en la subred de la Spark (`192.168.6.0/26`)
+> [!IMPORTANT]
+> La Spark está configurada en una subred **/26** (`192.168.6.0/26`, máscara `255.255.255.192`). Tu IP asignada debe estar estrictamente dentro del rango **`192.168.6.2` a `192.168.6.62`** (ej. `192.168.6.50/26`). Si asignas una IP fuera de este rango (como `.100`), la Spark no responderá al no encontrar ruta local.
+>
+> Para configurar tu placa Ethernet en Linux preservando el WiFi:
+> ```bash
+> nmcli connection modify "Wired connection 1" \
+>   ipv4.addresses 192.168.6.50/26 \
+>   ipv4.method manual \
+>   ipv4.never-default yes
+> nmcli connection up "Wired connection 1"
+> ```
+> Si tienes problemas de enlace o ARP, revisa la [Guía de Troubleshooting de Red de la Spark](../../docs/dgx/network-troubleshooting.md).
+
+### 2. Test de conectividad hacia la Spark
+Abre una terminal en tu PC (PowerShell, WSL o bash) y prueba que llegas al servicio (reemplaza `<IP_SPARK>` por la IP asignada a la Spark, ej. `192.168.6.42`):
 
 ```bash
-curl http://<IP_SPARK>:11434/api/tags
+ping -c 3 192.168.6.42
+curl http://192.168.6.42:11434/api/tags
 ```
 Debe devolverte un JSON con la lista de modelos. Si da timeout o conexión rechazada, revisa la IP o el firewall del puerto 11434.
 
-### 2. Instalar dependencias del cliente
+### 3. Instalar dependencias del cliente
 Asegúrate de contar con Python 3 y las librerías necesarias:
 ```bash
 pip install opencv-python requests

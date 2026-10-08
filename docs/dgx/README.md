@@ -55,6 +55,9 @@ ssh <user>@<dgx-spark-ip>
 rsync -avzP ./dataset.jsonl <user>@<dgx-spark-ip>:~/Develop/IA_Aplicada/data/
 ```
 
+### 3.4 Network Connectivity & Subnetting Troubleshooting
+If you encounter network connection timeouts, ARP resolution issues, or subnet mismatches, consult the dedicated [Network Troubleshooting Guide](./network-troubleshooting.md).
+
 ---
 
 ## 4. Essential DGX OS Commands
