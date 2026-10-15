@@ -186,6 +186,19 @@ $$\text{Score} = (\text{Normalized Overdue USD} \times 60\%) + (\text{Normalized
   - Tab 5: **⚖️ Calidad Finanzas (Problem 4)** — 7 quarantined rows, parallel delta reconciliation, and 5 governance rules.
 - **Generator Engine:** [`scripts/generar_portal_unificado.py`](file:///home/jr_g/Develop/ucab-ia-aplicada-workshops/workshops/01-agentes-de-codigo/scripts/generar_portal_unificado.py).
 
+---
+
+## 11. Final Workshop Execution Report on Spark
+
+- **Persisted Report Path on Spark:** `/home/ucab-spark2/mesa-de-trabajo-equipo-1/lab3/INFORME_FINAL_WORKSHOP.md`
+- **HTTP Endpoint:** Served directly at `http://192.168.6.34:8000/INFORME_FINAL_WORKSHOP.md`
+- **Local Mirror:** [`ucab-ia-aplicada-workshops/.../INFORME_FINAL_WORKSHOP.md`](file:///home/jr_g/Develop/ucab-ia-aplicada-workshops/workshops/01-agentes-de-codigo/INFORME_FINAL_WORKSHOP.md)
+- **Summary of Achievements:**
+  - 100% of all 5 workshop challenges solved deterministically with zero data pollution.
+  - POSIX + Agent multi-layered security model validated.
+  - Complete executive traceability against clean dataset ($1,173,427.95 USD).
+
+
 
 
 
