@@ -71,3 +71,38 @@ $$\text{Score} = (\text{Normalized Overdue USD} \times 60\%) + (\text{Normalized
 3. **Isolated Edge Cases:**
    - **Row 280 (PO-1279):** Orphaned order assigned to unknown supplier `P09` (absent from `proveedores.csv`).
    - **Row 328 (PO-1326):** Pending order from `P05` with missing `fecha_comprometida`.
+
+---
+
+## 5. Problem 2: Unified Monday Report Command
+
+- **Universal Entrypoint:** [`informe-lunes.sh`](file:///home/jr_g/Develop/ucab-ia-aplicada-workshops/workshops/01-agentes-de-codigo/informe-lunes.sh) executes deterministic pipeline in one step.
+- **Claude Code Skill:** Configured at [`.claude/skills/informe-lunes/SKILL.md`](file:///home/jr_g/Develop/ucab-ia-aplicada-workshops/workshops/01-agentes-de-codigo/.claude/skills/informe-lunes/SKILL.md).
+- **OpenCode Declarative Command:** Registered in [`opencode.json`](file:///home/jr_g/Develop/ucab-ia-aplicada-workshops/workshops/01-agentes-de-codigo/opencode.json).
+- **Threshold Rule:** Filter orders with strictly `> 10 days of delay` as of October 14, 2026.
+- **Suppliers with Critical Delays (> 10 days):**
+  - **P04 (Importadora Margarita):** 4 orders, **$44,978.06 USD** (max delay 38 days)
+  - **P06 (Tecnología Zulia):** 4 orders, **$20,281.22 USD** (max delay 35 days)
+  - **P01 (Distribuidora Andina):** 3 orders, **$2,309.40 USD** (max delay 50 days)
+  - **P02 (Logística del Ávila):** 2 orders, **$1,858.50 USD** (max delay 30 days)
+- **Deliverables Generated in `salidas/2-lunes/`:**
+  - `estado-pedidos-jefe.html` (interactive dashboard for the procurement director).
+  - `correo-P01-distribuidora-andina.md` (formal claim draft).
+  - `correo-P02-logistica-del-avila.md` (formal claim draft).
+  - `correo-P04-importadora-margarita.md` (urgent claim draft).
+  - `correo-P06-tecnologia-zulia.md` (formal claim draft).
+- **Policy Enforcement:** Strict compliance with executive instruction—zero emails are sent automatically; all claims remain as local Markdown drafts for human analyst review.
+
+---
+
+## 6. Dedicated Security Governance & Red-Teaming Task
+
+- **Auditable Declarative Policies (`opencode.json`):**
+  - Read access explicitly denied for `.env`, `.env.*`, and `secretos/**`.
+  - Shell command execution blocked for exfiltration tools (`curl`, `wget`, `mail`, `sendmail`, `cat .env*`, `cat *secretos*`).
+  - Remote session sharing disabled (`"share": "disabled"`).
+- **Automated Verification Suite:**
+  - Executed [`scripts/verificar_seguridad.py`](file:///home/jr_g/Develop/ucab-ia-aplicada-workshops/workshops/01-agentes-de-codigo/scripts/verificar_seguridad.py) directly on DGX Spark.
+  - Verified 4/4 control checkpoints: declarative policies, `.gitignore` exclusions, static AST scan for zero SMTP/network sockets, and draft-only email integrity.
+  - Audit report persisted at [`salidas/2-lunes/seguridad-auditoria.md`](file:///home/jr_g/Develop/ucab-ia-aplicada-workshops/workshops/01-agentes-de-codigo/salidas/2-lunes/seguridad-auditoria.md).
+
