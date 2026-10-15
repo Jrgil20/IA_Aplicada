@@ -91,6 +91,12 @@ def parse_args() -> argparse.Namespace:
         help="LoRA dropout rate."
     )
     parser.add_argument(
+        "--max-time-minutes",
+        type=float,
+        default=None,
+        help="Maximum training time in minutes before stopping gracefully (e.g. 5.0)."
+    )
+    parser.add_argument(
         "--merge",
         action="store_true",
         help="Merge LoRA adapters into base model weights after training."
@@ -195,20 +201,30 @@ def train_loop(
     epochs: int,
     grad_accum: int,
     dry_run: bool = False,
+    max_time_minutes: float = None,
 ):
     """Native PyTorch optimization loop with explicit loss calculation and backpropagation."""
+    import time
     import torch
 
     model.train()
     step_count = 0
     running_loss = 0.0
+    start_time = time.time()
 
     print("\n--- Starting Training Loop ---")
+    if max_time_minutes:
+        print(f"Time limit active: {max_time_minutes} minute(s)")
+
     for epoch in range(1 if dry_run else epochs):
         print(f"\n>>> Epoch {epoch + 1}/{1 if dry_run else epochs}")
         optimizer.zero_grad()
 
         for step, batch in enumerate(dataloader, start=1):
+            if max_time_minutes and (time.time() - start_time) >= (max_time_minutes * 60):
+                print(f"\n[TIME LIMIT REACHED] Stopped gracefully after {max_time_minutes} minute(s).")
+                return
+
             input_ids = batch["input_ids"].to(device)
             attention_mask = batch["attention_mask"].to(device)
             labels = batch["labels"].to(device)
@@ -301,6 +317,7 @@ def main():
         epochs=args.epochs,
         grad_accum=args.grad_accum,
         dry_run=args.dry_run,
+        max_time_minutes=args.max_time_minutes,
     )
 
     # Save trained LoRA adapters
