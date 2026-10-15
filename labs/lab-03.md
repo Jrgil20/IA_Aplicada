@@ -153,5 +153,25 @@ $$\text{Score} = (\text{Normalized Overdue USD} \times 60\%) + (\text{Normalized
   4. *Temporal Causality & State Completeness*: `Entregado` requires delivery date; `Pendiente` requires committed date (`AGENTS.md` + pipeline).
   5. *Source Immutability & Dual-View Reporting*: `pedidos.csv` edit-denied in `opencode.json`; all future reports must project Raw vs Clean views with delta (`AGENTS.md` + `opencode.json`).
 
+---
+
+## 9. Problem 5: General Manager Executive Dashboard & Kraljic Strategy
+
+- **Executive Deliverables:**
+  - Interactive C-Level Dashboard: [`salidas/5-tablero-gerente.html`](file:///home/jr_g/Develop/ucab-ia-aplicada-workshops/workshops/01-agentes-de-codigo/salidas/5-tablero-gerente.html).
+  - Decision Justification Document: [`salidas/5-tablero-gerente.md`](file:///home/jr_g/Develop/ucab-ia-aplicada-workshops/workshops/01-agentes-de-codigo/salidas/5-tablero-gerente.md).
+- **Subagent Team Architecture:**
+  - Delegated across 4 specialized analytical subagents (`Spend Analyst`, `Logistics Specialist`, `Risk Auditor`, `Strategic Evaluator`), respecting the hardware consumption cap (< 7 agents, < 56% compute).
+- **Four Core Business Dimensions:**
+  1. *Spend Concentration (Pareto)*: Top 3 suppliers (P05, P06, P04) absorb **81.1%** of total budget ($951k out of $1,173,427.95 USD).
+  2. *Logistics Reliability (OTD %)*: Global On-Time Delivery across 345 clean orders stands at **80.5%** (251 on-time out of 312 delivered).
+  3. *Active Risk & Overdue Debt*: Total active overdue debt stands at **$103,220.11 USD**, with P04 (Importadora Margarita) carrying 43.6% ($44.9k).
+  4. *Kraljic Strategic Portfolio*:
+     - **P04 (Importadora Margarita):** *Strategic Critical* (25.1% spend, 70.8% OTD, $44.9k overdue) -> Immediate executive intervention, freeze new payments, enforce late penalties.
+     - **P01 (Distribuidora Andina):** *Bottleneck* (6.3% spend, 50-day overdue orders) -> Tender alternative supplier immediately.
+     - **P05 (Papelera Los Llanos) & P06 (Tecnología Zulia):** *Strategic / High-Volume Leverage* -> Volume price renegotiation.
+     - **P02 (Logística del Ávila) & P03 (Suministros Caroní):** *Routine / Reliable Partners* (83.7% and 88.9% OTD) -> Maintain automated relationship.
+
+
 
 
