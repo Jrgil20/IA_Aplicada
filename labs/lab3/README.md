@@ -4,7 +4,8 @@
 > **Working Directory on Spark:** `~/mesa-de-trabajo-equipo-1/lab3/`  
 > **LLM Engine:** `llama-server` on `127.0.0.1:8080` (`Qwen3-Coder-30B-A3B-Instruct-UD-Q4_K_XL.gguf`, `-ngl 99`)  
 > **HTTP Dashboard Server:** Python HTTP server on port `8000` (`http://192.168.6.34:8000/`)  
-> **Primary Purpose:** Comprehensive live demonstration protocol, SSH troubleshooting, command execution modes, and empirical corrections for Lab 3.
+> **Primary Purpose:** Comprehensive live demonstration protocol, SSH troubleshooting, command execution modes, and empirical corrections for Lab 3.  
+> **Detailed Problem & Incident Registry:** See [`problemas/`](./problemas/README.md) for individual breakdowns of all 5 workshop problems and technical incident post-mortems.
 
 ---
 
