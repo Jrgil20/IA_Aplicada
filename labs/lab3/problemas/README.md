@@ -15,6 +15,7 @@
 | **[Problem 3](./03-it-security-and-red-teaming.md)** | IT Security & Governance | Multi-agent sandbox hardening; evaluate 6 adversarial attack vectors. | `salidas/3-auditoria.html` | Completed |
 | **[Problem 4](./04-financial-data-quality-governance.md)** | Financial Integrity | Quarantine 7 anomalous rows ($28.4k); formulate 5 permanent governance rules. | `salidas/4-calidad-datos.html` | Completed |
 | **[Problem 5](./05-general-manager-kraljic-dashboard.md)** | C-Level Executive Dashboard | Kraljic matrix portfolio classification; Pareto spend & OTD analysis. | `salidas/5-tablero-gerente.html` | Completed |
+| **[Problem 7](./07-asistente-consultas-ejecutivas.md)** | AI Assistant & Grounding | Interactive query bar with 3-strike guardrails backed by local LLM. | `scripts/servidor_asistente.py` | Completed |
 
 ---
 

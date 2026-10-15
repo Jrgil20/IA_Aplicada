@@ -156,8 +156,9 @@ The complete laboratory deliverable is centralized in a single responsive web po
 # Verify portal generation script
 python3 scripts/generar_portal_unificado.py
 
-# Launch HTTP daemon on DGX Spark
-nohup python3 -m http.server 8000 --directory salidas > /tmp/http_server.log 2>&1 &
+# Launch unified assistant & portal daemon on DGX Spark (port 8000)
+# Serves static deliverables and handles /api/consulta with Qwen 30B
+nohup python3 scripts/servidor_asistente.py 8000 > /tmp/asistente_servidor.log 2>&1 &
 
 # Verify live HTTP response
 curl -I http://127.0.0.1:8000/index.html
@@ -165,8 +166,9 @@ curl -I http://127.0.0.1:8000/index.html
 
 **Browser Access:** Open `http://192.168.6.34:8000/index.html` from any machine on the lab subnet (`192.168.6.0/24`).
 
-Tabs available in portal:
-1. `🏢 Dirección General` (Problem 5: Kraljic & Pareto)
+Features available in portal:
+- **Interactive Executive Query Bar:** Grounded Q&A against Qwen 30B with 3-strike out-of-context guardrails.
+- Tab 1: `🏢 Dirección General` (Problem 5: Kraljic & Pareto)
 2. `🤝 Reunión Proveedores` (Problem 1: P04 Justification)
 3. `📅 Operación de los Lunes` (Problem 2: Claims > 10 Days)
 4. `🛡️ Auditoría de TI` (Problem 3: Red-Teaming Matrix)
