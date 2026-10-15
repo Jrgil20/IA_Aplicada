@@ -127,4 +127,31 @@ $$\text{Score} = (\text{Normalized Overdue USD} \times 60\%) + (\text{Normalized
   2. Git pre-commit enforcement (`scripts/pre-commit-hook.sh`).
   3. External Vault integration (injecting secrets into runtime env rather than flat files).
 
+---
+
+## 8. Problem 4: Financial Data Quality Audit & 5 Governance Rules
+
+- **Executive Deliverable:** [`salidas/4-calidad-datos.html`](file:///home/jr_g/Develop/ucab-ia-aplicada-workshops/workshops/01-agentes-de-codigo/salidas/4-calidad-datos.html) for the Head of Finance.
+- **Core Principles:** Zero synthetic/invented errors, raw source file `pedidos.csv` 100% immutable and protected against edits via `opencode.json`.
+- **7 Genuine Anomalous Rows Identified ($28,431.45 USD at stake):**
+  1. `Row 73` (PO-1072, P02): Negative quantity (`-703.0`), corrupting accounting by `-$1,117.77 USD`.
+  2. `Row 116` (PO-1115, P01): Zero unit price (`$0.00 USD`), 122 units unbilled.
+  3. `Row 153` (PO-1152, P03): Temporal paradox, delivered April 30, 2026 before being ordered May 06, 2026 (`$2,003.85 USD`).
+  4. `Row 280` (PO-1279, P09): Orphaned supplier `P09` not found in `proveedores.csv` (`$829.50 USD`).
+  5. `Row 305` (PO-1303, P06): Exact duplicate clone of row 304 (`$67.05 USD`).
+  6. `Row 312` (PO-1310, P06): Marked `Entregado` with missing `fecha_entrega` (`$5,712.00 USD`).
+  7. `Row 328` (PO-1326, P05): Marked `Pendiente` with missing `fecha_comprometida` (`$18,701.28 USD`).
+- **Parallel Reconciliation (Raw vs Quarantined):**
+  - Gross Company Billing: `$1,200,741.63 USD` -> Clean Billing: `$1,173,427.95 USD` (Net Delta: `-$27,313.68 USD`).
+  - P04 (Importadora Margarita) maintains #1 overdue spot cleanly (`$44,978.06 USD`, 0 anomalies).
+  - P06 (Tecnología Zulia) overdue debt drops by `$67.05 USD` from clone PO-1303, reducing Monday claim orders from 4 to 3.
+  - P05 (Papelera Los Llanos) uncommitted order PO-1326 ($18.7k) quarantined; overdue remains `$25,254.81 USD`.
+- **5 Permanent Governance Rules Implemented:**
+  1. *Uniqueness & Deduplication*: Primary key `pedido` deduplicated; clones quarantined (`AGENTS.md` + pipeline).
+  2. *Physical Value Range*: Quantities > 0 and unit prices > 0 strictly required (`AGENTS.md` + pipeline).
+  3. *Referential Integrity*: Supplier ID must exist in master catalog `proveedores.csv` (`AGENTS.md` + pipeline).
+  4. *Temporal Causality & State Completeness*: `Entregado` requires delivery date; `Pendiente` requires committed date (`AGENTS.md` + pipeline).
+  5. *Source Immutability & Dual-View Reporting*: `pedidos.csv` edit-denied in `opencode.json`; all future reports must project Raw vs Clean views with delta (`AGENTS.md` + `opencode.json`).
+
+
 
