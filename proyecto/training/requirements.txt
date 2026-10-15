@@ -1,0 +1,7 @@
+# Edge Clean Copilot — LoRA Training Dependencies
+torch>=2.2.0
+transformers>=4.40.0
+peft>=0.10.0
+accelerate>=0.29.0
+datasets>=2.18.0
+safetensors>=0.4.2
