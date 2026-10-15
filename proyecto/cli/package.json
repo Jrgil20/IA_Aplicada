@@ -1,0 +1,31 @@
+{
+  "name": "edge-clean-copilot-cli",
+  "version": "0.1.0",
+  "description": "Specialized CLI for Clean Architecture and edge inference",
+  "main": "dist/infrastructure/cli/index.js",
+  "bin": {
+    "clean-copilot": "./dist/infrastructure/cli/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/infrastructure/cli/index.js",
+    "dev": "tsx src/infrastructure/cli/index.ts",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "clean-architecture",
+    "copilot",
+    "edge-ai",
+    "slm"
+  ],
+  "author": "Jesus Rodolfo Gil Farias",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.5",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.3"
+  }
+}

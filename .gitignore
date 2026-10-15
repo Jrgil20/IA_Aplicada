@@ -10,3 +10,14 @@ scratch/
 # Environments
 .venv/
 env/
+
+# Node & PNPM
+node_modules/
+dist/
+.pnpm-debug.log*
+
+# AI Models & Weights
+*.gguf
+*.safetensors
+*.bin
+output/
