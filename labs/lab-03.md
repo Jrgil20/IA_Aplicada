@@ -172,6 +172,21 @@ $$\text{Score} = (\text{Normalized Overdue USD} \times 60\%) + (\text{Normalized
      - **P05 (Papelera Los Llanos) & P06 (Tecnología Zulia):** *Strategic / High-Volume Leverage* -> Volume price renegotiation.
      - **P02 (Logística del Ávila) & P03 (Suministros Caroní):** *Routine / Reliable Partners* (83.7% and 88.9% OTD) -> Maintain automated relationship.
 
+---
+
+## 10. Master Unified Executive Portal
+
+- **Root Deliverable:** [`salidas/index.html`](file:///home/jr_g/Develop/ucab-ia-aplicada-workshops/workshops/01-agentes-de-codigo/salidas/index.html) automatically served at `http://192.168.6.34:8000/`.
+- **Integrated Architecture:**
+  - Single-Page Executive Navigation (SPA) without internet dependencies.
+  - Tab 1: **🏢 Dirección General (Problem 5)** — C-Level KPIs, Pareto spend, Kraljic matrix.
+  - Tab 2: **🤝 Reunión Proveedores (Problem 1)** — Mixed weighted score & recommendation to open with P04.
+  - Tab 3: **📅 Operación de los Lunes (Problem 2)** — Critical orders > 10 days and 4 claim drafts.
+  - Tab 4: **🛡️ Auditoría de TI (Problem 3)** — 6-vector red-teaming matrix and OS defense-in-depth.
+  - Tab 5: **⚖️ Calidad Finanzas (Problem 4)** — 7 quarantined rows, parallel delta reconciliation, and 5 governance rules.
+- **Generator Engine:** [`scripts/generar_portal_unificado.py`](file:///home/jr_g/Develop/ucab-ia-aplicada-workshops/workshops/01-agentes-de-codigo/scripts/generar_portal_unificado.py).
+
+
 
 
 
