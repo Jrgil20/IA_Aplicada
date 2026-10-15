@@ -8,7 +8,7 @@ Directory for tracking, code, and deliverables for the course practical laborato
 | :--- | :--- | :--- | :--- |
 | **Lab 01** | Environment Setup & Local Inference | *Draft* | [View Lab 01](./lab-01.md) |
 | **Lab 02** | Interactive Multimodal VLM (Gemma 3 + Webcam) | *Ready* | [View Lab 02](./lab-02.md) |
-| **Lab 03** | *To be determined* | *Planned* | — |
+| **Lab 03** | Autonomous Code Agents & Data Auditing | *Completed* | [View Lab 03](./lab-03.md) |
 
 ## Working Conventions
 
