@@ -33,6 +33,34 @@ DOMAIN_PROMPTS = [
     {
         "category": "PORT_ADAPTER",
         "prompt": "Design an application Port `IPaymentGateway` and an infrastructure Adapter `StripePaymentAdapter` in TypeScript conforming to Clean Architecture principles."
+    },
+    {
+        "category": "ARCH_REFACTOR",
+        "prompt": "Refactor this Express route that mixes database queries and third-party email sending into Clean Architecture with `RegisterUserUseCase`, `IUserRepository`, and `IEmailService` port:\n\n```typescript\napp.post('/users', async (req, res) => {\n  const { email, password } = req.body;\n  if (!email.includes('@')) return res.status(400).send('Invalid email');\n  const exists = await db.query('SELECT id FROM users WHERE email = $1', [email]);\n  if (exists.rows.length > 0) return res.status(409).send('User exists');\n  const hash = await bcrypt.hash(password, 10);\n  const user = await db.query('INSERT INTO users(email, password) VALUES($1, $2) RETURNING id', [email, hash]);\n  await sendgrid.send({ to: email, subject: 'Welcome' });\n  res.status(201).json({ id: user.rows[0].id });\n});\n```"
+    },
+    {
+        "category": "USE_CASE_GEN",
+        "prompt": "Implement a pure Value Object `Email` in TypeScript with invariant validation (valid format, non-empty, lowercase normalization) returning a `Result<Email, ValidationError>`."
+    },
+    {
+        "category": "AAA_TEST_GEN",
+        "prompt": "Write an isolated AAA (Arrange-Act-Assert) unit test in TypeScript for `RegisterUserUseCase` using an in-memory mock repository, testing the failure case when the user email already exists."
+    },
+    {
+        "category": "SOLID_CRITIQUE",
+        "prompt": "Critique this TypeScript class from the perspective of SOLID principles (especially SRP and DIP) and provide the refactored Clean Architecture structure:\n\n```typescript\nclass OrderManager {\n  async processOrder(orderData: any) {\n    // 1. Validate data\n    if (!orderData.items || orderData.items.length === 0) throw new Error('Empty');\n    // 2. Calculate tax\n    const tax = orderData.total * 0.16;\n    // 3. Save to MongoDB directly\n    await mongoose.connection.collection('orders').insertOne({ ...orderData, tax });\n    // 4. Send Slack notification\n    await axios.post('https://hooks.slack.com/...', { text: `New order: ${orderData.id}` });\n  }\n}\n```"
+    },
+    {
+        "category": "PORT_ADAPTER",
+        "prompt": "Define a Domain Port `IEventPublisher` with an `IDomainEvent` interface, and implement an in-memory test double adapter `InMemoryEventPublisher` in TypeScript."
+    },
+    {
+        "category": "USE_CASE_GEN",
+        "prompt": "Write a Use Case `ChangePasswordUseCase` in TypeScript with `IUserRepository` and `IPasswordHasher` ports, enforcing business rules (new password cannot equal old password) and returning a `Result<void, DomainError>`."
+    },
+    {
+        "category": "ARCH_REFACTOR",
+        "prompt": "Explain and refactor an Active Record model where domain business rules are tightly coupled inside an ORM model lifecycle hook (`before_save`), separating the pure domain invariants from persistence."
     }
 ]
 
@@ -40,7 +68,9 @@ SYSTEM_PROMPT = (
     "You are Edge Clean Copilot, an expert software architect specialized in Clean Architecture, "
     "Domain-Driven Design (DDD), and SOLID principles. You strictly enforce the Dependency Rule: "
     "domain and application layers must never depend on external libraries, frameworks, databases, or infrastructure. "
-    "Always use the Result<T, E> pattern for use cases and typed domain errors."
+    "Always use the Result<T, E> pattern for use cases and typed domain errors. "
+    "NEVER use the TypeScript `any` type under any circumstances. Always use strict interfaces, dedicated types, "
+    "or `unknown` with type guards."
 )
 
 def parse_args():
