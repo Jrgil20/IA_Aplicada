@@ -8,12 +8,12 @@ Technical reference and post-mortem guide for resolving Layer 1 (Physical), Laye
 
 | Parameter | Value | Notes |
 | :--- | :--- | :--- |
-| **DGX Spark IP** | `192.168.6.42` | Primary workstation IP |
+| **DGX Spark IP** | `192.168.6.42` / `192.168.6.34` | Primary workstation IPs observed in lab |
 | **Subnet Mask** | `/26` (`255.255.255.192`) | **CRITICAL:** Not a standard `/24` |
 | **Valid Host Range** | `192.168.6.1` – `192.168.6.62` | Usable IP range for client and Spark |
 | **Default Gateway** | `192.168.6.1` | Expected upstream router |
 | **NVIDIA MAC OUI** | `dc:04:5a:...` | Hardware identifier in ARP tables |
-| **Spark Interface** | `enxdc045a73a5a7` | PCIe/USB Ethernet controller on Spark |
+| **Spark Physical Interfaces** | `enp7s7` (PCIe onboard), `enxdc045a73a5a7` (USB/dongle) | Physical Ethernet interfaces on Spark |
 
 ```
 Subnet: 192.168.6.0/26 (Mask: 255.255.255.192)
@@ -108,11 +108,21 @@ nmcli connection modify "Wired connection 1" \
 nmcli connection up "Wired connection 1"
 ```
 
+### Direct Peer-to-Peer Cable Setup (No Switch / No DHCP)
+When connecting client laptop directly to the Spark via Ethernet cable:
+1. On the Spark terminal, assign the static IP to its active PCIe interface (`enp7s7`):
+   ```bash
+   sudo ip addr add 192.168.6.34/26 dev enp7s7
+   sudo ip link set enp7s7 up
+   ```
+2. On client laptop (`eno2`), verify link carrier is 1 and IP is `192.168.6.50/26`.
+
 ### Step 2: Verification
 
 ```bash
 # Verify Layer 3 ICMP ping (< 1ms expected)
-ping -c 3 192.168.6.42
+ping -c 3 192.168.6.34
+# (or 192.168.6.42 depending on assigned IP)
 
 # Verify Layer 4 SSH port 22 open
 nc -zv -w 2 192.168.6.42 22
