@@ -198,6 +198,55 @@ $$\text{Score} = (\text{Normalized Overdue USD} \times 60\%) + (\text{Normalized
   - POSIX + Agent multi-layered security model validated.
   - Complete executive traceability against clean dataset ($1,173,427.95 USD).
 
+---
+
+## 12. Lessons Learned & Operational Shortcuts for Future Sessions
+
+### A. Explicit Table Cross-Referencing in Reports
+To maximize clarity for executive and audit reviews:
+- Every qualitative claim must explicitly reference its supporting table and row index (e.g., *"As demonstrated in Section 8 (Table of Quarantined Rows, Row 73)*, or *"referencing Section 9 (Kraljic Strategic Portfolio, Row P04)*).
+- Linking narrative conclusions directly to auditable rows prevents back-and-forth validation requests during board presentations.
+
+### B. Fast & Intuitive OpenCode Launcher Shortcut
+Because the OpenCode binary is installed in an unexported location (`~/.opencode/bin/opencode`), it is cumbersome to locate in live lab sessions.
+
+**One-Time Setup Command on Spark:**
+```bash
+# 1. Permanent alias in bashrc
+echo 'alias opencode="$HOME/.opencode/bin/opencode"' >> ~/.bashrc
+
+# 2. Symlink into standard user binary path
+mkdir -p ~/.local/bin && ln -sf ~/.opencode/bin/opencode ~/.local/bin/opencode
+
+# 3. Reload current shell environment
+source ~/.bashrc
+```
+
+**Fast Launch:**
+Once configured, simply type from any folder:
+```bash
+opencode
+```
+
+### C. OpenCode Declarative Permission Schema Contract
+- OpenCode's Zod configuration engine expects `PermissionActionConfig` as a key-value mapping of pattern to action (`"<glob>": "deny" | "ask" | "allow"`), rather than an array under an action key:
+  ```json
+  "permission": {
+    "read": {
+      ".env": "deny",
+      "secretos/**": "deny"
+    },
+    "edit": {
+      "pedidos.csv": "deny"
+    },
+    "bash": {
+      "*cat .env*": "deny",
+      "*curl*": "deny"
+    }
+  }
+  ```
+
+
 
 
 
