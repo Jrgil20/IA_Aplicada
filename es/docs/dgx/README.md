@@ -55,6 +55,12 @@ ssh <usuario>@<dgx-spark-ip>
 rsync -avzP ./dataset.jsonl <usuario>@<dgx-spark-ip>:~/Develop/IA_Aplicada/data/
 ```
 
+### 3.4 Pasos para Conexión y Validación del Agente
+Para la secuencia operativa de cableado físico, asignación de IP, instalación de llave SSH y validación del agente, consultar la [Lista de Pasos de Conexión](./pasos-conexion-spark.md).
+
+### 3.5 Diagnóstico de Conectividad de Red
+Si se presentan problemas de timeout, resolución ARP o discordancia de subredes, consultar la [Guía de Diagnóstico de Red](../../docs/dgx/network-troubleshooting.md).
+
 ---
 
 ## 4. Comandos Esenciales en DGX OS

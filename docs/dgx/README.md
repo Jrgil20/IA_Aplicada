@@ -55,7 +55,10 @@ ssh <user>@<dgx-spark-ip>
 rsync -avzP ./dataset.jsonl <user>@<dgx-spark-ip>:~/Develop/IA_Aplicada/data/
 ```
 
-### 3.4 Network Connectivity & Subnetting Troubleshooting
+### 3.4 Connection & Agent Setup Checklist
+For the live lab physical cabling, IP setup, SSH key installation, and agent validation sequence, follow the [DGX Spark Connection Checklist](./connection-checklist.md).
+
+### 3.5 Network Connectivity & Subnetting Troubleshooting
 If you encounter network connection timeouts, ARP resolution issues, or subnet mismatches, consult the dedicated [Network Troubleshooting Guide](./network-troubleshooting.md).
 
 ---
