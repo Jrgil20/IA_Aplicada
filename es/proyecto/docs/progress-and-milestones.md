@@ -40,18 +40,18 @@
   - Tests unitarios AAA con repositorios mock.
 
 - [x] **Generador Automatizado con Modelo Maestro:**
-  - Implementado [`dataset/generate_with_teacher.py`](../../proyecto/dataset/generate_with_teacher.py) con soporte ChatML y flag defensivo `--max-time-minutes`.
-  - Generados **160 ejemplos sintéticos** (~186.212 tokens) en [`dataset/generated_examples.jsonl`](../../proyecto/dataset/generated_examples.jsonl).
+  - Implementado [`dataset/generate_with_teacher.py`](../../../proyecto/dataset/generate_with_teacher.py) con soporte ChatML y flag defensivo `--max-time-minutes`.
+  - Generados **160 ejemplos sintéticos** (~186.212 tokens) en [`dataset/generated_examples.jsonl`](../../../proyecto/dataset/generated_examples.jsonl).
 
 - [x] **Suite de Validación del Dataset:**
-  - Implementado [`dataset/validate_dataset.py`](../../proyecto/dataset/validate_dataset.py) validando roles (`system`, `user`, `assistant`), contenido y conteo de tokens.
+  - Implementado [`dataset/validate_dataset.py`](../../../proyecto/dataset/validate_dataset.py) validando roles (`system`, `user`, `assistant`), contenido y conteo de tokens.
 
 ---
 
 ## 3. Hitos de la Fase 2 (En Progreso / 80% Completada)
 
 - [x] **Pipeline de Fine-Tuning Nativo en PyTorch:**
-  - Implementado [`training/train_lora.py`](../../proyecto/training/train_lora.py) con PyTorch y `peft`.
+  - Implementado [`training/train_lora.py`](../../../proyecto/training/train_lora.py) con PyTorch y `peft`.
   - Modos `--dry-run` y entrenamiento completo.
   - Módulos objetivo: `q_proj`, `k_proj`, `v_proj`, `o_proj`, `gate_proj`, `up_proj`, `down_proj`.
   - Hiperparámetros base: $r=16$, $\alpha=32$, optimizador AdamW con bfloat16.
@@ -73,7 +73,7 @@
 ## 4. Hitos de la Fase 4 (CLI Cliente — 50% Completada)
 
 - [x] **Implementación de Arquitectura Hexagonal:**
-  - Código TypeScript estructurado bajo [`proyecto/cli/`](../../proyecto/cli/):
+  - Código TypeScript estructurado bajo [`proyecto/cli/`](../../../proyecto/cli/):
     - **Dominio:** Entidad `SourceFile.ts` con invariantes de extensión y tamaño (<50k caracteres).
     - **Aplicación:** Caso de uso `RefactorCodeUseCase.ts` orquestando la inferencia y retornando `Result<T, E>`.
     - **Puertos:** `IInferenceEngine.ts` definiendo el contrato abstracto de inferencia.

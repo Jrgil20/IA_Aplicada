@@ -57,14 +57,14 @@ Para evitar contención de colas, sobreescritura de contextos e interferencias H
 
 ## 3. Burst de Generación del Dataset Sintético
 
-Utilizando [`dataset/generate_with_teacher.py`](../../proyecto/dataset/generate_with_teacher.py) apuntando directamente a `http://192.168.6.35:8085/v1/chat/completions`, se ejecutó una ventana de 15 minutos.
+Utilizando [`dataset/generate_with_teacher.py`](../../../proyecto/dataset/generate_with_teacher.py) apuntando directamente a `http://192.168.6.35:8085/v1/chat/completions`, se ejecutó una ventana de 15 minutos.
 
 ### 3.1 Resultados Cuantitativos
 - **Duración de la Ronda:** 15.02 minutos.
 - **Nuevos Pares Validados:** **94 pares sintéticos ChatML**.
-- **Volumen Acumulado del Dataset:** Se incrementó de 66 a **160 ejemplos** en [`dataset/generated_examples.jsonl`](../../proyecto/dataset/generated_examples.jsonl).
+- **Volumen Acumulado del Dataset:** Se incrementó de 66 a **160 ejemplos** en [`dataset/generated_examples.jsonl`](../../../proyecto/dataset/generated_examples.jsonl).
 - **Tokens Acumulados Aproximados:** **~186.212 tokens**.
-- **Validación de Sintaxis y Esquema:** 100% aprobada vía [`dataset/validate_dataset.py`](../../proyecto/dataset/validate_dataset.py).
+- **Validación de Sintaxis y Esquema:** 100% aprobada vía [`dataset/validate_dataset.py`](../../../proyecto/dataset/validate_dataset.py).
 - **Tópicos de Arquitectura Cubiertos:**
   - Entidades de Dominio y Objetos de Valor puros (patrón `Result<T, E>`, sin mutaciones impuras).
   - Casos de uso con inversión de dependencias y responsabilidad única.
@@ -86,7 +86,7 @@ Para iniciar la Fase 2 (adaptación LoRA), se construyó un entorno virtual nati
 
 ### 4.2 Análisis de Descarga de Pesos y Dry-Run
 
-Se inició la ejecución de [`training/train_lora.py --dry-run`](../../proyecto/training/train_lora.py) para descargar el modelo base `Qwen/Qwen2.5-Coder-1.5B-Instruct` (3.09 GB) en `~/.cache/huggingface/hub/`:
+Se inició la ejecución de [`training/train_lora.py --dry-run`](../../../proyecto/training/train_lora.py) para descargar el modelo base `Qwen/Qwen2.5-Coder-1.5B-Instruct` (3.09 GB) en `~/.cache/huggingface/hub/`:
 - **Velocidad de Bajada:** ~2.2 – 2.5 MB/s sobre la red del campus.
 - **Descarga Previa al Toque de Queda:** 2.26 GB de 3.09 GB (**73.1%**).
 - **Acción Tomada:** Finalización controlada antes de las 13:00 para garantizar limpieza del sistema y evitar corrupción de checkpoints.

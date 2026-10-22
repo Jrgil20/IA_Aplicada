@@ -4,7 +4,7 @@
 > **Modelos Objetivo:** SLM Base (`Qwen-2.5-Coder-1.5B/3B`), Modelo Especializado LoRA y Modelos Comerciales de Referencia  
 > **Motor de Ejecución:** Python 3 Puro (Cero dependencias externas)  
 
-Este directorio contiene el arnés de benchmarking automatizado ([`eval_benchmark.py`](../../proyecto/evaluation/eval_benchmark.py)), diseñado para medir, calificar y demostrar empíricamente la hipótesis central del proyecto **Edge Clean Copilot**.
+Este directorio contiene el arnés de benchmarking automatizado ([`eval_benchmark.py`](../../../proyecto/evaluation/eval_benchmark.py)), diseñado para medir, calificar y demostrar empíricamente la hipótesis central del proyecto **Edge Clean Copilot**.
 
 ---
 

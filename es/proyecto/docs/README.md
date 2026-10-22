@@ -20,6 +20,6 @@ Este directorio contiene la documentación técnica oficial, registros de teleme
 ## 2. Recursos Relacionados del Proyecto
 
 - **[Propuesta y Visión Técnica](../propuesta.md):** Articulación académica, hipótesis central y marco teórico.
-- **[Directorio del Dataset](../dataset/README.md):** Generadores sintéticos, ejemplos semilla canónicos y suites de validación.
-- **[Pipeline de Entrenamiento LoRA](../training/README.md):** Bucle de entrenamiento en PyTorch, collator dinámico y utilidades de merge.
-- **[CLI Hexagonal](../cli/README.md):** Implementación en TypeScript con Ports & Adapters y adaptadores mock offline.
+- **[Directorio del Dataset](../../../proyecto/dataset/README.md):** Generadores sintéticos, ejemplos semilla canónicos y suites de validación.
+- **[Pipeline de Entrenamiento LoRA](../../../proyecto/training/README.md):** Bucle de entrenamiento en PyTorch, collator dinámico y utilidades de merge.
+- **[CLI Hexagonal](../../../proyecto/cli/README.md):** Implementación en TypeScript con Ports & Adapters y adaptadores mock offline.

@@ -105,7 +105,7 @@ Consolidar el adaptador LoRA con el modelo base en una matriz de pesos unificada
 Entregar una herramienta CLI production-ready con Arquitectura Hexagonal y un arnés automatizado que evalúe y demuestre matemáticamente la superioridad en adherencia a Clean Architecture frente a modelos generales.
 
 ### 4.2 Métricas del Benchmark Automatizado (`eval_benchmark.py`):
-Para demostrar la hipótesis central del proyecto, el arnés de evaluación automatizado ([`proyecto/evaluation/eval_benchmark.py`](../../proyecto/evaluation/eval_benchmark.py)) califica modelos contra código acoplado y datasets sintéticos:
+Para demostrar la hipótesis central del proyecto, el arnés de evaluación automatizado ([`proyecto/evaluation/eval_benchmark.py`](../../../proyecto/evaluation/eval_benchmark.py)) califica modelos contra código acoplado y datasets sintéticos:
 
 ```
 Métricas del Benchmark (Documentadas en es/proyecto/evaluation/README.md):
