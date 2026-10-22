@@ -92,3 +92,4 @@
   - [labs/lab2/observaciones/07-security-audit-persona-hijacking-behavioral-lockout.md](file:///home/jr_g/Develop/IA_Aplicada/labs/lab2/observaciones/07-security-audit-persona-hijacking-behavioral-lockout.md)
   - [labs/lab2/observaciones/08-comparative-security-analysis-tramontana.md](file:///home/jr_g/Develop/IA_Aplicada/labs/lab2/observaciones/08-comparative-security-analysis-tramontana.md)
   - [labs/lab2/observaciones/09-security-audit-insecure-output-handling-html-injection.md](file:///home/jr_g/Develop/IA_Aplicada/labs/lab2/observaciones/09-security-audit-insecure-output-handling-html-injection.md)
+  - [labs/lab2/observaciones/10-security-audit-lab2-webcam-vlm-system.md](file:///home/jr_g/Develop/IA_Aplicada/labs/lab2/observaciones/10-security-audit-lab2-webcam-vlm-system.md)
