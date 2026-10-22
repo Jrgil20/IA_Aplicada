@@ -18,6 +18,7 @@ Este directorio contiene los reportes de post-mortem, análisis de causas raíz 
 | [**08. Análisis Comparativo de Seguridad (Vulnerable vs. Endurecido)**](./08-comparative-security-analysis-tramontana.md) | Evaluación empírica lado a lado en el dashboard comparador (`tramontana_comparador.py` en puerto 7002): fuga de secreto, canal secundario, XSS y RCE. | **Auditado** |
 | [**09. Auditoría de Seguridad: Manejo Inseguro de Salida e Inyección HTML**](./09-security-audit-insecure-output-handling-html-injection.md) | Inyección de etiquetas HTML (`<b>HOLA</b>`) evaluadas por `innerHTML` en cliente web (OWASP LLM02 / CWE-79 / CWE-116). | **Auditado** |
 | [**10. Auditoría Integral de Seguridad: Sistema VLM y Cámara del Lab 02**](./10-security-audit-lab2-webcam-vlm-system.md) | Análisis de vulnerabilidades en Lab 02: inyección visual por cámara (OWASP LLM01), XSS almacenado en telemetría (LLM02), Flask debug activo (CWE-489) y streaming no autenticado. | **Auditado** |
+| [**11. Hardening de Seguridad del Sistema VLM y Cámara (Lab 02)**](./11-security-hardening-lab2-multimodal-vlm.md) | Implementación de separación dura de planos (Control vs. Percepción), inmunización contra XSS en DOM y desactivación de modo debug en Flask. | **Implementado** |
 
 ---
 

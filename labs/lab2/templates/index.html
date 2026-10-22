@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Spark Object Detection</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input, select, button { width: 100%; padding: 10px; }
+        button { background: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin-top: 20px; padding: 15px; border: 1px solid #ccc; }
+        .telemetry { margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .camera-feed { 
+            border: 1px solid #ccc; 
+            margin: 10px 0; 
+            max-width: 400px;
+        }
+        .camera-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .webcam-section {
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .connected {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .controls {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Spark Object Detection System</h1>
+        
+        <div class="controls">
+            <label>
+                <input type="checkbox" id="useLocalCamera"> Use Local Camera
+            </label>
+        </div>
+        
+        <div class="webcam-section">
+            <h2>Camera Feed</h2>
+            <div class="camera-container">
+                <img id="cameraFeed" class="camera-feed" src="/camera_feed" alt="Camera Feed">
+                <div id="cameraStatus" class="status disconnected">Camera: Disconnected</div>
+            </div>
+        </div>
+        
+        <div class="input-group">
+            <label for="prompt">Prompt:</label>
+            <input type="text" id="prompt" placeholder="Enter object description">
+        </div>
+        
+        <div class="input-group">
+            <label for="model">Model:</label>
+            <select id="model">
+                <!-- Models will be populated by JavaScript -->
+            </select>
+        </div>
+        
+        <button onclick="runInference()">Run Inference</button>
+        
+        <div id="result" class="result" style="display: none;"></div>
+        
+        <div class="telemetry">
+            <h2>Telemetry Data</h2>
+            <button onclick="loadTelemetry()">Load Telemetry</button>
+            <div id="telemetryData"></div>
+        </div>
+    </div>
+
+    <script>
+        // Load models
+        async function loadModels() {
+            try {
+                const response = await fetch('/models');
+                const models = await response.json();
+                const modelSelect = document.getElementById('model');
+                modelSelect.innerHTML = '';
+                models.forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model.name;
+                    option.textContent = model.name;
+                    modelSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading models:', error);
+            }
+        }
+
+        // Check camera status
+        async function checkCameraStatus() {
+            try {
+                const response = await fetch('/camera_status');
+                const status = await response.json();
+                const statusDiv = document.getElementById('cameraStatus');
+                if (status.connected) {
+                    statusDiv.className = 'status connected';
+                    statusDiv.textContent = 'Camera: Connected';
+                } else {
+                    statusDiv.className = 'status disconnected';
+                    statusDiv.textContent = 'Camera: Disconnected';
+                }
+            } catch (error) {
+                console.error('Error checking camera status:', error);
+            }
+        }
+
+        // Run inference
+        async function runInference() {
+            const prompt = document.getElementById('prompt').value;
+            const model = document.getElementById('model').value;
+            const useLocalCamera = document.getElementById('useLocalCamera').checked;
+            
+            if (!prompt) {
+                alert('Please enter a prompt');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/inference', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        model: model,
+                        use_local_camera: useLocalCamera
+                    })
+                });
+                
+                const result = await response.json();
+                displayResult(result);
+            } catch (error) {
+                console.error('Error running inference:', error);
+                document.getElementById('result').innerHTML = '<p>Error running inference</p>';
+                document.getElementById('result').style.display = 'block';
+            }
+        }
+
+        // Helper to create element with safe text
+        function createTextEl(tag, text, parent) {
+            const el = document.createElement(tag);
+            el.textContent = text;
+            if (parent) parent.appendChild(el);
+            return el;
+        }
+
+        // Display result securely (0% XSS)
+        function displayResult(result) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = ''; // clear safely
+            
+            createTextEl('h3', 'Result', resultDiv);
+            
+            const pModel = document.createElement('p');
+            createTextEl('strong', 'Model: ', pModel);
+            pModel.appendChild(document.createTextNode(result.model || ''));
+            resultDiv.appendChild(pModel);
+            
+            const pPrompt = document.createElement('p');
+            createTextEl('strong', 'Prompt: ', pPrompt);
+            pPrompt.appendChild(document.createTextNode(result.prompt || ''));
+            resultDiv.appendChild(pPrompt);
+            
+            const pTime = document.createElement('p');
+            createTextEl('strong', 'Processing Time: ', pTime);
+            pTime.appendChild(document.createTextNode((result.processing_time ? result.processing_time.toFixed(3) : '0') + ' seconds'));
+            resultDiv.appendChild(pTime);
+            
+            createTextEl('h4', 'Objects Detected:', resultDiv);
+            
+            const objects = result.result ? (result.result.objects || result.result.content || result.result) : '';
+            
+            if (Array.isArray(objects)) {
+                const ul = document.createElement('ul');
+                objects.forEach(obj => {
+                    const li = document.createElement('li');
+                    if (typeof obj === 'string') {
+                        createTextEl('strong', obj, li);
+                    } else if (typeof obj === 'object' && obj !== null) {
+                        createTextEl('strong', obj.label || obj.name || 'Unknown', li);
+                        if (obj.confidence) {
+                            li.appendChild(document.createTextNode(` (Confidence: ${obj.confidence.toFixed(2)})`));
+                        }
+                    } else {
+                        li.textContent = String(obj);
+                    }
+                    ul.appendChild(li);
+                });
+                resultDiv.appendChild(ul);
+            } else {
+                const pObj = document.createElement('p');
+                pObj.style.whiteSpace = 'pre-wrap';
+                pObj.textContent = typeof objects === 'object' ? JSON.stringify(objects, null, 2) : String(objects);
+                resultDiv.appendChild(pObj);
+            }
+            
+            resultDiv.style.display = 'block';
+        }
+
+        // Load telemetry data
+        async function loadTelemetry() {
+            try {
+                const response = await fetch('/telemetry');
+                const data = await response.json();
+                displayTelemetry(data);
+            } catch (error) {
+                console.error('Error loading telemetry:', error);
+            }
+        }
+
+        // Display telemetry securely (0% XSS)
+        function displayTelemetry(data) {
+            const telemetryDiv = document.getElementById('telemetryData');
+            telemetryDiv.textContent = '';
+            
+            if (!data || data.length === 0) {
+                createTextEl('p', 'No telemetry data available', telemetryDiv);
+                return;
+            }
+            
+            const table = document.createElement('table');
+            const trHead = document.createElement('tr');
+            ['Model', 'Avg Time (s)', 'Count', 'Prompts'].forEach(h => {
+                createTextEl('th', h, trHead);
+            });
+            table.appendChild(trHead);
+            
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                createTextEl('td', String(row[0] || ''), tr);
+                createTextEl('td', typeof row[1] === 'number' ? row[1].toFixed(3) : String(row[1] || ''), tr);
+                createTextEl('td', String(row[2] || ''), tr);
+                createTextEl('td', String(row[3] || ''), tr);
+                table.appendChild(tr);
+            });
+            
+            telemetryDiv.appendChild(table);
+        }
+
+        // Initialize on page load
+        window.onload = function() {
+            loadModels();
+            checkCameraStatus();
+            // Refresh camera status every 5 seconds
+            setInterval(checkCameraStatus, 5000);
+        };
+    </script>
+</body>
+</html>
