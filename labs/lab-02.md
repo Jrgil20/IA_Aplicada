@@ -86,3 +86,4 @@
   - [labs/lab2/observaciones/01-network-subnetting-and-firewall-resolution.md](file:///home/jr_g/Develop/IA_Aplicada/labs/lab2/observaciones/01-network-subnetting-and-firewall-resolution.md)
   - [labs/lab2/observaciones/02-vlm-multimodal-orchestration-and-vision-payload.md](file:///home/jr_g/Develop/IA_Aplicada/labs/lab2/observaciones/02-vlm-multimodal-orchestration-and-vision-payload.md)
   - [labs/lab2/observaciones/03-dual-model-orchestration-and-qwen-coder.md](file:///home/jr_g/Develop/IA_Aplicada/labs/lab2/observaciones/03-dual-model-orchestration-and-qwen-coder.md)
+  - [labs/lab2/observaciones/04-opencode-agent-context-overflow-analysis.md](file:///home/jr_g/Develop/IA_Aplicada/labs/lab2/observaciones/04-opencode-agent-context-overflow-analysis.md)
