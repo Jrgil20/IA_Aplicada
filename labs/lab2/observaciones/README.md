@@ -10,6 +10,7 @@ Este directorio contiene los reportes de post-mortem, análisis de causas raíz 
 | :--- | :--- | :--- |
 | [**01. Subnetting y Resolución de Firewall**](./01-network-subnetting-and-firewall-resolution.md) | Diagnóstico de Capa 1 a 3: resolución de máscara `/26`, aislamiento ARP y reglas de UFW en la laptop. | **Resuelto** |
 | [**02. Orquestación Multimodal y Payload VLM**](./02-vlm-multimodal-orchestration-and-vision-payload.md) | Activación de proyector `--mmproj`, corrección de serialización JSON en `app.py` y validación empírica en GPU Blackwell. | **Resuelto** |
+| [**03. Despliegue Dual y Orquestación**](./03-dual-model-orchestration-and-qwen-coder.md) | Concurrencia de Gemma 3 4B VLM y Qwen 3 Coder 30B, corrección de payload para modelos no-VLM y script `iniciar_lab2.sh`. | **Resuelto** |
 
 ---
 

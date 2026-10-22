@@ -79,7 +79,10 @@
 - **Student Execution Guide:** [labs/lab2/README.md](file:///home/jr_g/Develop/IA_Aplicada/labs/lab2/README.md)
 - **Local Webcam Streamer:** [labs/lab2/stream_camera.py](file:///home/jr_g/Develop/IA_Aplicada/labs/lab2/stream_camera.py)
 - **Standalone Interactive VLM Client:** [labs/lab2/webcam_vlm.py](file:///home/jr_g/Develop/IA_Aplicada/labs/lab2/webcam_vlm.py)
+- **Centralized Spark Orchestrator:** [labs/lab2/iniciar_lab2.sh](file:///home/jr_g/Develop/IA_Aplicada/labs/lab2/iniciar_lab2.sh)
+- **Base Environment Config:** [labs/lab2/config.json](file:///home/jr_g/Develop/IA_Aplicada/labs/lab2/config.json)
 - **Network Troubleshooting Playbook:** [docs/dgx/network-troubleshooting.md](file:///home/jr_g/Develop/IA_Aplicada/docs/dgx/network-troubleshooting.md)
 - **Live Session Observations & Root Cause Analysis:**
   - [labs/lab2/observaciones/01-network-subnetting-and-firewall-resolution.md](file:///home/jr_g/Develop/IA_Aplicada/labs/lab2/observaciones/01-network-subnetting-and-firewall-resolution.md)
   - [labs/lab2/observaciones/02-vlm-multimodal-orchestration-and-vision-payload.md](file:///home/jr_g/Develop/IA_Aplicada/labs/lab2/observaciones/02-vlm-multimodal-orchestration-and-vision-payload.md)
+  - [labs/lab2/observaciones/03-dual-model-orchestration-and-qwen-coder.md](file:///home/jr_g/Develop/IA_Aplicada/labs/lab2/observaciones/03-dual-model-orchestration-and-qwen-coder.md)

@@ -1,0 +1,23 @@
+{
+  "camera_ip": "192.168.6.44:8080",
+  "spark_server_ip": "192.168.6.35",
+  "spark_server_port": 8082,
+  "camera_fps": 30,
+  "frame_size": [
+    896,
+    896
+  ],
+  "telemetry_db": "telemetry.db",
+  "models": [
+    {
+      "name": "gemma-3-4b-it",
+      "url": "http://127.0.0.1:8084/v1/chat/completions"
+    },
+    {
+      "name": "qwen3-30b-coder",
+      "url": "http://127.0.0.1:8080/v1/chat/completions"
+    }
+  ],
+  "use_local_camera": false,
+  "local_camera_index": 0
+}
