@@ -41,3 +41,11 @@
 - Use lowercase with hyphens for file names: `useful-commands.md`, `lab-01.md`.
 - Use `README.md` as the index file in every directory.
 - No Spanish in file names at root level; Spanish file names are acceptable only inside `es/`.
+
+## 6. Project Status & Resuming Sessions
+
+To inspect the live health and resume work on the semester project:
+- **Instant diagnostic:** Run `python3 proyecto/status.py`.
+- **Operational skill:** Use the `edge-clean-copilot` agent skill located in `.agents/skills/edge-clean-copilot/SKILL.md`.
+- **Status board:** Read `proyecto/docs/progress-and-milestones.md`.
+

@@ -1,8 +1,9 @@
 ---
 name: edge-clean-copilot
 description: >-
-  Operational knowledge, Clean Architecture guardrails, and execution workflows for the
-  Edge Clean Copilot semester project. Use when training LoRA adapters on DGX Spark,
+  Operational knowledge, status diagnostics, Clean Architecture guardrails, and execution
+  workflows for the Edge Clean Copilot semester project. Use when checking project status,
+  resuming work from previous sessions, onboarding a new chat, training LoRA adapters on DGX Spark,
   generating synthetic architecture datasets, converting models to GGUF, developing
   the hexagonal TypeScript CLI, or evaluating offline SLM refactoring quality.
 ---
@@ -112,3 +113,22 @@ pnpm install
 pnpm test
 pnpm run dev refactor src/domain/entities/SourceFile.ts --mock
 ```
+
+---
+
+## 5. Instant Status Diagnostics & Session Onboarding
+
+When starting a fresh chat session or resuming work, execute:
+
+```bash
+python3 proyecto/status.py
+```
+
+This single command inspects:
+1. **Dataset partitions** (`train.jsonl` vs `eval_holdout.jsonl`).
+2. **Phase completion matrix** (Phase 1: 100%, Phase 2: 85%, Phase 3: 50%, Phase 4: 70%, Global: 70%).
+3. **CLI & Benchmark health** (28 Vitest unit tests, Clean Architecture Score harness).
+4. **Immediate fork choices** (Laptop offline cold staging vs DGX Spark hot burst).
+
+For deep architectural documentation, consult [`proyecto/docs/progress-and-milestones.md`](file:///home/jr_g/Develop/IA_Aplicada/proyecto/docs/progress-and-milestones.md) and [`proyecto/docs/detailed-roadmap.md`](file:///home/jr_g/Develop/IA_Aplicada/proyecto/docs/detailed-roadmap.md).
+

@@ -19,18 +19,20 @@ This directory contains all materials, technical documentation, datasets, traini
 
 ```
 proyecto/
-├── docs/       # Technical specifications, session logs, and roadmap
-├── dataset/    # Seed and synthetic ChatML datasets (160 samples, ~186k tokens)
-├── training/   # PyTorch LoRA fine-tuning pipeline with native merge capabilities
-└── cli/        # Hexagonal CLI client in TypeScript (Ports & Adapters)
+├── docs/        # Technical specifications, session logs, and roadmap
+├── dataset/     # Seed, generated pool, and train/eval partitions (168 samples)
+├── training/    # PyTorch LoRA pipeline and automated GGUF quantization
+├── cli/         # Hexagonal CLI client in TypeScript (28 unit tests, 100% green)
+├── evaluation/  # Automated Clean Architecture benchmark harness (CAS 0-100)
+└── status.py    # Zero-dependency instant diagnostic & session resume dashboard
 ```
 
 ---
 
 ## 3. Current Project Status
 
-- **Global Progress:** **57%**
+- **Global Progress:** **70%**
 - **Completed:** **Phase 1 (Infrastructure & Teacher Dataset)** — 100%
-- **Active / Ready to Launch:** **Phase 2 (LoRA Adaptation & Specialization)** — 80% (Runtime and 73% of base weights staged on DGX Spark)
-- **Pending:** **Phase 3 (Consolidation & GGUF Quantization)**
-- **In Progress:** **Phase 4 (CLI Client & Edge Offline Inference)** — 50% (Core domain & mock adapters implemented)
+- **Staged / Ready for Burst:** **Phase 2 (LoRA Adaptation & Specialization)** — 85% (Runtime and 73% of base weights staged on DGX Spark)
+- **Staged / Automation Ready:** **Phase 3 (Consolidation & GGUF Quantization)** — 50% (`convert_to_gguf.sh` verified)
+- **In Progress / Benchmark Operational:** **Phase 4 (CLI Client & Edge Offline Inference)** — 70% (28 unit tests green, benchmark harness operational)

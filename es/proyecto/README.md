@@ -19,18 +19,20 @@ Este directorio contiene los materiales, documentación técnica, datasets sint�
 
 ```
 proyecto/
-├── docs/       # Especificaciones técnicas, bitácoras de sesión y roadmap
-├── dataset/    # Datasets ChatML semilla y sintéticos (160 ejemplos, ~186k tokens)
-├── training/   # Pipeline de fine-tuning LoRA en PyTorch con consolidación nativa
-└── cli/        # Cliente CLI con Arquitectura Hexagonal en TypeScript (Ports & Adapters)
+├── docs/        # Especificaciones técnicas, bitácoras de sesión y roadmap
+├── dataset/     # Datasets semilla, pool sintético y particiones train/eval (168 muestras)
+├── training/    # Pipeline de fine-tuning LoRA en PyTorch y script de cuantización GGUF
+├── cli/         # Cliente CLI con Arquitectura Hexagonal en TypeScript (28 tests en verde)
+├── evaluation/  # Harness automatizado de benchmark de Clean Architecture (CAS 0-100)
+└── status.py    # Diagnóstico instantáneo y tablero de reanudación sin dependencias
 ```
 
 ---
 
 ## 3. Estado Actual del Proyecto
 
-- **Progreso Global:** **57%**
+- **Progreso Global:** **70%**
 - **Completada:** **Fase 1 (Infraestructura y Dataset del Teacher)** — 100%
-- **Activa / Lista para Disparar:** **Fase 2 (Adaptación LoRA y Especialización)** — 80% (Runtime y 73% de pesos base en la DGX Spark)
-- **Pendiente:** **Fase 3 (Consolidación y Cuantización a GGUF)**
-- **En Progreso:** **Fase 4 (Cliente CLI e Inferencia Offline en el Edge)** — 50% (Dominio central y adaptadores mock listos)
+- **Lista para Ráfaga:** **Fase 2 (Adaptación LoRA y Especialización)** — 85% (Runtime y 73% de pesos base en la DGX Spark)
+- **Automatización Lista:** **Fase 3 (Consolidation y Cuantización a GGUF)** — 50% (`convert_to_gguf.sh` probado)
+- **En Progreso / Benchmark Operativo:** **Fase 4 (Cliente CLI e Inferencia Offline)** — 70% (28 tests unitarios en verde, benchmark funcional)
