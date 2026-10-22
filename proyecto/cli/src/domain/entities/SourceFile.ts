@@ -21,8 +21,10 @@ export class SourceFile {
       throw new ValidationError('File path cannot be empty.');
     }
 
+    const cleanPath = props.filePath.trim();
+
     if (!props.content || props.content.trim().length === 0) {
-      throw new ValidationError(`Source file "${props.filePath}" is empty.`);
+      throw new ValidationError(`Source file "${cleanPath}" is empty.`);
     }
 
     if (props.content.length > this.MAX_CHARACTERS) {
@@ -31,9 +33,9 @@ export class SourceFile {
       );
     }
 
-    const detectedLang = props.language ?? this.detectLanguage(props.filePath);
+    const detectedLang = props.language ?? this.detectLanguage(cleanPath);
 
-    return new SourceFile(props.filePath.trim(), props.content, detectedLang);
+    return new SourceFile(cleanPath, props.content, detectedLang);
   }
 
   private static detectLanguage(filePath: string): string {

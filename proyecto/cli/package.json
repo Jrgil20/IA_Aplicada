@@ -1,6 +1,7 @@
 {
   "name": "edge-clean-copilot-cli",
   "version": "0.1.0",
+  "type": "module",
   "description": "Specialized CLI for Clean Architecture and edge inference",
   "main": "dist/infrastructure/cli/index.js",
   "bin": {
@@ -10,6 +11,8 @@
     "build": "tsc",
     "start": "node dist/infrastructure/cli/index.js",
     "dev": "tsx src/infrastructure/cli/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "clean": "rm -rf dist"
   },
   "keywords": [
@@ -26,6 +29,7 @@
   "devDependencies": {
     "@types/node": "^22.7.5",
     "tsx": "^4.19.1",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vitest": "^5.0.5"
   }
 }
