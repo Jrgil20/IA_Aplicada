@@ -1,22 +1,36 @@
-# Semester Project — Applied AI
+# Semester Project — Applied AI: Edge Clean Copilot
 
-This directory contains all materials related to the final project for the **Applied Artificial Intelligence** course (UCAB).
+This directory contains all materials, technical documentation, datasets, training scripts, and client implementations for **Edge Clean Copilot**, the semester capstone project for the **Applied Artificial Intelligence** course at UCAB.
 
-## Documents
+---
 
-- [Technical Proposal: Edge Clean Copilot](./propuesta.md) — Core document covering vision, hypotheses, architecture (Ports & Adapters), and execution timeline.
-- [Idea Bank](./ideas.md) — Preliminary ideas and evaluated alternatives for project development.
+## 1. Project Documentation Index
 
-## Project Status
+- **[Technical Documentation Hub (`docs/`)](./docs/README.md):** Complete operational specifications, telemetry logs, and engineering records.
+  - **[Detailed Execution Roadmap (Weeks 4–15)](./docs/detailed-roadmap.md):** The authoritative tactical master plan covering LoRA training, GGUF quantization, and benchmark criteria.
+  - **[Progress & Verified Milestones](./docs/progress-and-milestones.md):** Live status board tracking deliverables across all 4 phases.
+  - **[Session Report: 2026-10-22](./docs/session-2026-10-22-burst-and-lessons.md):** Root-cause analysis, port isolation (8085 vs 8080), 160-sample dataset burst, and lessons learned.
+- **[Technical Proposal](./propuesta.md):** Original project vision, hypotheses, Clean Architecture principles, and academic articulation.
+- **[Idea Bank](./ideas.md):** Preliminary architectural exploration and evaluated alternatives.
 
-- **Current Phase:** Phase 1 — Infrastructure and Teacher Model (Weeks 1-3) [COMPLETED]
-- **Next Phase:** Phase 2 — LoRA Adaptation and Specialization (Weeks 4-7)
+---
 
-### Phase 1 Completed Milestones
+## 2. Project Subsystems
 
-- [x] **Direct Network Topology:** Direct cable peer-to-peer connection established between client laptop (`eno2`, `192.168.6.50/26`) and NVIDIA DGX Spark 2 (`enp7s7`, `192.168.6.34/26`) with Auto-MDIX and passwordless Ed25519 SSH.
-- [x] **Teacher Model Serving:** Validated `llama-server` on port 8080 serving `Qwen3-Coder-30B-A3B-Instruct` offloaded 99 layers onto the Blackwell GB10 GPU.
-- [x] **Teacher Dataset Generator:** Implemented [`dataset/generate_with_teacher.py`](./dataset/generate_with_teacher.py) with configurable time-limit flag (`--max-time-minutes`) and automatic ChatML format verification.
-- [x] **Seed Dataset Curation:** Curated canonical Clean Architecture pairs from real projects (ArrowMaze) covering Domain Entities, Value Objects, Use Cases with `Result<T, E>`, Ports/Adapters, and AAA unit tests.
-- [x] **LoRA Training Pipeline:** Implemented [`training/train_lora.py`](./training/train_lora.py) with native PyTorch training loop, dynamic batch padding, `--dry-run` mode for cold staging, `--max-time-minutes` time-bounding flag, and `--merge` for GGUF consolidation.
-- [x] **Dataset Validation Suite:** Implemented [`dataset/validate_dataset.py`](./dataset/validate_dataset.py) verifying syntax, ChatML roles, and token counts.
+```
+proyecto/
+├── docs/       # Technical specifications, session logs, and roadmap
+├── dataset/    # Seed and synthetic ChatML datasets (160 samples, ~186k tokens)
+├── training/   # PyTorch LoRA fine-tuning pipeline with native merge capabilities
+└── cli/        # Hexagonal CLI client in TypeScript (Ports & Adapters)
+```
+
+---
+
+## 3. Current Project Status
+
+- **Global Progress:** **57%**
+- **Completed:** **Phase 1 (Infrastructure & Teacher Dataset)** — 100%
+- **Active / Ready to Launch:** **Phase 2 (LoRA Adaptation & Specialization)** — 80% (Runtime and 73% of base weights staged on DGX Spark)
+- **Pending:** **Phase 3 (Consolidation & GGUF Quantization)**
+- **In Progress:** **Phase 4 (CLI Client & Edge Offline Inference)** — 50% (Core domain & mock adapters implemented)
