@@ -9,27 +9,37 @@ export interface LlamaServerConfig {
 }
 
 export class LlamaServerAdapter implements IInferenceEngine {
-  private readonly baseUrl: string;
+  public readonly endpoint: string;
   private readonly modelName: string;
   private readonly timeoutMs: number;
 
   constructor(config?: LlamaServerConfig) {
-    this.baseUrl = (config?.baseUrl || process.env.LLAMA_SERVER_URL || 'http://127.0.0.1:8080').replace(/\/+$/, '');
+    const rawUrl = (config?.baseUrl || process.env.LLAMA_SERVER_URL || 'http://127.0.0.1:8080').trim().replace(/\/+$/, '');
+    this.endpoint = this.normalizeEndpoint(rawUrl);
     this.modelName = config?.modelName || process.env.LLAMA_MODEL_NAME || 'edge-clean-copilot-q4_k_m';
     this.timeoutMs = config?.timeoutMs || 60_000;
+  }
+
+  private normalizeEndpoint(rawUrl: string): string {
+    if (rawUrl.endsWith('/v1/chat/completions')) {
+      return rawUrl;
+    }
+    if (rawUrl.endsWith('/v1')) {
+      return `${rawUrl}/chat/completions`;
+    }
+    return `${rawUrl}/v1/chat/completions`;
   }
 
   public async complete(
     prompt: InferencePrompt
   ): Promise<Result<InferenceOutput, InfrastructureError>> {
     const startTime = Date.now();
-    const endpoint = `${this.baseUrl}/v1/chat/completions`;
 
     try {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), this.timeoutMs);
 
-      const response = await fetch(endpoint, {
+      const response = await fetch(this.endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -82,7 +92,7 @@ export class LlamaServerAdapter implements IInferenceEngine {
     } catch (error) {
       return Result.fail(
         new InfrastructureError(
-          `Failed to connect to llama-server at ${endpoint}. Ensure llama-server is running.`,
+          `Failed to connect to llama-server at ${this.endpoint}. Ensure llama-server is running.`,
           'LLAMA_CONNECTION_ERROR',
           error
         )
