@@ -44,3 +44,29 @@ To ensure full compatibility with Hugging Face `trl` (`SFTTrainer`) and Qwen's n
 1. **Zero Domain Pollution:** Domain entities and use cases must not import ORMs (Prisma, Mongoose, TypeORM), HTTP frameworks (Express, Nest, FastAPI), or external SDKs.
 2. **Explicit Contracts:** Every infrastructure dependency must be inverted through an interface (Port) defined in Application or Domain.
 3. **Deterministic Error Handling:** Domain/Application layers must return explicit `Result` types or typed domain errors, avoiding untyped exception throwing.
+
+---
+
+## 5. Stratified Partitioning & Data Leakage Prevention
+
+To uphold strict scientific and academic validity, the cumulative dataset of 168 unified samples (`seed_examples.jsonl` + `generated_examples.jsonl`) is partitioned into two mutually exclusive sets using [`split_dataset.py`](./split_dataset.py) with a fixed random seed (`seed=42`):
+
+```text
+======================================================================
+168 Unified Canonical Samples (~191,364 Total Tokens)
+  ├── train.jsonl         : 138 samples (82.1%) — ~156,395 tokens
+  └── eval_holdout.jsonl  :  30 samples (17.9%) —  ~34,969 tokens
+======================================================================
+```
+
+| Architectural Category | Total Samples | Training Set (`train.jsonl`) | Holdout Evaluation Set (`eval_holdout.jsonl`) |
+| :--- | :--- | :--- | :--- |
+| **Port & Adapter Decoupling** | 68 | 56 | 12 |
+| **Entity & Value Objects** | 46 | 38 | 8 |
+| **AAA Unit Testing** | 30 | 25 | 5 |
+| **SOLID Lint & Critiques** | 13 | 11 | 2 |
+| **Architecture Refactoring** | 11 | 9 | 2 |
+| **TOTAL** | **168** | **138** | **30** |
+
+> [!IMPORTANT]
+> The evaluation holdout set (`eval_holdout.jsonl`) is strictly isolated and never shown to the model during LoRA fine-tuning. It serves exclusively for the post-training benchmark evaluation in [`proyecto/evaluation/`](../evaluation/).

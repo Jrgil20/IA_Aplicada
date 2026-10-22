@@ -28,7 +28,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--dataset",
         type=str,
-        default=str(Path(__file__).parent.parent / "dataset" / "seed_examples.jsonl"),
+        default=str(Path(__file__).parent.parent / "dataset" / "train.jsonl"),
         help="Path to JSONL dataset formatted in ChatML."
     )
     parser.add_argument(

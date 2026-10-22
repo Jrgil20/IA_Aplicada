@@ -60,7 +60,7 @@ LORA_SPECIFICATION = {
 - **Semana 4: Primera Ráfaga y Generación de Adaptador**
   - [ ] Reanudar y completar la descarga de `Qwen2.5-Coder-1.5B` (~800 MB restantes).
   - [ ] Ejecutar dry-run en Spark para verificar el paso de gradientes.
-  - [ ] Lanzar ráfaga de entrenamiento de 15 minutos (`train_lora.py --max-time-minutes 15 --merge`).
+  - [ ] Lanzar ráfaga de entrenamiento de 15 minutos sobre `dataset/train.jsonl` (138 muestras) (`train_lora.py --max-time-minutes 15 --merge`).
   - [ ] Guardar pesos del adaptador (`lora_adapters/adapter_model.safetensors`).
 - **Semana 5: Análisis de Convergencia**
   - [ ] Evaluar curva de pérdida (meta: descenso suave de ~2.2 a <0.6).

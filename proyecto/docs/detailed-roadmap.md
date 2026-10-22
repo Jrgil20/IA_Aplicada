@@ -61,7 +61,7 @@ LORA_SPECIFICATION = {
 - **Week 4 (Session A): First Hot Burst & Adapter Generation**
   - [ ] Resume and complete cached weight download of `Qwen2.5-Coder-1.5B` (~800 MB remaining).
   - [ ] Execute 1-step dry run on DGX Spark to verify loss gradient computation.
-  - [ ] Launch 15-minute training burst (`train_lora.py --max-time-minutes 15 --merge`).
+  - [ ] Launch 15-minute training burst on `dataset/train.jsonl` (138 samples) (`train_lora.py --max-time-minutes 15 --merge`).
   - [ ] Save trained adapter weights (`lora_adapters/adapter_model.safetensors`).
 - **Week 5 (Session B): Convergence & Hyperparameter Tuning**
   - [ ] Analyze training loss curve (target: smooth convergence from ~2.2 to <0.6).
