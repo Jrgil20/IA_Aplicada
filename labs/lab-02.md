@@ -87,3 +87,8 @@
   - [labs/lab2/observaciones/02-vlm-multimodal-orchestration-and-vision-payload.md](file:///home/jr_g/Develop/IA_Aplicada/labs/lab2/observaciones/02-vlm-multimodal-orchestration-and-vision-payload.md)
   - [labs/lab2/observaciones/03-dual-model-orchestration-and-qwen-coder.md](file:///home/jr_g/Develop/IA_Aplicada/labs/lab2/observaciones/03-dual-model-orchestration-and-qwen-coder.md)
   - [labs/lab2/observaciones/04-opencode-agent-context-overflow-analysis.md](file:///home/jr_g/Develop/IA_Aplicada/labs/lab2/observaciones/04-opencode-agent-context-overflow-analysis.md)
+  - [labs/lab2/observaciones/05-security-audit-prompt-injection-credential-leak.md](file:///home/jr_g/Develop/IA_Aplicada/labs/lab2/observaciones/05-security-audit-prompt-injection-credential-leak.md)
+  - [labs/lab2/observaciones/06-security-audit-secondary-channel-injection-and-defacement.md](file:///home/jr_g/Develop/IA_Aplicada/labs/lab2/observaciones/06-security-audit-secondary-channel-injection-and-defacement.md)
+  - [labs/lab2/observaciones/07-security-audit-persona-hijacking-behavioral-lockout.md](file:///home/jr_g/Develop/IA_Aplicada/labs/lab2/observaciones/07-security-audit-persona-hijacking-behavioral-lockout.md)
+  - [labs/lab2/observaciones/08-comparative-security-analysis-tramontana.md](file:///home/jr_g/Develop/IA_Aplicada/labs/lab2/observaciones/08-comparative-security-analysis-tramontana.md)
+  - [labs/lab2/observaciones/09-security-audit-insecure-output-handling-html-injection.md](file:///home/jr_g/Develop/IA_Aplicada/labs/lab2/observaciones/09-security-audit-insecure-output-handling-html-injection.md)

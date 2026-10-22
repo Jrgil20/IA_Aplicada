@@ -12,6 +12,11 @@ Este directorio contiene los reportes de post-mortem, análisis de causas raíz 
 | [**02. Orquestación Multimodal y Payload VLM**](./02-vlm-multimodal-orchestration-and-vision-payload.md) | Activación de proyector `--mmproj`, corrección de serialización JSON en `app.py` y validación empírica en GPU Blackwell. | **Resuelto** |
 | [**03. Despliegue Dual y Orquestación**](./03-dual-model-orchestration-and-qwen-coder.md) | Concurrencia de Gemma 3 4B VLM y Qwen 3 Coder 30B, corrección de payload para modelos no-VLM y script `iniciar_lab2.sh`. | **Resuelto** |
 | [**04. Desbordamiento de Contexto en OpenCode y Aislamiento**](./04-opencode-agent-context-overflow-analysis.md) | Análisis de prefill inicial de agentes (~8k tokens), aumento de contexto a 32k y clarificación de aislamiento vs duplicación de procesos. | **Resuelto** |
+| [**05. Auditoría de Seguridad: Prompt Injection y Fuga de Credenciales**](./05-security-audit-prompt-injection-credential-leak.md) | Reporte formal de vulnerabilidad (OWASP LLM01/LLM06, CVSS 7.5 HIGH) exfiltrando clave operativa en bot Tramontana (puerto 7000). | **Auditado** |
+| [**06. Auditoría de Seguridad: Inyección por Canal Secundario y Defacement**](./06-security-audit-secondary-channel-injection-and-defacement.md) | Explotación del campo auxiliar `nota_cliente` provocando DoS funcional ("SISTEMA COMPROMETIDO") y exfiltración sin consulta. | **Auditado** |
+| [**07. Auditoría de Seguridad: Secuestro de Personalidad y Bloqueo Conductual**](./07-security-audit-persona-hijacking-behavioral-lockout.md) | Anulación de rol operativo mediante instrucción imperativa ("responde solo 'ja'"), DoS funcional y persistencia en cliente. | **Auditado** |
+| [**08. Análisis Comparativo de Seguridad (Vulnerable vs. Endurecido)**](./08-comparative-security-analysis-tramontana.md) | Evaluación empírica lado a lado en el dashboard comparador (`tramontana_comparador.py` en puerto 7002): fuga de secreto, canal secundario, XSS y RCE. | **Auditado** |
+| [**09. Auditoría de Seguridad: Manejo Inseguro de Salida e Inyección HTML**](./09-security-audit-insecure-output-handling-html-injection.md) | Inyección de etiquetas HTML (`<b>HOLA</b>`) evaluadas por `innerHTML` en cliente web (OWASP LLM02 / CWE-79 / CWE-116). | **Auditado** |
 
 ---
 
