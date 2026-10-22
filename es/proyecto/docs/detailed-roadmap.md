@@ -105,11 +105,14 @@ Consolidar el adaptador LoRA con el modelo base en una matriz de pesos unificada
 Entregar una herramienta CLI production-ready con Arquitectura Hexagonal y un arnés automatizado que evalúe y demuestre matemáticamente la superioridad en adherencia a Clean Architecture frente a modelos generales.
 
 ### 4.2 Métricas del Benchmark Automatizado (`eval_benchmark.py`):
+Para demostrar la hipótesis central del proyecto, el arnés de evaluación automatizado ([`proyecto/evaluation/eval_benchmark.py`](../../proyecto/evaluation/eval_benchmark.py)) califica modelos contra código acoplado y datasets sintéticos:
+
 ```
-1. Puntuación de Frontera de Dominio: 100% si el dominio importa 0 frameworks/bases de datos.
-2. Seguridad de Invariantes: 100% si los constructores validan inputs y retornan Result<T, E>.
-3. Penalización por 'any': 0% si se genera un 'any' explícito (-25% por ocurrencia).
-4. Desacoplamiento de Puertos: Presencia de interfaz abstracta + doble de prueba concreto.
+Métricas del Benchmark (Documentadas en es/proyecto/evaluation/README.md):
+1. Puntuación de Frontera de Dominio (30%): 100% si el dominio importa 0 frameworks/bases de datos.
+2. Seguridad de Invariantes (25%): Validación estricta en constructores y uso de Result<T, E>.
+3. Desacoplamiento de Puertos (25%): Presencia de interfaz abstracta + inyección/doble de prueba.
+4. Penalización por 'any' (20%): Prohibición estricta de `any` explícito en TypeScript (-5 pts por uso).
 ```
 
 ### 4.3 Desglose Táctico de Tareas:

@@ -112,14 +112,14 @@ Transform the separate LoRA adapter and base model into a single unified 16-bit 
 Deliver a production-ready developer tool adhering strictly to Hexagonal Architecture, equipped with an automated evaluation benchmark that mathematically proves superiority in Clean Architecture compliance over unspecialized models.
 
 ### 4.2 Automated Benchmark Harness Specification
-To prove the core hypothesis of the project, an automated evaluation harness (`eval_benchmark.py`) will evaluate models against 30 unseen legacy/coupled code files:
+To prove the core hypothesis of the project, an automated evaluation harness ([`proyecto/evaluation/eval_benchmark.py`](../evaluation/eval_benchmark.py)) evaluates models against unseen legacy/coupled code files and pre-generated completion datasets:
 
 ```
-Benchmark Metrics:
-1. Domain Boundary Score: 100% if domain layer imports 0 external frameworks/DBs.
-2. Invariant Safety Score: 100% if constructors validate inputs and return Result<T, E>.
-3. Any-Type Penalty: 0% if any explicit TypeScript `any` is generated (-25% per occurrence).
-4. Port/Adapter Decoupling: Presence of abstract interface + concrete test double.
+Benchmark Metrics (Documented in proyecto/evaluation/README.md):
+1. Domain Boundary Score (30%): 100% if domain layer imports 0 external frameworks/DBs.
+2. Invariant Safety Score (25%): Strict validation in constructors and use of Result<T, E>.
+3. Port/Adapter Decoupling (25%): Presence of abstract interface + concrete test double/injection.
+4. Any-Type Penalty (20%): Strict avoidance of explicit TypeScript `any` (-5 pts per occurrence).
 ```
 
 ### 4.3 Actionable Work Breakdown:
