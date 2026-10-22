@@ -89,7 +89,7 @@ python3 proyecto/dataset/validate_dataset.py \
 ```bash
 /home/ucab-spark1/lora_venv/bin/python3 proyecto/training/train_lora.py \
   --model-id "Qwen/Qwen2.5-Coder-1.5B-Instruct" \
-  --dataset "proyecto/dataset/generated_examples.jsonl" \
+  --dataset "proyecto/dataset/train.jsonl" \
   --output-dir "proyecto/training/output" \
   --epochs 3 \
   --batch-size 2 \
@@ -99,9 +99,16 @@ python3 proyecto/dataset/validate_dataset.py \
   --merge
 ```
 
-### 4.4 Local CLI Development & Testing
+### 4.4 Automated One-Click GGUF Quantization (Phase 3)
+```bash
+cd proyecto/training
+./convert_to_gguf.sh --all --clean-f16
+```
+
+### 4.5 Local CLI Development & Testing
 ```bash
 cd proyecto/cli
 pnpm install
+pnpm test
 pnpm run dev refactor src/domain/entities/SourceFile.ts --mock
 ```

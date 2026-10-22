@@ -95,8 +95,8 @@ Transform the separate LoRA adapter and base model into a single unified 16-bit 
   - [ ] Execute `train_lora.py --merge` to output `./output/merged_model/`.
   - [ ] Validate that merged weights retain identical forward pass output to base+adapter.
 - **Week 9: Automated GGUF Conversion Scripting**
-  - [ ] Create `proyecto/training/convert_to_gguf.sh` utilizing `llama.cpp/convert_hf_to_gguf.py`.
-  - [ ] Produce `clean-copilot-1.5b-f16.gguf`.
+  - [x] Create [`proyecto/training/convert_to_gguf.sh`](../training/convert_to_gguf.sh) utilizing `llama.cpp/convert_hf_to_gguf.py` and `llama-quantize`.
+  - [ ] Produce `clean-copilot-1.5b-f16.gguf` upon LoRA merge on DGX Spark.
 - **Week 10: Multi-Quantization Pipeline**
   - [ ] Quantize intermediate F16 GGUF into `q4_k_m`, `q5_k_m`, and `q8_0` binaries using `llama-quantize`.
   - [ ] Measure file sizes and output checksums.

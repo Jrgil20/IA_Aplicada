@@ -90,7 +90,8 @@ Consolidar el adaptador LoRA con el modelo base en una matriz de pesos unificada
 - **Semana 8: Fusión de Pesos con `merge_and_unload()`**
   - [ ] Ejecutar `train_lora.py --merge` para emitir `./output/merged_model/`.
 - **Semana 9: Scripting de Conversión a GGUF**
-  - [ ] Crear script `convert_to_gguf.sh` utilizando `llama.cpp/convert_hf_to_gguf.py`.
+  - [x] Crear script [`proyecto/training/convert_to_gguf.sh`](../../../proyecto/training/convert_to_gguf.sh) utilizando `llama.cpp/convert_hf_to_gguf.py` y `llama-quantize`.
+  - [ ] Producir `clean-copilot-1.5b-f16.gguf` tras la consolidación LoRA en la DGX Spark.
 - **Semana 10: Pipeline Multi-Cuantización**
   - [ ] Cuantizar binarios `q4_k_m`, `q5_k_m` y `q8_0` con `llama-quantize`.
 - **Semana 11: Benchmarks en Hardware Edge**
