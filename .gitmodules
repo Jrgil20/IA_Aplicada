@@ -1,3 +1,7 @@
 [submodule ".agents/dev-ai-toolkit"]
 	path = .agents/dev-ai-toolkit
 	url = https://github.com/Jrgil20/dev-ai-toolkit
+[submodule "proyecto"]
+	path = proyecto
+	url = https://github.com/Jrgil20/edge-clean-copilot.git
+	branch = main
