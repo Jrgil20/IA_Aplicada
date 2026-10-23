@@ -10,8 +10,9 @@ import os
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-PROYECTO_DIR = REPO_ROOT / "proyecto"
+SCRIPT_DIR = Path(__file__).resolve().parent
+# If status.py is inside 'proyecto' directory, that directory is the project root.
+PROYECTO_DIR = SCRIPT_DIR
 
 def count_lines(filepath: Path) -> int:
     if not filepath.exists():
