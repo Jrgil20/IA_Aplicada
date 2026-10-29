@@ -1,0 +1,39 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "share": "disabled",
+  "permission": {
+    "read": {
+      "deny": [
+        ".env",
+        ".env.*",
+        "secretos/**",
+        "secretos/*"
+      ]
+    },
+    "edit": {
+      "deny": [
+        "pedidos.csv",
+        "proveedores.csv"
+      ]
+    },
+    "bash": {
+      "deny": [
+        "*cat .env*",
+        "*cat *secretos*",
+        "*grep*secretos*",
+        "*head*secretos*",
+        "*tail*secretos*",
+        "*curl*",
+        "*wget*",
+        "*mail*",
+        "*sendmail*"
+      ]
+    }
+  },
+  "command": {
+    "informe-lunes": {
+      "description": "Genera el informe semanal para el jefe y borradores de correos para proveedores con mas de 10 dias de atraso",
+      "template": "Ejecuta ./informe-lunes.sh para generar los entregables de compras en salidas/2-lunes/ sin enviar ningun correo."
+    }
+  }
+}

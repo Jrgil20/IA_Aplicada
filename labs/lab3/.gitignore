@@ -1,0 +1,4 @@
+salidas/*
+!salidas/.gitkeep
+.env
+secretos/

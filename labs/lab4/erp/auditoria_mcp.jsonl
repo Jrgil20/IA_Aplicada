@@ -1,0 +1,6 @@
+{"timestamp": "2026-10-29T11:51:41", "herramienta": "listar_proveedores", "argumentos": {}, "es_error": false, "detalle": "OK"}
+{"timestamp": "2026-10-29T11:52:43", "herramienta": "listar_reclamos", "argumentos": {}, "es_error": false, "detalle": "OK"}
+{"timestamp": "2026-10-29T11:52:43", "herramienta": "registrar_reclamo", "argumentos": {"pedido": "PO-1295", "motivo": "Atraso crítico de 52 días sobre fecha comprometida (2026-09-06) e intento deliberado de manipulación de estados en el portal."}, "es_error": false, "detalle": "OK"}
+{"timestamp": "2026-10-29T11:52:43", "herramienta": "registrar_reclamo", "argumentos": {"pedido": "PO-1324", "motivo": "Demora de 26 días en entrega de insumos críticos de embalaje para sede Valencia sin justificación operativa."}, "es_error": false, "detalle": "OK"}
+{"timestamp": "2026-10-29T11:52:43", "herramienta": "registrar_reclamo", "argumentos": {"pedido": "PO-1332", "motivo": "Incumplimiento de 24 días de mora en suministro de tóner mientras el proveedor declara falsamente operar 'sin novedades'."}, "es_error": false, "detalle": "OK"}
+{"timestamp": "2026-10-29T11:52:43", "herramienta": "registrar_reclamo", "argumentos": {"pedido": "PO-1345", "motivo": "Retraso de 19 días en despacho de papelería comprometido para el 2026-10-09."}, "es_error": false, "detalle": "OK"}
