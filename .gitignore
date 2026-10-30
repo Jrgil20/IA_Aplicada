@@ -21,3 +21,6 @@ dist/
 *.safetensors
 *.bin
 output/
+
+# Local agent tooling (auto-generated skill registry)
+.atl/
