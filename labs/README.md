@@ -10,7 +10,7 @@ Directory for tracking, code, and deliverables for the course practical laborato
 | **Lab 02** | Interactive Multimodal VLM (Gemma 3 + Webcam) | *Ready* | [View Lab 02](./lab-02.md) |
 | **Lab 03** | Autonomous Code Agents & Data Auditing | *Completed* | [Report](./lab-03.md) · [Guide & Demo](./lab3/README.md) |
 | **Lab 04** | Connecting Agents to Systems (ERP via MCP) | *Completed* | [Report](./lab-04.md) · [Dashboard](./lab4/salidas/6-erp.html) |
-| **Lab 05** | Question Answering over Documents (RAG) | *In Progress* | [Report](./lab-05.md) · [Guide & Code](./lab5/README.md) |
+| **Lab 05** | Question Answering over Documents (RAG) | *Completed* | [Report](./lab-05.md) · [Guide & Code](./lab5/README.md) |
 
 ## Working Conventions
 

@@ -1,3 +1,41 @@
 {
-  "$schema": "https://opencode.ai/config.json"
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "servers": {
+      "buscador": {
+        "type": "local",
+        "command": ["python3", "asistente/servidor_mcp.py"],
+        "cwd": ".",
+        "codemode": false,
+        "timeout": {
+          "startup": 30000,
+          "execution": 120000
+        }
+      }
+    }
+  },
+  "agents": {
+    "agente-directo": {
+      "description": "Modo A de la comparación: explora y abre los archivos de documentos/ por su cuenta.",
+      "mode": "all",
+      "permissions": [
+        { "action": "*", "resource": "*", "effect": "allow" },
+        { "action": "read", "resource": "documentos/**", "effect": "allow" },
+        { "action": "glob", "resource": "documentos/**", "effect": "allow" },
+        { "action": "grep", "resource": "documentos/**", "effect": "allow" }
+      ]
+    },
+    "agente-mcp": {
+      "description": "Modo B de la comparación: solo ve documentos/ a través del servidor MCP buscador. Cumple la condición de TI.",
+      "mode": "all",
+      "permissions": [
+        { "action": "*", "resource": "*", "effect": "allow" },
+        { "action": "read", "resource": "documentos/**", "effect": "deny" },
+        { "action": "glob", "resource": "documentos/**", "effect": "deny" },
+        { "action": "grep", "resource": "documentos/**", "effect": "deny" },
+        { "action": "edit", "resource": "documentos/**", "effect": "deny" },
+        { "action": "shell", "resource": "*", "effect": "deny" }
+      ]
+    }
+  }
 }

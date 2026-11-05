@@ -1,6 +1,6 @@
 # Lab 05: Preguntarle a los Documentos (RAG Empresarial y Hardening)
 
-> **Status:** In Progress (Problems 8 & 9 Completed · Problem 10 Pending)  
+> **Status:** Completed & Empirically Validated (Problems 8, 9 & 10)  
 > **Target Environment:** Local Workspace & NVIDIA DGX Spark Cluster (`spark-0fbc`, `192.168.6.35`)  
 > **Source Workshop:** Workshop 3 (`ucab-ia-aplicada-workshops/workshops/03-preguntarle-a-los-documentos/`)  
 > **Simulated Legal Date:** November 5, 2026 (`2026-11-05`)  
@@ -10,6 +10,9 @@
 > - Penalty Calculation Engine & Legal Report: [`labs/lab5/salidas/8-penalidades.html`](file:///home/jr_g/Develop/IA_Aplicada/labs/lab5/salidas/8-penalidades.html)
 > - Legal QA Evaluation Matrix (100% Accuracy): [`labs/lab5/salidas/9-evaluacion.html`](file:///home/jr_g/Develop/IA_Aplicada/labs/lab5/salidas/9-evaluacion.html) · [`9-evaluacion.json`](file:///home/jr_g/Develop/IA_Aplicada/labs/lab5/salidas/9-evaluacion.json)
 > - Hardened Document Assistant Server: [`labs/lab5/asistente/servidor.py`](file:///home/jr_g/Develop/IA_Aplicada/labs/lab5/asistente/servidor.py) (Running on Spark port `8501`)
+> - Model Context Protocol (MCP) Search Engine: [`labs/lab5/asistente/servidor_mcp.py`](file:///home/jr_g/Develop/IA_Aplicada/labs/lab5/asistente/servidor_mcp.py)
+> - OpenCode Multi-Agent Sandbox Configuration: [`labs/lab5/opencode.json`](file:///home/jr_g/Develop/IA_Aplicada/labs/lab5/opencode.json)
+> - Architectural Decision Report for IT: [`labs/lab5/salidas/10-comparacion.html`](file:///home/jr_g/Develop/IA_Aplicada/labs/lab5/salidas/10-comparacion.html) · [`10-comparacion.json`](file:///home/jr_g/Develop/IA_Aplicada/labs/lab5/salidas/10-comparacion.json)
 
 ---
 
@@ -74,7 +77,28 @@ The assistant was benchmarked against the 12 legal test cases in `preguntas_de_p
 
 ---
 
-## 4. Pending Work: Problem 10
+## 4. Problem 10: Model Context Protocol (MCP) Search Engine vs. Direct Files
 
-- Implementation of the BM25 search engine as an MCP stdio server for OpenCode.
-- Side-by-side performance and latency benchmark (`salidas/10-comparacion.html`).
+To settle whether IT should maintain a dedicated lexical indexer for autonomous agents or allow agents to browse markdown files directly, both architectures were benchmarked across the 12 legal test cases under strict sandbox rules.
+
+### 4.1 IT Security Condition & OpenCode Permissions
+IT mandated that during the benchmark, the agent using the MCP tool was strictly forbidden from directly opening or browsing `documentos/`:
+- **Modo A (`agente-directo`):** Unrestricted filesystem access using `glob`, `grep`, and `read`.
+- **Modo B (`agente-mcp`):** Filesystem access to `documentos/**` explicitly set to `effect: "deny"` in [`labs/lab5/opencode.json`](file:///home/jr_g/Develop/IA_Aplicada/labs/lab5/opencode.json). The agent interacts exclusively through MCP tool `mcp__buscador__buscar_documentos`.
+
+### 4.2 Benchmark Results (`salidas/10-comparacion.html`)
+
+| Metric | Modo A (Direct Files) | Modo B (MCP Search Tool) | Delta / Efficiency |
+|---|:---:|:---:|:---:|
+| **Legal Accuracy** | 12 / 12 (100.0%) | 12 / 12 (100.0%) | Parity (100% precision) |
+| **Average Context per Query** | 24,437 characters | 2,377 characters | **90.3% reduction** |
+| **Estimated Context Tokens** | 6,777 tokens | 1,262 tokens | **-81.4% KV cache footprint** |
+| **Average Query Latency** | 5.26 seconds | 2.93 seconds | **44.2% faster** (-2.33 s) |
+| **Tools Invoked per Turn** | `glob`, `grep`, `read` | `buscar_documentos` | Single deterministic call |
+
+### 4.3 Executive IT Recommendation
+**Adopt the MCP Search Server (`asistente/servidor_mcp.py`) as the sole documentary access channel for agents.**
+1. **Context Window Preservation:** Slashes prompt size by 90.3%, preventing KV cache saturation and leaving context available for complex reasoning.
+2. **Deterministic Governance:** IT gains an audit boundary where document access, queries, and permissions can be centrally logged and restricted.
+3. **Latency & Cost:** Nearly 2x faster response times on local edge inference without any sacrifice in legal rigor.
+
