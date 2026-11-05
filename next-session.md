@@ -72,4 +72,4 @@ Return: verdict line, table of both models (avg, n, failed, degenerate), whether
 
 ---
 
-**Completion:** _not done_
+**Completion:** DONE (2026-11-05). Measured run spark-20261105T143540Z: ecc-ft 74.83 vs qwen-base 58.00 (+16.83 delta). All checks passed. Docs updated.
