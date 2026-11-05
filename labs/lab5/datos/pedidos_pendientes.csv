@@ -1,0 +1,29 @@
+pedido,proveedor_id,sede,categoria,producto,cantidad,precio_unitario_usd,fecha_pedido,fecha_comprometida,fecha_entrega,estado
+PO-1290,P01,Caracas,Alimentos,Azúcar 5 kg,119,7.59,2026-08-20,2026-08-25,,Pendiente
+PO-1291,P01,Valencia,Alimentos,Azúcar 5 kg,54,6.57,2026-08-21,2026-08-27,,Pendiente
+PO-1295,P04,Valencia,Embalaje,Film estirable,1386,21.75,2026-08-24,2026-09-06,,Pendiente
+PO-1300,P01,Caracas,Alimentos,Café molido 1 kg,101,10.41,2026-08-30,2026-09-12,,Pendiente
+PO-1314,P06,Caracas,Tecnología,Laptops,27,711.36,2026-09-13,2026-09-26,,Pendiente
+PO-1324,P04,Valencia,Embalaje,Film estirable,748,17.46,2026-09-22,2026-10-02,,Pendiente
+PO-1332,P05,Valencia,Papelería,Tóner negro,434,55.75,2026-09-25,2026-10-04,,Pendiente
+PO-1333,P02,Caracas,Embalaje,Cinta de embalar,440,2.24,2026-09-26,2026-10-04,,Pendiente
+PO-1345,P05,Maracaibo,Papelería,Resmas carta,259,4.09,2026-10-03,2026-10-09,,Pendiente
+PO-1346,P03,Caracas,Limpieza,Papel industrial,54,22.6,2026-10-04,2026-10-11,,Pendiente
+PO-1349,P03,Maracaibo,Mantenimiento,Guantes de nitrilo,214,9.19,2026-10-06,2026-10-17,,Pendiente
+PO-1351,P01,Valencia,Alimentos,Café molido 1 kg,115,12.46,2026-10-08,2026-10-15,,Pendiente
+PO-1352,P06,Valencia,Tecnología,"Monitores 24""",33,132.03,2026-10-26,2026-11-02,,Pendiente
+PO-1353,P03,Maracaibo,Mantenimiento,Guantes de nitrilo,218,13.75,2026-10-25,2026-11-05,,Pendiente
+PO-1354,P02,Barquisimeto,Embalaje,Cajas de cartón,1049,2.17,2026-10-16,2026-10-26,,Pendiente
+PO-1355,P01,Valencia,Alimentos,Café molido 1 kg,53,11.76,2026-10-23,2026-11-01,,Pendiente
+PO-1356,P01,Valencia,Alimentos,Café molido 1 kg,116,8.08,2026-10-17,2026-10-27,,Pendiente
+PO-1357,P01,Maracaibo,Alimentos,Café molido 1 kg,184,12.85,2026-10-21,2026-11-01,,Pendiente
+PO-1358,P06,Valencia,Tecnología,"Monitores 24""",24,163.74,2026-10-23,2026-11-01,,Pendiente
+PO-1359,P02,Barquisimeto,Embalaje,Cajas de cartón,1125,1.36,2026-10-20,2026-10-27,,Pendiente
+PO-1360,P05,Caracas,Papelería,Resmas carta,596,4.16,2026-10-27,2026-11-01,,Pendiente
+PO-1361,P05,Maracaibo,Papelería,Resmas carta,461,4.7,2026-10-18,2026-10-28,,Pendiente
+PO-1362,P04,Valencia,Embalaje,Film estirable,642,20.95,2026-10-17,2026-10-28,,Pendiente
+PO-1363,P02,Barquisimeto,Embalaje,Cajas de cartón,397,1.59,2026-10-16,2026-10-21,,Pendiente
+PO-1364,P02,Barquisimeto,Embalaje,Cajas de cartón,616,2.37,2026-10-16,2026-10-25,,Pendiente
+PO-1365,P06,Maracaibo,Tecnología,"Monitores 24""",10,160.84,2026-10-16,2026-10-22,,Pendiente
+PO-1366,P04,Valencia,Embalaje,Film estirable,364,15.47,2026-10-23,2026-10-31,,Pendiente
+PO-1367,P03,Caracas,Mantenimiento,Guantes de nitrilo,110,9.09,2026-10-22,2026-10-30,,Pendiente

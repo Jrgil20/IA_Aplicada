@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Asistente de Compras · Comercial Los Samanes</title>
+  <link rel="stylesheet" href="/estilos.css">
+</head>
+<body>
+  <a class="saltar" href="#pregunta">Ir a la pregunta</a>
+
+  <header class="cabecera">
+    <div class="marca">
+      <div class="monograma" aria-hidden="true">LS</div>
+      <div class="marca-texto">
+        <span class="empresa">Comercial Los Samanes, C.A.</span>
+        <h1>Asistente de Compras</h1>
+      </div>
+    </div>
+    <div class="cabecera-meta">
+      <span class="estado"><span class="punto" aria-hidden="true"></span> Documentos al 05/11/2026</span>
+      <span class="uso">Uso interno · Caracas · Valencia · Maracaibo · Barquisimeto</span>
+      <button id="nueva" class="nueva" type="button">Nueva consulta</button>
+    </div>
+  </header>
+
+  <main id="principal">
+    <section id="inicio" class="portada">
+      <p class="etiqueta">Atención a sedes</p>
+      <h2>Pregunta lo que necesites.<br><span>La respuesta sale de nuestros documentos.</span></h2>
+      <p class="bajada">
+        Contratos, adendas, políticas, procedimientos y actas de compras.
+        Cada respuesta indica el documento y la sección exacta de donde sale.
+      </p>
+
+      <div class="sugerencias" aria-label="Preguntas frecuentes">
+        <button class="chip" type="button" data-pregunta="¿A partir de qué monto una compra necesita tres cotizaciones?">¿Cuándo se piden tres cotizaciones?</button>
+        <button class="chip" type="button" data-pregunta="¿Quién aprueba un reclamo de más de 10.000 dólares?">¿Quién aprueba un reclamo?</button>
+        <button class="chip" type="button" data-pregunta="¿Cuántos días tiene un proveedor para responder un reclamo formal?">Plazo de respuesta a un reclamo</button>
+        <button class="chip" type="button" data-pregunta="¿Cuál es hoy el tope de la penalidad por atraso de Importadora Margarita?">Tope de penalidad de Margarita</button>
+      </div>
+
+      <div class="garantias">
+        <div class="garantia">
+          <span class="garantia-marca" aria-hidden="true">01</span>
+          <div><strong>Fuente a la vista</strong><span>Documento y sección en cada respuesta, sin salir de la página.</span></div>
+        </div>
+        <div class="garantia">
+          <span class="garantia-marca" aria-hidden="true">02</span>
+          <div><strong>Sin inventos</strong><span>Si la respuesta no está en los documentos, el asistente lo dice.</span></div>
+        </div>
+        <div class="garantia">
+          <span class="garantia-marca" aria-hidden="true">03</span>
+          <div><strong>Datos internos</strong><span>El modelo corre en el Spark de la empresa. Nada sale a internet.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="conversacion" class="conversacion" aria-live="polite" aria-label="Conversación"></section>
+  </main>
+
+  <div class="zona-pregunta">
+    <form id="formulario" class="formulario" autocomplete="off">
+      <label class="oculto" for="pregunta">Escribe tu pregunta</label>
+      <textarea id="pregunta" name="pregunta" rows="1" maxlength="1000"
+        placeholder="Escribe tu pregunta en español…" required></textarea>
+      <button id="enviar" type="submit" class="boton">
+        <span>Preguntar</span>
+        <span class="flecha" aria-hidden="true">→</span>
+      </button>
+    </form>
+    <p class="nota-pie">Respuestas basadas solo en los documentos de compras. Verifica la fuente antes de decidir.</p>
+  </div>
+
+  <dialog id="modal-documento" class="modal" aria-labelledby="modal-titulo">
+    <div class="modal-cabecera">
+      <div class="modal-marca">
+        <span id="modal-id" class="modal-id"></span>
+        <h3 id="modal-titulo">Documento</h3>
+        <span id="modal-meta" class="modal-meta"></span>
+      </div>
+      <button id="modal-cerrar" class="cerrar" type="button" aria-label="Cerrar documento">×</button>
+    </div>
+    <div id="modal-cuerpo" class="modal-cuerpo"></div>
+  </dialog>
+
+  <script src="/app.js"></script>
+</body>
+</html>
