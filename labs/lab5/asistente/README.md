@@ -32,12 +32,15 @@ segundo.
    citar `[DOC: id · sección]`, a preferir adendas y políticas vigentes, y a
    responder «No está en los documentos de compras.» cuando no hay evidencia.
 3. **Validación.** El servidor comprueba que cada cita corresponda a un
-   fragmento realmente recuperado y reescribe la cita con la sección exacta.
-   Si la respuesta no trae ninguna fuente válida, reintenta una vez y, si
-   persiste, no entrega una respuesta sin respaldo.
+   fragmento realmente recuperado y reescribe la cita con la sección exacta
+   (acepta `[DOC: …]` y `[FRAGMENTO n]`). Además verifica que toda cifra de la
+   respuesta aparezca en las fuentes citadas; si no, pide corregir y, si
+   insiste, elimina la frase sin respaldo. Si no hay ninguna fuente válida, no
+   entrega una respuesta sin respaldo.
 4. **Interfaz (`estaticos/`).** HTML, CSS y JavaScript propios, sin CDN, sin
    fuentes ni imágenes externas. Responsive para laptop y teléfono. Las fuentes
-   se abren dentro de la misma página y el documento completo también.
+   se abren dentro de la misma página y el documento completo también, con el
+   Markdown renderizado como vista previa (títulos, listas, tablas y citas).
 
 ## Evaluación para Legal
 
@@ -62,6 +65,7 @@ asistente/
 └── estaticos/
     ├── index.html
     ├── estilos.css
+    ├── markdown.js
     └── app.js
 ```
 

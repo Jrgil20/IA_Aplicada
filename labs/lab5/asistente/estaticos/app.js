@@ -43,7 +43,7 @@
     }
 
     lineas.forEach(function (linea) {
-      const vineta = linea.match(/^[-•]\s+(.*)$/);
+      const vineta = linea.match(/^[-*•]\s+(.*)$/);
       const numerada = linea.match(/^\d+[.)]\s+(.*)$/);
       if (vineta || numerada) {
         if (!enLista) { salida.push("<ul>"); enLista = true; }
@@ -230,7 +230,7 @@
     modalId.textContent = docId;
     modalTitulo.textContent = "Cargando documento…";
     modalMeta.textContent = "";
-    modalCuerpo.textContent = "Un momento…";
+    modalCuerpo.innerHTML = '<p class="modal-cargando">Un momento…</p>';
     if (typeof modal.showModal === "function") modal.showModal();
     else modal.setAttribute("open", "");
 
@@ -246,7 +246,18 @@
       if (datos.fecha) partes.push("Fecha: " + datos.fecha);
       if (datos.estado) partes.push(datos.estado);
       modalMeta.textContent = partes.join(" · ");
-      modalCuerpo.textContent = datos.texto;
+
+      const texto = String(datos.texto || "");
+      const sinTitulo = texto.replace(/^#\s+.*\r?\n+/, "");
+      if (window.MarkdownCompras && window.MarkdownCompras.render) {
+        modalCuerpo.innerHTML =
+          '<div class="documento-md">' +
+          window.MarkdownCompras.render(sinTitulo) +
+          "</div>";
+      } else {
+        modalCuerpo.textContent = texto;
+      }
+      modalCuerpo.scrollTop = 0;
     } catch (error) {
       modalTitulo.textContent = "No se pudo abrir el documento";
       modalCuerpo.textContent = error.message || "Intenta de nuevo.";
@@ -278,6 +289,7 @@
   });
 
   botonNueva.addEventListener("click", function () {
+    if (ocupado) return;
     conversacion.innerHTML = "";
     mostrarPortada();
     window.scrollTo({ top: 0, behavior: "smooth" });

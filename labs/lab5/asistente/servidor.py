@@ -16,6 +16,7 @@ import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
+from llm import sanitizar_texto
 from motor import Asistente
 
 BASE = os.path.dirname(os.path.abspath(__file__))
@@ -26,6 +27,7 @@ ASISTENTE: Asistente | None = None
 
 class Manejador(BaseHTTPRequestHandler):
     server_version = "AsistenteCompras/1.0"
+    protocol_version = "HTTP/1.1"
 
     # -- utilidades de respuesta -------------------------------------------
     def _json(self, datos: dict, estado: int = 200) -> None:
@@ -50,6 +52,13 @@ class Manejador(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(cuerpo)))
         self.send_header("Cache-Control", "no-cache")
         self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Referrer-Policy", "no-referrer")
+        self.send_header(
+            "Content-Security-Policy",
+            "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; "
+            "script-src 'self'; connect-src 'self'; base-uri 'none'; "
+            "form-action 'self'; frame-ancestors 'none'",
+        )
         self.end_headers()
         self.wfile.write(cuerpo)
 
@@ -104,7 +113,7 @@ class Manejador(BaseHTTPRequestHandler):
             return
         try:
             datos = json.loads(self.rfile.read(largo).decode("utf-8"))
-            pregunta = str(datos.get("pregunta", "")).strip()
+            pregunta = sanitizar_texto(str(datos.get("pregunta", "")))
         except (UnicodeDecodeError, json.JSONDecodeError):
             self._json({"error": "Solicitud inválida"}, 400)
             return
@@ -124,6 +133,7 @@ class Manejador(BaseHTTPRequestHandler):
             self._json({"error": "Ocurrió un error al consultar los documentos."}, 500)
             return
         respuesta["pregunta"] = pregunta
+        respuesta.pop("evidencia", None)
         self._json(respuesta)
 
 

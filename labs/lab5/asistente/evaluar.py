@@ -157,8 +157,13 @@ def _e(valor) -> str:
     return html.escape(str(valor if valor is not None else ""))
 
 
-def _fuentes_html(fuentes: list[dict]) -> str:
+def _fuentes_html(fuentes: list[dict], negativa: bool = False) -> str:
     if not fuentes:
+        if negativa:
+            return (
+                '<p class="sin-fuente negativa">Respuesta negativa: el dato no está en '
+                "los documentos, por eso no se cita una fuente.</p>"
+            )
         return '<p class="sin-fuente">Sin fuentes citadas. La respuesta no se apoya en un documento.</p>'
     tarjetas = []
     for fuente in fuentes:
@@ -187,7 +192,7 @@ def generar_html(datos: dict) -> str:
             f'<span class="indice-pregunta">{_e(r["pregunta"])}</span>'
             f'<span class="pastilla {estado}">{etiqueta}</span></a>'
         )
-        fuentes = _fuentes_html(r["fuentes"])
+        fuentes = _fuentes_html(r["fuentes"], r.get("negativa", False))
         tiempo = f'{r["ms"] / 1000:.1f} s' if r.get("ms") else ""
         tarjetas.append(
             f'<article class="pregunta {estado}" id="{_e(r["id"])}">'
@@ -219,6 +224,7 @@ def generar_html(datos: dict) -> str:
     aciertos = datos["aciertos"]
     total = datos["total"]
     porcentaje = datos["porcentaje"]
+    porcentaje_txt = f"{porcentaje:g}"
     color = "verde" if porcentaje >= 90 else ("ambar" if porcentaje >= 70 else "rojo")
     resumen = (
         "Todas las preguntas de Legal quedaron cubiertas con fuente documental."
@@ -265,7 +271,7 @@ def generar_html(datos: dict) -> str:
   .nota {{ font-size:12.5px; font-weight:650; }}
   .nota.verde {{ color:var(--verde); }} .nota.ambar {{ color:var(--ambar); }} .nota.rojo {{ color:var(--rojo); }}
   .barra {{ height:8px; background:#e7edf1; border-radius:999px; overflow:hidden; margin-top:12px; }}
-  .barra span {{ display:block; height:100%; width:{porcentaje}%; border-radius:999px;
+  .barra span {{ display:block; height:100%; width:{porcentaje_txt}%; border-radius:999px;
     background:linear-gradient(90deg, var(--verde), #1d9a72); }}
   .metricas {{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:16px; }}
   .metrica {{ background:var(--blanco); border:1px solid var(--linea); border-radius:10px; padding:13px 15px; }}
@@ -308,6 +314,7 @@ def generar_html(datos: dict) -> str:
     color:var(--suave); font-size:12px; white-space:pre-wrap; }}
   .fuente-ruta {{ margin:6px 0 0; font-family:var(--mono); font-size:10px; color:#8798a6; }}
   .sin-fuente {{ margin:0; font-size:12.5px; color:var(--rojo); }}
+  .sin-fuente.negativa {{ color:var(--ambar); }}
   details {{ font-size:12.5px; color:var(--suave); }}
   summary {{ cursor:pointer; font-weight:650; color:var(--azul); }}
   details p {{ margin:8px 0 0; }}
@@ -355,7 +362,7 @@ def generar_html(datos: dict) -> str:
          contra los documentos de compras vigentes al 05/11/2026.</p>
     </div>
     <div class="marcador">
-      <div style="font-size:42px;font-weight:700;line-height:1;letter-spacing:-.03em;">{porcentaje} %</div>
+      <div style="font-size:42px;font-weight:700;line-height:1;letter-spacing:-.03em;">{porcentaje_txt} %</div>
       <div class="nota {color}">{"Aprobado en la evaluación automática" if aciertos == total else "Requiere revisión"}</div>
       <div class="barra" aria-hidden="true"><span></span></div>
       <div style="font-size:11.5px;color:var(--suave);margin-top:7px;">{aciertos} aciertos · {total - aciertos} por revisar</div>

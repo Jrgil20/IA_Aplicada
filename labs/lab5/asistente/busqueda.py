@@ -75,11 +75,11 @@ _ALIAS_PROVEEDOR = {
 _CLASE_POR_TIPO = {
     "contrato de suministro": "contrato",
     "adenda de contrato": "adenda",
-    "política": "politica",
+    "politica": "politica",
     "procedimiento": "procedimiento",
-    "acta de reunión": "acta",
-    "evaluación de proveedor": "evaluacion",
-    "ficha técnica de producto": "ficha",
+    "acta de reunion": "acta",
+    "evaluacion de proveedor": "evaluacion",
+    "ficha tecnica de producto": "ficha",
     "lista de precios": "lista",
     "correo recibido": "correo",
 }
@@ -128,6 +128,12 @@ def tokenizar(texto: str, quitar_vacias: bool = True) -> list[str]:
             continue
         tokens.append(raiz(palabra))
     return tokens
+
+
+_ALIAS_STEMS = {
+    proveedor: {raiz(alias) for alias in alias}
+    for proveedor, alias in _ALIAS_PROVEEDOR.items()
+}
 
 
 # ---------------------------------------------------------------------------
@@ -373,7 +379,7 @@ class Indice:
     @staticmethod
     def _proveedor_detectado(tokens: list[str]) -> str:
         mejor, puntos = "", 0
-        for proveedor, alias in _ALIAS_PROVEEDOR.items():
+        for proveedor, alias in _ALIAS_STEMS.items():
             encontrados = len(alias.intersection(tokens))
             if encontrados > puntos:
                 mejor, puntos = proveedor, encontrados
@@ -418,6 +424,20 @@ class Indice:
                 refuerzo *= 2.4
             elif fragmento.proveedor:
                 refuerzo *= 0.42
+            else:
+                # Actas y correos no tienen un proveedor único: se mira qué
+                # proveedor menciona la sección para no atribuirle a uno lo
+                # que se dijo de otro.
+                tokens_fragmento = set(fragmento.tokens)
+                if tokens_fragmento & _ALIAS_STEMS.get(proveedor, set()):
+                    refuerzo *= 1.8
+                else:
+                    otros = set()
+                    for otro, alias in _ALIAS_STEMS.items():
+                        if otro != proveedor:
+                            otros |= alias
+                    if tokens_fragmento & otros:
+                        refuerzo *= 0.32
         if clases and fragmento.clase in clases:
             refuerzo *= 1.35
         if fragmento.clase == "adenda":
@@ -429,12 +449,20 @@ class Indice:
             refuerzo *= 1.18
         elif anio == 2025:
             refuerzo *= 1.04
-        # Una pregunta con mes pero sin año se refiere a la reunión más
-        # reciente; el acta de 2026 debe pesar más que la de 2025.
-        if fragmento.clase == "acta" and set(tokens) & _MESES and anio >= 2026:
-            refuerzo *= 1.55
-        if fragmento.clase == "acta" and set(tokens) & _MESES and anio == 2025:
-            refuerzo *= 0.70
+        # Una pregunta con mes debe preferir el acta de ese mes, no cualquiera
+        # del mismo año. Se compara contra el título del acta.
+        meses = set(tokens) & _MESES
+        if meses:
+            meses = {"septiembre" if mes == "setiembre" else mes for mes in meses}
+        if fragmento.clase == "acta" and meses:
+            titulo = normalizar(fragmento.titulo)
+            if any(mes in titulo for mes in meses):
+                refuerzo *= 1.55 if anio >= 2026 else 0.70
+            else:
+                # Si la pregunta fija un mes, las actas de otros meses no
+                # deben colarse en el contexto: el modelo termina atribuyendo
+                # a una reunión lo que se dijo en otra.
+                refuerzo *= 0.08
 
         # El boilerplate legal (confidencialidad, seguros, jurisdicción...)
         # comparte muchas palabras con las preguntas y suele desplazar a las
@@ -481,6 +509,14 @@ class Indice:
         for token in list(tokens):
             for equivalente in _EXPANSIONES.get(token, ()):
                 terminos[equivalente] = 0
+        texto_pregunta = normalizar(pregunta)
+        menciona_historia = bool(
+            re.search(
+                r"\b(2024|2025|anterior(?:es)?|antes|historic[oa]s?|reemplazad[oa]s?|"
+                r"derogad[oa]s?|viej[oa]s?|antigu[oa]s?)\b",
+                texto_pregunta,
+            )
+        )
         k1, b = 1.5, 0.75
         resultados: list[Fragmento] = []
         for posicion, tf in enumerate(self._tf):
@@ -497,6 +533,8 @@ class Indice:
             if puntaje <= 0:
                 continue
             fragmento = self.fragmentos[posicion]
+            if not menciona_historia and "reemplazad" in normalizar(fragmento.estado):
+                continue
             puntaje *= self._refuerzo(fragmento, tokens, proveedor, clases)
             copia = Fragmento(**{**fragmento.__dict__, "tokens": Counter()})
             copia.puntaje = round(puntaje, 4)
