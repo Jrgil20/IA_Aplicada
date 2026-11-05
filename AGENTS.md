@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+> **PENDING HANDOFF (2026-11-06):** read [`next-session.md`](./next-session.md) before doing anything else. It holds the Spark evaluation run instructions and the rules for executing it. Remove this notice when that file is marked DONE.
+
 > This file is the single source of truth: `CLAUDE.md`, `.cursorrules`, `.windsurfrules`, `.clinerules` and `GEMINI.md` are all symlinks to `AGENTS.md`. Edit `AGENTS.md`, never the links.
 
 ## Conventions

@@ -39,6 +39,7 @@ All content in `/docs`, `/proyecto`, and `/labs` follows **AI-first documentatio
 
 ```
 .
+├── next-session.md  # Pending handoff: Spark evaluation run (delete when DONE)
 ├── proyecto/     # Semester project: Edge Clean Copilot, proposal and ideas
 ├── labs/         # Logs, code, and submissions for hands-on labs
 └── docs/         # Technical knowledge base (DGX Spark, CUDA, QLoRA, etc.)
