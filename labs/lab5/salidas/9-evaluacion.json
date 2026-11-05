@@ -1,0 +1,858 @@
+{
+  "generado": "05/11/2026 11:56",
+  "modelo": "qwen3-coder (llama-server local)",
+  "documentos": 436,
+  "fragmentos": 848,
+  "duracion_s": 67.2,
+  "total": 12,
+  "aciertos": 12,
+  "porcentaje": 100.0,
+  "resultados": [
+    {
+      "id": "Q01",
+      "pregunta": "¿Cuántos días de gracia tiene Suministros Caroní antes de aplicar la penalidad por atraso?",
+      "respuesta": "Suministros Caroní ofrece 5 días calendario de gracia antes de aplicar la penalidad por atraso [DOC: CT-2025-P03 · Cláusula 8 · Penalidad por atraso].",
+      "fuentes": [
+        {
+          "id": "CT-2025-P03",
+          "titulo": "Contrato de suministro CT-2025-P03 · Suministros Caroní",
+          "tipo": "contrato de suministro",
+          "proveedor": "P03 · Suministros Caroní",
+          "fecha": "2025-01-01",
+          "estado": "vigente",
+          "seccion": "Cláusula 8 · Penalidad por atraso",
+          "fragmento": "Si EL PROVEEDOR entrega un pedido después de su fecha comprometida, LA COMPRADORA puede aplicar una penalidad del 0,4 % del importe del pedido\natrasado por cada día calendario de atraso, contado desde la fecha comprometida hasta la fecha de entrega o, si el pedido sigue pendiente, hasta la fecha\ndel cálculo.\n\nLos primeros 5 días calendario de atraso son días de gracia y no generan penalidad. La penalidad total de un pedido no puede superar el\n8 % de su importe. El importe del pedido es la cantidad por el precio unitario, sin impuestos.\n\nLa penalidad se descuenta de la siguiente factura de EL PROVEEDOR, previa notificación según el Procedimiento de reclamos a proveedores. No se aplica\npenalidad cuando el atraso se deba a fuerza mayor notificada según la cláusula 9 o a una causa imputable a LA COMPRADORA.",
+          "ruta": "documentos/contratos/CT-2025-P03_suministros-caroni.md"
+        }
+      ],
+      "negativa": false,
+      "ms": 1917,
+      "correcta": true,
+      "detalle": "Cumple los hechos clave.",
+      "esperada": "5 días calendario de gracia; después corre la penalidad del 0,4 % diario (CT-2025-P03, cláusula 8).",
+      "criterio": "Debe indicar 5 días calendario de gracia.",
+      "evidencia": [
+        {
+          "id": "CT-2025-P03",
+          "seccion": "Cláusula 8 · Penalidad por atraso",
+          "puntaje": 73.6903
+        },
+        {
+          "id": "CT-2025-P03",
+          "seccion": "Cláusula 5 · Recepción e inspección",
+          "puntaje": 33.992
+        },
+        {
+          "id": "LP-2026-P03_suministros-caroni",
+          "seccion": "Condiciones",
+          "puntaje": 31.6432
+        },
+        {
+          "id": "CT-2025-P03",
+          "seccion": "Cláusula 10 · Notificaciones y reclamos",
+          "puntaje": 31.0846
+        },
+        {
+          "id": "CT-2025-P03",
+          "seccion": "Cláusula 9 · Fuerza mayor",
+          "puntaje": 24.362
+        },
+        {
+          "id": "CT-2025-P03",
+          "seccion": "Cláusula 6 · Calidad y garantía",
+          "puntaje": 23.57
+        },
+        {
+          "id": "CT-2025-P03",
+          "seccion": "Cláusula 15 · Duración y terminación",
+          "puntaje": 21.1203
+        },
+        {
+          "id": "CT-2025-P03",
+          "seccion": "Cláusula 7 · Facturación y pago",
+          "puntaje": 20.366
+        }
+      ]
+    },
+    {
+      "id": "Q02",
+      "pregunta": "¿Cuál es hoy el tope de la penalidad por atraso de Importadora Margarita?",
+      "respuesta": "Hoy, 2026-11-05, el tope de la penalidad por atraso de Importadora Margarita es del 15 % de un pedido atrasado [DOC: AD-2026-P04-01 · Cláusula primera · Nueva penalidad por atraso]. Antes de la adenda, ese tope era del 10 % [DOC: CT-2025-P04 · Cláusula 8 · Penalidad por atraso]. La nueva penalidad aplica a órdenes de compra emitidas desde el 1 de julio de 2026 [DOC: AD-2026-P04-01 · Cláusula segunda · Pedidos a los que se aplica].",
+      "fuentes": [
+        {
+          "id": "AD-2026-P04-01",
+          "titulo": "Adenda N.º 1 al contrato CT-2025-P04 · Importadora Margarita",
+          "tipo": "adenda de contrato",
+          "proveedor": "P04 · Importadora Margarita",
+          "fecha": "2026-06-18",
+          "estado": "vigente",
+          "seccion": "Cláusula primera · Nueva penalidad por atraso",
+          "fragmento": "Se sustituye la cláusula 8 del contrato CT-2025-P04 por la siguiente:\n\nSi EL PROVEEDOR entrega un pedido después de su fecha comprometida, LA COMPRADORA puede aplicar una penalidad del 1 % del importe del pedido atrasado por\ncada día calendario de atraso, contado desde la fecha comprometida hasta la fecha de entrega o, si el pedido sigue pendiente, hasta la fecha del cálculo.\nLos primeros 3 días calendario de atraso son días de gracia y no generan penalidad. La penalidad total de un pedido no puede superar el 15 % de su importe.\nEl importe del pedido es la cantidad por el precio unitario, sin impuestos.",
+          "ruta": "documentos/contratos/AD-2026-P04-01_adenda-importadora-margarita.md"
+        },
+        {
+          "id": "CT-2025-P04",
+          "titulo": "Contrato de suministro CT-2025-P04 · Importadora Margarita",
+          "tipo": "contrato de suministro",
+          "proveedor": "P04 · Importadora Margarita",
+          "fecha": "2025-01-01",
+          "estado": "vigente (modificado por la adenda AD-2026-P04-01)",
+          "seccion": "Cláusula 8 · Penalidad por atraso",
+          "fragmento": "Si EL PROVEEDOR entrega un pedido después de su fecha comprometida, LA COMPRADORA puede aplicar una penalidad del 0,5 % del importe del pedido\natrasado por cada día calendario de atraso, contado desde la fecha comprometida hasta la fecha de entrega o, si el pedido sigue pendiente, hasta la fecha\ndel cálculo.\n\nLos primeros 7 días calendario de atraso son días de gracia y no generan penalidad. La penalidad total de un pedido no puede superar el\n10 % de su importe. El importe del pedido es la cantidad por el precio unitario, sin impuestos.\n\nLa penalidad se descuenta de la siguiente factura de EL PROVEEDOR, previa notificación según el Procedimiento de reclamos a proveedores. No se aplica\npenalidad cuando el atraso se deba a fuerza mayor notificada según la cláusula 9 o a una causa imputable a LA COMPRADORA.",
+          "ruta": "documentos/contratos/CT-2025-P04_importadora-margarita.md"
+        },
+        {
+          "id": "AD-2026-P04-01",
+          "titulo": "Adenda N.º 1 al contrato CT-2025-P04 · Importadora Margarita",
+          "tipo": "adenda de contrato",
+          "proveedor": "P04 · Importadora Margarita",
+          "fecha": "2026-06-18",
+          "estado": "vigente",
+          "seccion": "Cláusula segunda · Pedidos a los que se aplica",
+          "fragmento": "La nueva penalidad se aplica a las órdenes de compra emitidas desde el 1 de julio de 2026. Las órdenes emitidas antes de esa fecha siguen con la\ncláusula 8 original del contrato.",
+          "ruta": "documentos/contratos/AD-2026-P04-01_adenda-importadora-margarita.md"
+        }
+      ],
+      "negativa": false,
+      "ms": 11529,
+      "correcta": true,
+      "detalle": "Cumple los hechos clave.",
+      "esperada": "15 % del importe del pedido, para órdenes emitidas desde el 01/07/2026. Antes de la adenda era 10 % (AD-2026-P04-01, cláusula primera).",
+      "criterio": "Debe indicar el tope vigente del 15 % (adenda).",
+      "evidencia": [
+        {
+          "id": "AD-2026-P04-01",
+          "seccion": "Cláusula primera · Nueva penalidad por atraso",
+          "puntaje": 83.7692
+        },
+        {
+          "id": "AD-2026-P04-01",
+          "seccion": "Antecedentes",
+          "puntaje": 58.2645
+        },
+        {
+          "id": "CT-2025-P04",
+          "seccion": "Cláusula 8 · Penalidad por atraso",
+          "puntaje": 54.8514
+        },
+        {
+          "id": "2026-10-27_P04_actualizacion-de-condiciones-comerciales",
+          "seccion": "Mensaje",
+          "puntaje": 50.6536
+        },
+        {
+          "id": "AD-2026-P04-01",
+          "seccion": "Cláusula segunda · Pedidos a los que se aplica",
+          "puntaje": 45.9192
+        },
+        {
+          "id": "AD-2026-P04-01",
+          "seccion": "Ficha del documento",
+          "puntaje": 33.1978
+        },
+        {
+          "id": "CT-2025-P04",
+          "seccion": "Cláusula 5 · Recepción e inspección",
+          "puntaje": 33.0204
+        },
+        {
+          "id": "LP-2026-P04_importadora-margarita",
+          "seccion": "Condiciones",
+          "puntaje": 30.1852
+        }
+      ]
+    },
+    {
+      "id": "Q03",
+      "pregunta": "¿A partir de qué monto una compra necesita tres cotizaciones?",
+      "respuesta": "Una compra necesita tres cotizaciones a partir de 3.000 dólares [DOC: POL-COM-2026 · Cotizaciones]. Este umbral fue reducido en la política vigente [DOC: POL-COM-2026 · Qué cambió frente a la versión 2024].",
+      "fuentes": [
+        {
+          "id": "POL-COM-2026",
+          "titulo": "Política de compras · versión 2026",
+          "tipo": "política",
+          "proveedor": "",
+          "fecha": "2026-03-01",
+          "estado": "vigente. Reemplaza a POL-COM-2024",
+          "seccion": "Cotizaciones",
+          "fragmento": "Las compras de hasta 3.000 dólares pueden hacerse con una sola cotización de un proveedor registrado. Desde 3.000 dólares se necesitan al menos tres\ncotizaciones de proveedores distintos, que se adjuntan a la solicitud en el ERP. Si no hay tres proveedores disponibles, el comprador lo justifica por escrito\ny la Gerencia de Compras lo aprueba.",
+          "ruta": "documentos/politicas/POL-COM-2026_politica-de-compras.md"
+        },
+        {
+          "id": "POL-COM-2026",
+          "titulo": "Política de compras · versión 2026",
+          "tipo": "política",
+          "proveedor": "",
+          "fecha": "2026-03-01",
+          "estado": "vigente. Reemplaza a POL-COM-2024",
+          "seccion": "Qué cambió frente a la versión 2024",
+          "fragmento": "Se bajó el umbral para pedir tres cotizaciones, se ajustaron los niveles de aprobación y se agregó la evaluación trimestral de proveedores.",
+          "ruta": "documentos/politicas/POL-COM-2026_politica-de-compras.md"
+        }
+      ],
+      "negativa": false,
+      "ms": 4780,
+      "correcta": true,
+      "detalle": "Cumple los hechos clave.",
+      "esperada": "Desde USD 3.000 se necesitan al menos tres cotizaciones de proveedores distintos (POL-COM-2026, Cotizaciones).",
+      "criterio": "Debe indicar el umbral de USD 3.000 para tres cotizaciones.",
+      "evidencia": [
+        {
+          "id": "POL-COM-2026",
+          "seccion": "Cotizaciones",
+          "puntaje": 52.7604
+        },
+        {
+          "id": "POL-COM-2026",
+          "seccion": "Qué cambió frente a la versión 2024",
+          "puntaje": 38.5909
+        },
+        {
+          "id": "POL-COM-2026",
+          "seccion": "Solicitud de compra",
+          "puntaje": 36.8465
+        },
+        {
+          "id": "POL-COM-2026",
+          "seccion": "Fraccionamiento",
+          "puntaje": 24.987
+        },
+        {
+          "id": "ACT-2026-02",
+          "seccion": "Anuncio de la Gerencia de Compras",
+          "puntaje": 14.1758
+        },
+        {
+          "id": "POL-COM-2026",
+          "seccion": "Proveedores registrados",
+          "puntaje": 6.8678
+        },
+        {
+          "id": "PR-COM-05",
+          "seccion": "Qué pasa según el resultado",
+          "puntaje": 6.796
+        },
+        {
+          "id": "POL-COM-2026",
+          "seccion": "Aprobaciones",
+          "puntaje": 6.4541
+        }
+      ]
+    },
+    {
+      "id": "Q04",
+      "pregunta": "¿En cuántos días se paga una factura de Papelera Los Llanos?",
+      "respuesta": "La Compradora paga cada factura a los 45 días calendario de recibirla, siempre que la factura coincida con la orden de compra y con la recepción [DOC: CT-2025-P05 · Cláusula 7 · Facturación y pago]. Si se paga dentro de los 15 días calendario siguientes a su recepción, se concede un descuento por pronto pago del 1,5 % [DOC: CT-2025-P05 · Cláusula 7 · Facturación y pago].",
+      "fuentes": [
+        {
+          "id": "CT-2025-P05",
+          "titulo": "Contrato de suministro CT-2025-P05 · Papelera Los Llanos",
+          "tipo": "contrato de suministro",
+          "proveedor": "P05 · Papelera Los Llanos",
+          "fecha": "2025-01-01",
+          "estado": "vigente",
+          "seccion": "Cláusula 7 · Facturación y pago",
+          "fragmento": "EL PROVEEDOR factura cada pedido una vez entregado y aceptado. LA COMPRADORA paga cada factura a los 45 días calendario de recibirla,\nsiempre que la factura coincida con la orden de compra y con la recepción.\n\nSi Comercial Los Samanes, C.A. paga la factura dentro de los 15 días calendario siguientes a su recepción, EL PROVEEDOR concede un descuento por pronto pago del 1,5 % sobre el importe facturado, sin incluir impuestos. El descuento se aplica en el mismo pago y no requiere nota de crédito.",
+          "ruta": "documentos/contratos/CT-2025-P05_papelera-los-llanos.md"
+        }
+      ],
+      "negativa": false,
+      "ms": 3270,
+      "correcta": true,
+      "detalle": "Cumple los hechos clave.",
+      "esperada": "45 días calendario desde la recepción de la factura (CT-2025-P05, cláusula 7).",
+      "criterio": "Debe indicar 45 días calendario.",
+      "evidencia": [
+        {
+          "id": "CT-2025-P05",
+          "seccion": "Cláusula 7 · Facturación y pago",
+          "puntaje": 66.0312
+        },
+        {
+          "id": "LP-2026-P05_papelera-los-llanos",
+          "seccion": "Condiciones",
+          "puntaje": 31.6339
+        },
+        {
+          "id": "LP-2026-P05_papelera-los-llanos",
+          "seccion": "Precios",
+          "puntaje": 25.4213
+        },
+        {
+          "id": "CT-2025-P05",
+          "seccion": "Cláusula 6 · Calidad y garantía",
+          "puntaje": 24.8862
+        },
+        {
+          "id": "2026-05-16_P05_factura-del-pedido-po-1071",
+          "seccion": "Mensaje",
+          "puntaje": 24.8747
+        },
+        {
+          "id": "2026-02-12_P05_factura-del-pedido-po-1094",
+          "seccion": "Mensaje",
+          "puntaje": 24.2108
+        },
+        {
+          "id": "CT-2025-P05",
+          "seccion": "Cláusula 8 · Penalidad por atraso",
+          "puntaje": 23.8856
+        },
+        {
+          "id": "2026-03-30_P05_estado-de-cuenta",
+          "seccion": "Mensaje",
+          "puntaje": 23.3365
+        }
+      ]
+    },
+    {
+      "id": "Q05",
+      "pregunta": "Si Tecnología Zulia se atrasa porque la mercancía quedó retenida en la aduana, ¿se le cobra penalidad?",
+      "respuesta": "Si Tecnología Zulia se atrasa porque la mercancía quedó retenida en la aduana, no se le cobra penalidad siempre que el retén no se deba a errores de documentación imputables al proveedor [DOC: CT-2025-P06 · Cláusula 9 · Fuerza mayor]. Además, si el proveedor notifica la fuerza mayor dentro de los 5 días calendario siguientes a la fecha comprometida de entrega, se suspenden los días de penalidad durante el tiempo que dure la retención aduanera [DOC: CT-2025-P06 · Cláusula 9 · Fuerza mayor].",
+      "fuentes": [
+        {
+          "id": "CT-2025-P06",
+          "titulo": "Contrato de suministro CT-2025-P06 · Tecnología Zulia",
+          "tipo": "contrato de suministro",
+          "proveedor": "P06 · Tecnología Zulia",
+          "fecha": "2025-01-01",
+          "estado": "vigente",
+          "seccion": "Cláusula 9 · Fuerza mayor",
+          "fragmento": "Se consideran casos de fuerza mayor los hechos imprevisibles e inevitables que impidan cumplir una entrega, como desastres naturales, cortes generales de energía o actos de autoridad. Para equipos importados, también se considera fuerza mayor la retención aduanal de la mercancía, siempre que no se deba a errores de documentación imputables a EL PROVEEDOR.\n\nPara invocar la fuerza mayor, EL PROVEEDOR debe notificarla por escrito a Comercial Los Samanes, C.A. dentro de los 5 días calendario siguientes a la fecha comprometida de entrega del pedido afectado, con el documento que la acredite. Si la notificación llega después de ese plazo, no se acepta la fuerza mayor y se aplica la penalidad por atraso de la cláusula 8 por todos los días de atraso.\n\nMientras dure la fuerza mayor debidamente notificada, no corren días de penalidad para el pedido afectado.",
+          "ruta": "documentos/contratos/CT-2025-P06_tecnologia-zulia.md"
+        }
+      ],
+      "negativa": false,
+      "ms": 9443,
+      "correcta": true,
+      "detalle": "Cumple los hechos clave.",
+      "esperada": "La retención aduanal es fuerza mayor si no se debe a errores de documentación del proveedor; debe notificarse por escrito dentro de 5 días calendario con la constancia. Si se notifica tarde, se aplica la penalidad por todos los días de atraso (CT-2025-P06, cláusulas 8 y 9).",
+      "criterio": "Debe explicar la fuerza mayor aduanal, el plazo de 5 días y que no se cobra si se notifica bien.",
+      "evidencia": [
+        {
+          "id": "2026-10-22_P06_retencion-aduanal-del-pedido-po-1314",
+          "seccion": "Mensaje",
+          "puntaje": 42.2383
+        },
+        {
+          "id": "CT-2025-P06",
+          "seccion": "Cláusula 9 · Fuerza mayor",
+          "puntaje": 41.6986
+        },
+        {
+          "id": "CT-2025-P06",
+          "seccion": "Cláusula 5 · Recepción e inspección",
+          "puntaje": 41.0426
+        },
+        {
+          "id": "CT-2025-P06",
+          "seccion": "Cláusula 8 · Penalidad por atraso",
+          "puntaje": 34.0164
+        },
+        {
+          "id": "LP-2026-P06_tecnologia-zulia",
+          "seccion": "Condiciones",
+          "puntaje": 30.5912
+        },
+        {
+          "id": "CT-2025-P06",
+          "seccion": "Cláusula 10 · Notificaciones y reclamos",
+          "puntaje": 30.0568
+        },
+        {
+          "id": "2026-01-05_P06_lista-de-precios",
+          "seccion": "Mensaje",
+          "puntaje": 22.3617
+        },
+        {
+          "id": "CT-2025-P06",
+          "seccion": "Cláusula 14 · Seguros",
+          "puntaje": 22.2753
+        }
+      ]
+    },
+    {
+      "id": "Q06",
+      "pregunta": "¿Quién aprueba un reclamo de más de 10.000 dólares?",
+      "respuesta": "Un reclamo de más de 10.000 dólares en juego es aprobado por la Gerencia General y la Gerencia de Finanzas, en ese orden [DOC: PR-COM-03 · Quién aprueba el reclamo].",
+      "fuentes": [
+        {
+          "id": "PR-COM-03",
+          "titulo": "Procedimiento de reclamos a proveedores",
+          "tipo": "procedimiento",
+          "proveedor": "",
+          "fecha": "2026-03-01",
+          "estado": "vigente",
+          "seccion": "Quién aprueba el reclamo",
+          "fragmento": "- Reclamos de hasta 10.000 dólares en juego: los aprueba la Gerencia de Compras.\n- Reclamos de más de 10.000 dólares en juego: los aprueban la Gerencia General y la Gerencia de Finanzas, en ese orden.\n\nEl dinero en juego es el importe del pedido afectado, no el de la penalidad.",
+          "ruta": "documentos/procedimientos/PR-COM-03_reclamos-a-proveedores.md"
+        }
+      ],
+      "negativa": false,
+      "ms": 2275,
+      "correcta": true,
+      "detalle": "Cumple los hechos clave.",
+      "esperada": "La Gerencia General y la Gerencia de Finanzas, en ese orden (PR-COM-03, Quién aprueba el reclamo).",
+      "criterio": "Debe nombrar a la Gerencia General y a la Gerencia de Finanzas.",
+      "evidencia": [
+        {
+          "id": "PR-COM-03",
+          "seccion": "Quién aprueba el reclamo",
+          "puntaje": 47.0725
+        },
+        {
+          "id": "POL-COM-2026",
+          "seccion": "Aprobaciones",
+          "puntaje": 24.8484
+        },
+        {
+          "id": "POL-COM-2026",
+          "seccion": "Cotizaciones",
+          "puntaje": 15.9912
+        },
+        {
+          "id": "PR-COM-03",
+          "seccion": "Plazo de respuesta del proveedor",
+          "puntaje": 10.2438
+        },
+        {
+          "id": "PR-COM-03",
+          "seccion": "Cómo se registra y se notifica",
+          "puntaje": 9.1225
+        },
+        {
+          "id": "PR-COM-03",
+          "seccion": "Cuándo se hace un reclamo formal",
+          "puntaje": 8.8629
+        },
+        {
+          "id": "PR-COM-03",
+          "seccion": "Descuento de penalidades",
+          "puntaje": 8.3855
+        },
+        {
+          "id": "CT-2025-P01",
+          "seccion": "Cláusula 10 · Notificaciones y reclamos",
+          "puntaje": 6.0714
+        }
+      ]
+    },
+    {
+      "id": "Q07",
+      "pregunta": "¿A qué se comprometió Logística del Ávila en la reunión de septiembre?",
+      "respuesta": "Logística del Ávila se comprometió a cambiar de transportista desde el 1 de octubre a Transportes Guárico [DOC: ACT-2026-09 · P02 · Logística del Ávila], y a entregar las cajas de cartón a las cuatro sedes en un máximo de 5 días calendario desde la orden [DOC: ACT-2026-09 · P02 · Logística del Ávila].",
+      "fuentes": [
+        {
+          "id": "ACT-2026-09",
+          "titulo": "Acta de la reunión mensual con proveedores · septiembre de 2026",
+          "tipo": "acta de reunión",
+          "proveedor": "",
+          "fecha": "2026-09-24",
+          "estado": "",
+          "seccion": "P02 · Logística del Ávila",
+          "fragmento": "Mariana Echenique, por Logística del Ávila, reportó un camión averiado que retrasó dos entregas en Valencia. También pidió adelantar los pedidos de cinta de embalar antes de diciembre. Compras informó que en el mes el proveedor tuvo 2 pedidos y 2 atrasos.\n\nAcuerdo: Logística del Ávila se comprometió a cambiar de transportista desde el 1 de octubre, a Transportes Guárico, y a entregar las cajas de cartón a las cuatro sedes en un máximo de 5 días calendario desde la orden. Compras revisará el cumplimiento en la reunión de noviembre.",
+          "ruta": "documentos/actas/ACT-2026-09_reunion-proveedores-septiembre.md"
+        }
+      ],
+      "negativa": false,
+      "ms": 9266,
+      "correcta": true,
+      "detalle": "Cumple los hechos clave.",
+      "esperada": "Cambiar de transportista a Transportes Guárico desde el 1 de octubre y entregar las cajas de cartón a las cuatro sedes en un máximo de 5 días calendario desde la orden (ACT-2026-09, P02).",
+      "criterio": "Debe indicar Transportes Guárico, las cajas de cartón y el máximo de 5 días.",
+      "evidencia": [
+        {
+          "id": "ACT-2026-09",
+          "seccion": "P02 · Logística del Ávila",
+          "puntaje": 82.0341
+        },
+        {
+          "id": "2026-10-09_P02_nuevo-transportista-desde-octubre",
+          "seccion": "Mensaje",
+          "puntaje": 43.8376
+        },
+        {
+          "id": "ACT-2026-09",
+          "seccion": "Orden del día",
+          "puntaje": 27.6588
+        },
+        {
+          "id": "CT-2025-P02",
+          "seccion": "Cláusula 17 · Modificaciones",
+          "puntaje": 25.2745
+        },
+        {
+          "id": "CT-2025-P02",
+          "seccion": "Cláusula 3 · Precios",
+          "puntaje": 22.4373
+        },
+        {
+          "id": "LP-2026-P02_logistica-del-avila",
+          "seccion": "Condiciones",
+          "puntaje": 20.5702
+        },
+        {
+          "id": "LP-2026-P02_logistica-del-avila",
+          "seccion": "Precios",
+          "puntaje": 20.3981
+        },
+        {
+          "id": "EV-2026-T1-P02",
+          "seccion": "Acciones",
+          "puntaje": 19.2061
+        }
+      ]
+    },
+    {
+      "id": "Q08",
+      "pregunta": "¿Qué descuento por pronto pago ofrece Tecnología Zulia?",
+      "respuesta": "No consta. El contrato CT-2025-P06 · Tecnología Zulia no menciona ningún descuento por pronto pago [DOC: CT-2025-P06 · Cláusula 7 · Facturación y pago].",
+      "fuentes": [
+        {
+          "id": "CT-2025-P06",
+          "titulo": "Contrato de suministro CT-2025-P06 · Tecnología Zulia",
+          "tipo": "contrato de suministro",
+          "proveedor": "P06 · Tecnología Zulia",
+          "fecha": "2025-01-01",
+          "estado": "vigente",
+          "seccion": "Cláusula 7 · Facturación y pago",
+          "fragmento": "EL PROVEEDOR factura cada pedido una vez entregado y aceptado. LA COMPRADORA paga cada factura a los 30 días calendario de recibirla,\nsiempre que la factura coincida con la orden de compra y con la recepción.\n\nLos pagos se hacen por transferencia a la cuenta que EL PROVEEDOR indique por escrito. Cualquier cambio de cuenta se confirma por teléfono con el representante del proveedor antes del siguiente pago.",
+          "ruta": "documentos/contratos/CT-2025-P06_tecnologia-zulia.md"
+        }
+      ],
+      "negativa": false,
+      "ms": 1797,
+      "correcta": true,
+      "detalle": "Cumple los hechos clave.",
+      "esperada": "No ofrece descuento por pronto pago; el contrato fija el pago a 30 días y no prevé descuento (CT-2025-P06, cláusula 7).",
+      "criterio": "Debe responder que no ofrece descuento por pronto pago, no evadir la pregunta.",
+      "evidencia": [
+        {
+          "id": "CT-2025-P06",
+          "seccion": "Cláusula 7 · Facturación y pago",
+          "puntaje": 51.7762
+        },
+        {
+          "id": "LP-2026-P06_tecnologia-zulia",
+          "seccion": "Condiciones",
+          "puntaje": 37.3087
+        },
+        {
+          "id": "2026-01-05_P06_estado-de-cuenta",
+          "seccion": "Mensaje",
+          "puntaje": 28.5642
+        },
+        {
+          "id": "LP-2026-P06_tecnologia-zulia",
+          "seccion": "Precios",
+          "puntaje": 28.0888
+        },
+        {
+          "id": "2026-08-29_P06_estado-de-cuenta",
+          "seccion": "Mensaje",
+          "puntaje": 27.9926
+        },
+        {
+          "id": "2026-10-02_P06_estado-de-cuenta",
+          "seccion": "Mensaje",
+          "puntaje": 27.9926
+        },
+        {
+          "id": "2026-06-19_P06_estado-de-cuenta",
+          "seccion": "Mensaje",
+          "puntaje": 27.9399
+        },
+        {
+          "id": "2026-04-05_P06_estado-de-cuenta",
+          "seccion": "Mensaje",
+          "puntaje": 26.0433
+        }
+      ]
+    },
+    {
+      "id": "Q09",
+      "pregunta": "¿Cuántos días tiene un proveedor para responder un reclamo formal?",
+      "respuesta": "El proveedor tiene 5 días calendario desde la notificación para responder el reclamo [DOC: PR-COM-03 · Plazo de respuesta del proveedor]. Si no responde en ese plazo, Compras puede aplicar la penalidad sin más trámite [DOC: PR-COM-03 · Plazo de respuesta del proveedor].",
+      "fuentes": [
+        {
+          "id": "PR-COM-03",
+          "titulo": "Procedimiento de reclamos a proveedores",
+          "tipo": "procedimiento",
+          "proveedor": "",
+          "fecha": "2026-03-01",
+          "estado": "vigente",
+          "seccion": "Plazo de respuesta del proveedor",
+          "fragmento": "El proveedor tiene 5 días calendario desde la notificación para responder el reclamo con una fecha de entrega o una propuesta de solución.\nSi no responde en ese plazo, Compras puede aplicar la penalidad sin más trámite y anotarlo en la evaluación trimestral del proveedor.",
+          "ruta": "documentos/procedimientos/PR-COM-03_reclamos-a-proveedores.md"
+        }
+      ],
+      "negativa": false,
+      "ms": 3749,
+      "correcta": true,
+      "detalle": "Cumple los hechos clave.",
+      "esperada": "5 días calendario desde la notificación del reclamo (PR-COM-03, Plazo de respuesta del proveedor).",
+      "criterio": "Debe indicar 5 días calendario desde la notificación.",
+      "evidencia": [
+        {
+          "id": "PR-COM-03",
+          "seccion": "Plazo de respuesta del proveedor",
+          "puntaje": 41.8669
+        },
+        {
+          "id": "PR-COM-03",
+          "seccion": "Cuándo se hace un reclamo formal",
+          "puntaje": 26.5014
+        },
+        {
+          "id": "PR-COM-05",
+          "seccion": "Puntaje",
+          "puntaje": 12.75
+        },
+        {
+          "id": "CT-2025-P01",
+          "seccion": "Cláusula 10 · Notificaciones y reclamos",
+          "puntaje": 12.0501
+        },
+        {
+          "id": "CT-2025-P03",
+          "seccion": "Cláusula 10 · Notificaciones y reclamos",
+          "puntaje": 11.5805
+        },
+        {
+          "id": "CT-2025-P04",
+          "seccion": "Cláusula 10 · Notificaciones y reclamos",
+          "puntaje": 11.3366
+        },
+        {
+          "id": "CT-2025-P02",
+          "seccion": "Cláusula 10 · Notificaciones y reclamos",
+          "puntaje": 11.3212
+        },
+        {
+          "id": "CT-2025-P05",
+          "seccion": "Cláusula 10 · Notificaciones y reclamos",
+          "puntaje": 11.3212
+        }
+      ]
+    },
+    {
+      "id": "Q10",
+      "pregunta": "¿A qué correo se envía un reclamo formal a Importadora Margarita?",
+      "respuesta": "Los reclamos formales a Importadora Margarita se envían al correo reclamos@impmargarita.example.org, con copia al representante del proveedor [DOC: CT-2025-P04 · Cláusula 10 · Notificaciones y reclamos]. Esta cláusula sigue vigente tras la adenda AD-2026-P04-01, que no modificó su contenido [DOC: AD-2026-P04-01 · Cláusula tercera · Lo demás no cambia].",
+      "fuentes": [
+        {
+          "id": "CT-2025-P04",
+          "titulo": "Contrato de suministro CT-2025-P04 · Importadora Margarita",
+          "tipo": "contrato de suministro",
+          "proveedor": "P04 · Importadora Margarita",
+          "fecha": "2025-01-01",
+          "estado": "vigente (modificado por la adenda AD-2026-P04-01)",
+          "seccion": "Cláusula 10 · Notificaciones y reclamos",
+          "fragmento": "Las comunicaciones ordinarias se envían al correo atencion@impmargarita.example.org. Los reclamos formales y las notificaciones de penalidad se envían al correo\nreclamos@impmargarita.example.org, con copia al representante del proveedor. Un reclamo enviado a otro correo no se considera notificado.",
+          "ruta": "documentos/contratos/CT-2025-P04_importadora-margarita.md"
+        },
+        {
+          "id": "AD-2026-P04-01",
+          "titulo": "Adenda N.º 1 al contrato CT-2025-P04 · Importadora Margarita",
+          "tipo": "adenda de contrato",
+          "proveedor": "P04 · Importadora Margarita",
+          "fecha": "2026-06-18",
+          "estado": "vigente",
+          "seccion": "Cláusula tercera · Lo demás no cambia",
+          "fragmento": "Las demás cláusulas del contrato CT-2025-P04 siguen vigentes sin cambios, incluidas la de fuerza mayor y la de notificaciones y reclamos.",
+          "ruta": "documentos/contratos/AD-2026-P04-01_adenda-importadora-margarita.md"
+        }
+      ],
+      "negativa": false,
+      "ms": 3776,
+      "correcta": true,
+      "detalle": "Cumple los hechos clave.",
+      "esperada": "reclamos@impmargarita.example.org, con copia al representante (CT-2025-P04, cláusula 10).",
+      "criterio": "Debe indicar el correo de reclamos de Importadora Margarita.",
+      "evidencia": [
+        {
+          "id": "CT-2025-P04",
+          "seccion": "Cláusula 10 · Notificaciones y reclamos",
+          "puntaje": 56.876
+        },
+        {
+          "id": "AD-2026-P04-01",
+          "seccion": "Cláusula tercera · Lo demás no cambia",
+          "puntaje": 46.6122
+        },
+        {
+          "id": "AD-2026-P04-01",
+          "seccion": "Ficha del documento",
+          "puntaje": 33.1978
+        },
+        {
+          "id": "AD-2026-P04-01",
+          "seccion": "Antecedentes",
+          "puntaje": 29.5505
+        },
+        {
+          "id": "AD-2026-P04-01",
+          "seccion": "Cláusula segunda · Pedidos a los que se aplica",
+          "puntaje": 28.4225
+        },
+        {
+          "id": "EV-2026-T2-P04",
+          "seccion": "Detalle",
+          "puntaje": 25.2834
+        },
+        {
+          "id": "EV-2026-T1-P04",
+          "seccion": "Detalle",
+          "puntaje": 24.9838
+        },
+        {
+          "id": "EV-2026-T3-P04",
+          "seccion": "Detalle",
+          "puntaje": 24.9838
+        }
+      ]
+    },
+    {
+      "id": "Q11",
+      "pregunta": "¿Cuánto es la penalidad por día de atraso de Importadora Margarita?",
+      "respuesta": "La penalidad por día de atraso de Importadora Margarita es del 1 % del importe del pedido atrasado, contado desde la fecha comprometida hasta la fecha de entrega o, si el pedido sigue pendiente, hasta la fecha del cálculo [DOC: AD-2026-P04-01 · Cláusula primera · Nueva penalidad por atraso]. Esta nueva penalidad aplica a las órdenes de compra emitidas desde el 1 de julio de 2026 [DOC: AD-2026-P04-01 · Cláusula segunda · Pedidos a los que se aplica]. Antes de esa fecha, la penalidad era del 0,5 % por día de atraso [DOC: CT-2025-P04 · Cláusula 8 · Penalidad por atraso].",
+      "fuentes": [
+        {
+          "id": "AD-2026-P04-01",
+          "titulo": "Adenda N.º 1 al contrato CT-2025-P04 · Importadora Margarita",
+          "tipo": "adenda de contrato",
+          "proveedor": "P04 · Importadora Margarita",
+          "fecha": "2026-06-18",
+          "estado": "vigente",
+          "seccion": "Cláusula primera · Nueva penalidad por atraso",
+          "fragmento": "Se sustituye la cláusula 8 del contrato CT-2025-P04 por la siguiente:\n\nSi EL PROVEEDOR entrega un pedido después de su fecha comprometida, LA COMPRADORA puede aplicar una penalidad del 1 % del importe del pedido atrasado por\ncada día calendario de atraso, contado desde la fecha comprometida hasta la fecha de entrega o, si el pedido sigue pendiente, hasta la fecha del cálculo.\nLos primeros 3 días calendario de atraso son días de gracia y no generan penalidad. La penalidad total de un pedido no puede superar el 15 % de su importe.\nEl importe del pedido es la cantidad por el precio unitario, sin impuestos.",
+          "ruta": "documentos/contratos/AD-2026-P04-01_adenda-importadora-margarita.md"
+        },
+        {
+          "id": "AD-2026-P04-01",
+          "titulo": "Adenda N.º 1 al contrato CT-2025-P04 · Importadora Margarita",
+          "tipo": "adenda de contrato",
+          "proveedor": "P04 · Importadora Margarita",
+          "fecha": "2026-06-18",
+          "estado": "vigente",
+          "seccion": "Cláusula segunda · Pedidos a los que se aplica",
+          "fragmento": "La nueva penalidad se aplica a las órdenes de compra emitidas desde el 1 de julio de 2026. Las órdenes emitidas antes de esa fecha siguen con la\ncláusula 8 original del contrato.",
+          "ruta": "documentos/contratos/AD-2026-P04-01_adenda-importadora-margarita.md"
+        },
+        {
+          "id": "CT-2025-P04",
+          "titulo": "Contrato de suministro CT-2025-P04 · Importadora Margarita",
+          "tipo": "contrato de suministro",
+          "proveedor": "P04 · Importadora Margarita",
+          "fecha": "2025-01-01",
+          "estado": "vigente (modificado por la adenda AD-2026-P04-01)",
+          "seccion": "Cláusula 8 · Penalidad por atraso",
+          "fragmento": "Si EL PROVEEDOR entrega un pedido después de su fecha comprometida, LA COMPRADORA puede aplicar una penalidad del 0,5 % del importe del pedido\natrasado por cada día calendario de atraso, contado desde la fecha comprometida hasta la fecha de entrega o, si el pedido sigue pendiente, hasta la fecha\ndel cálculo.\n\nLos primeros 7 días calendario de atraso son días de gracia y no generan penalidad. La penalidad total de un pedido no puede superar el\n10 % de su importe. El importe del pedido es la cantidad por el precio unitario, sin impuestos.\n\nLa penalidad se descuenta de la siguiente factura de EL PROVEEDOR, previa notificación según el Procedimiento de reclamos a proveedores. No se aplica\npenalidad cuando el atraso se deba a fuerza mayor notificada según la cláusula 9 o a una causa imputable a LA COMPRADORA.",
+          "ruta": "documentos/contratos/CT-2025-P04_importadora-margarita.md"
+        }
+      ],
+      "negativa": false,
+      "ms": 14193,
+      "correcta": true,
+      "detalle": "Cumple los hechos clave.",
+      "esperada": "1 % del importe por cada día calendario de atraso, para órdenes emitidas desde el 01/07/2026. Antes era 0,5 % (AD-2026-P04-01, cláusula primera).",
+      "criterio": "Debe indicar el 1 % diario vigente (adenda).",
+      "evidencia": [
+        {
+          "id": "AD-2026-P04-01",
+          "seccion": "Cláusula primera · Nueva penalidad por atraso",
+          "puntaje": 77.0462
+        },
+        {
+          "id": "AD-2026-P04-01",
+          "seccion": "Antecedentes",
+          "puntaje": 58.2645
+        },
+        {
+          "id": "CT-2025-P04",
+          "seccion": "Cláusula 8 · Penalidad por atraso",
+          "puntaje": 50.9146
+        },
+        {
+          "id": "AD-2026-P04-01",
+          "seccion": "Cláusula segunda · Pedidos a los que se aplica",
+          "puntaje": 45.9192
+        },
+        {
+          "id": "2026-10-27_P04_actualizacion-de-condiciones-comerciales",
+          "seccion": "Mensaje",
+          "puntaje": 43.1959
+        },
+        {
+          "id": "AD-2026-P04-01",
+          "seccion": "Ficha del documento",
+          "puntaje": 33.1978
+        },
+        {
+          "id": "CT-2025-P04",
+          "seccion": "Cláusula 5 · Recepción e inspección",
+          "puntaje": 33.0204
+        },
+        {
+          "id": "LP-2026-P04_importadora-margarita",
+          "seccion": "Condiciones",
+          "puntaje": 30.1852
+        }
+      ]
+    },
+    {
+      "id": "Q12",
+      "pregunta": "¿Cuántos empleados tiene Distribuidora Andina?",
+      "respuesta": "No está en los documentos de compras. No se proporciona información sobre el número de empleados de Distribuidora Andina.",
+      "fuentes": [],
+      "negativa": true,
+      "ms": 1222,
+      "correcta": true,
+      "detalle": "Cumple los hechos clave.",
+      "esperada": "No está en los documentos: ningún documento de compras indica cuántos empleados tiene Distribuidora Andina.",
+      "criterio": "Debe decir que el dato no está en los documentos y no inventar una cifra.",
+      "evidencia": [
+        {
+          "id": "LP-2026-P01_distribuidora-andina",
+          "seccion": "Condiciones",
+          "puntaje": 19.2374
+        },
+        {
+          "id": "LP-2026-P01_distribuidora-andina",
+          "seccion": "Precios",
+          "puntaje": 18.6094
+        },
+        {
+          "id": "EV-2026-T1-P01",
+          "seccion": "Acciones",
+          "puntaje": 17.9617
+        },
+        {
+          "id": "EV-2026-T2-P01",
+          "seccion": "Acciones",
+          "puntaje": 17.9617
+        },
+        {
+          "id": "EV-2026-T3-P01",
+          "seccion": "Acciones",
+          "puntaje": 17.9617
+        },
+        {
+          "id": "EV-2026-T1-P01",
+          "seccion": "Resultado",
+          "puntaje": 17.547
+        },
+        {
+          "id": "EV-2026-T2-P01",
+          "seccion": "Resultado",
+          "puntaje": 17.547
+        },
+        {
+          "id": "EV-2026-T3-P01",
+          "seccion": "Resultado",
+          "puntaje": 17.547
+        }
+      ]
+    }
+  ]
+}

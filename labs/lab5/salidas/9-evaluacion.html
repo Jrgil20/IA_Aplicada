@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evaluación del Asistente de Compras · Legal</title>
+<style>
+  :root {
+    --tinta:#12283f; --suave:#4a6076; --azul:#173f63; --azul-claro:#e8f0f6;
+    --verde:#0c6b5c; --verde-claro:#e6f4f0; --dorado:#b28a2e;
+    --rojo:#a33d2f; --rojo-claro:#f8e9e6; --ambar:#8a6414; --ambar-claro:#fbf1d7;
+    --fondo:#f2f5f7; --blanco:#fff; --linea:#d9e2e8;
+    --fuente:"Segoe UI","Helvetica Neue",Arial,"Noto Sans",sans-serif;
+    --mono:ui-monospace,"SFMono-Regular",Consolas,monospace;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--fondo); color:var(--tinta); font-family:var(--fuente); line-height:1.55; }
+  .pagina { width:min(1040px, calc(100% - 32px)); margin:0 auto; padding:34px 0 70px; }
+  .cabecera { display:flex; justify-content:space-between; gap:20px; align-items:flex-start;
+    border-bottom:1px solid var(--linea); padding-bottom:18px; }
+  .marca { display:flex; gap:13px; align-items:center; }
+  .monograma { width:44px; height:44px; display:grid; place-items:center; background:var(--tinta);
+    color:#fff; font-size:14px; font-weight:700; letter-spacing:.06em; border-radius:4px; position:relative; }
+  .monograma::after { content:""; position:absolute; left:8px; right:8px; bottom:8px; height:2px; background:var(--dorado); }
+  .empresa { font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--suave); font-weight:600; }
+  h1 { margin:2px 0 0; font-size:22px; letter-spacing:-.01em; }
+  .meta { text-align:right; font-size:12px; color:var(--suave); }
+  .meta strong { display:block; color:var(--tinta); font-size:12.5px; }
+  .hero { display:grid; grid-template-columns:1.1fr 1fr; gap:22px; margin-top:26px;
+    background:var(--blanco); border:1px solid var(--linea); border-radius:14px; padding:26px 28px;
+    box-shadow:0 10px 30px rgba(18,40,63,.07); }
+  .hero-etiqueta { margin:0 0 8px; font-size:10.5px; letter-spacing:.17em; text-transform:uppercase;
+    color:var(--dorado); font-weight:700; }
+  .hero h2 { margin:0; font-size:18px; line-height:1.3; }
+  .hero p { margin:9px 0 0; color:var(--suave); font-size:13.5px; }
+  .marcador { text-align:right; }
+  .nota { font-size:12.5px; font-weight:650; }
+  .nota.verde { color:var(--verde); } .nota.ambar { color:var(--ambar); } .nota.rojo { color:var(--rojo); }
+  .barra { height:8px; background:#e7edf1; border-radius:999px; overflow:hidden; margin-top:12px; }
+  .barra span { display:block; height:100%; width:100%; border-radius:999px;
+    background:linear-gradient(90deg, var(--verde), #1d9a72); }
+  .metricas { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:16px; }
+  .metrica { background:var(--blanco); border:1px solid var(--linea); border-radius:10px; padding:13px 15px; }
+  .metrica strong { display:block; font-size:19px; line-height:1.2; }
+  .metrica span { font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--suave); }
+  h2.seccion { font-size:13px; letter-spacing:.1em; text-transform:uppercase; color:var(--suave);
+    margin:34px 0 10px; }
+  .indice { background:var(--blanco); border:1px solid var(--linea); border-radius:12px; overflow:hidden; }
+  .indice-fila { display:grid; grid-template-columns:52px 1fr auto; gap:12px; align-items:center;
+    padding:11px 16px; text-decoration:none; color:inherit; border-bottom:1px solid #edf1f4; font-size:13px; }
+  .indice-fila:last-child { border-bottom:0; }
+  .indice-fila:hover { background:#f8fafb; }
+  .indice-id { font-family:var(--mono); font-size:11.5px; font-weight:700; color:var(--azul); }
+  .pastilla { display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+    padding:3px 9px; border-radius:999px; white-space:nowrap; }
+  .pastilla.correcta { background:var(--verde-claro); color:var(--verde); }
+  .pastilla.revisar { background:var(--rojo-claro); color:var(--rojo); }
+  .pregunta { background:var(--blanco); border:1px solid var(--linea); border-left:3px solid var(--verde);
+    border-radius:10px; padding:20px 22px; margin-top:14px; break-inside:avoid; }
+  .pregunta.revisar { border-left-color:var(--rojo); }
+  .pregunta-cabecera { display:flex; justify-content:space-between; gap:16px; align-items:flex-start;
+    border-bottom:1px solid #edf1f4; padding-bottom:12px; }
+  .pregunta-id { font-family:var(--mono); font-size:11.5px; font-weight:700; color:var(--azul);
+    background:var(--azul-claro); padding:2px 6px; border-radius:4px; }
+  .pregunta h3 { margin:6px 0 0; font-size:15.5px; line-height:1.35; }
+  .bloque { margin-top:14px; }
+  .bloque h4 { margin:0 0 7px; font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--suave); }
+  .conteo { background:#eef2f5; color:var(--suave); border-radius:999px; padding:0 7px; font-size:10.5px; }
+  .respuesta { font-size:14px; white-space:pre-wrap; }
+  .lista-fuentes { display:grid; gap:9px; }
+  .fuente { border:1px solid var(--linea); border-radius:9px; padding:12px 13px; background:#fbfcfd; }
+  .fuente-cabecera { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:4px; }
+  .fuente-id { font-family:var(--mono); font-size:11px; font-weight:700; color:var(--azul);
+    background:var(--azul-claro); padding:2px 6px; border-radius:4px; }
+  .fuente-tipo { font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--suave); }
+  .fuente-titulo { margin:0; font-size:13px; font-weight:650; }
+  .fuente-seccion { margin:2px 0 7px; font-size:12px; color:var(--verde); font-weight:650; }
+  .fuente blockquote { margin:0; padding:7px 10px; border-left:2px solid var(--linea);
+    color:var(--suave); font-size:12px; white-space:pre-wrap; }
+  .fuente-ruta { margin:6px 0 0; font-family:var(--mono); font-size:10px; color:#8798a6; }
+  .sin-fuente { margin:0; font-size:12.5px; color:var(--rojo); }
+  .sin-fuente.negativa { color:var(--ambar); }
+  details { font-size:12.5px; color:var(--suave); }
+  summary { cursor:pointer; font-weight:650; color:var(--azul); }
+  details p { margin:8px 0 0; }
+  .pie { margin-top:32px; border-top:1px solid var(--linea); padding-top:14px;
+    font-size:11.5px; color:#7b8fa1; display:flex; justify-content:space-between; gap:16px; }
+  @media (max-width:760px) {
+    .hero { grid-template-columns:1fr; }
+    .marcador { text-align:left; }
+    .metricas { grid-template-columns:repeat(2,1fr); }
+    .cabecera { flex-direction:column; }
+    .meta { text-align:left; }
+    .indice-fila { grid-template-columns:44px 1fr auto; }
+  }
+  @media print {
+    body { background:#fff; }
+    .pagina { width:100%; padding:0; }
+    .hero, .metrica, .pregunta, .indice { box-shadow:none; }
+    .pregunta { page-break-inside:avoid; }
+    details { display:block; }
+    details > * { display:block; }
+  }
+</style>
+</head>
+<body>
+<div class="pagina">
+  <header class="cabecera">
+    <div class="marca">
+      <div class="monograma" aria-hidden="true">LS</div>
+      <div>
+        <span class="empresa">Comercial Los Samanes, C.A. · Compras</span>
+        <h1>Evaluación del Asistente de Compras</h1>
+      </div>
+    </div>
+    <div class="meta">
+      <strong>Preparado para la Gerencia de Legal</strong>
+      Problema 9 · 05/11/2026 11:56
+    </div>
+  </header>
+
+  <section class="hero">
+    <div>
+      <p class="hero-etiqueta">Resultado de la evaluación</p>
+      <h2>12 de 12 preguntas de prueba respondidas correctamente</h2>
+      <p>Todas las preguntas de Legal quedaron cubiertas con fuente documental. Se evaluaron las 12 preguntas de <code>preguntas_de_prueba.csv</code>
+         contra los documentos de compras vigentes al 05/11/2026.</p>
+    </div>
+    <div class="marcador">
+      <div style="font-size:42px;font-weight:700;line-height:1;letter-spacing:-.03em;">100 %</div>
+      <div class="nota verde">Aprobado en la evaluación automática</div>
+      <div class="barra" aria-hidden="true"><span></span></div>
+      <div style="font-size:11.5px;color:var(--suave);margin-top:7px;">12 aciertos · 0 por revisar</div>
+    </div>
+  </section>
+
+  <div class="metricas">
+    <div class="metrica"><strong>436</strong><span>Documentos indexados</span></div>
+    <div class="metrica"><strong>12</strong><span>Preguntas de Legal</span></div>
+    <div class="metrica"><strong>qwen3-coder (llama-server local)</strong><span>Modelo local</span></div>
+    <div class="metrica"><strong>67.2 s</strong><span>Duración de la prueba</span></div>
+  </div>
+
+  <h2 class="seccion">Índice de preguntas</h2>
+  <nav class="indice" aria-label="Índice de preguntas">
+    <a class="indice-fila" href="#Q01"><span class="indice-id">Q01</span><span class="indice-pregunta">¿Cuántos días de gracia tiene Suministros Caroní antes de aplicar la penalidad por atraso?</span><span class="pastilla correcta">Correcta</span></a><a class="indice-fila" href="#Q02"><span class="indice-id">Q02</span><span class="indice-pregunta">¿Cuál es hoy el tope de la penalidad por atraso de Importadora Margarita?</span><span class="pastilla correcta">Correcta</span></a><a class="indice-fila" href="#Q03"><span class="indice-id">Q03</span><span class="indice-pregunta">¿A partir de qué monto una compra necesita tres cotizaciones?</span><span class="pastilla correcta">Correcta</span></a><a class="indice-fila" href="#Q04"><span class="indice-id">Q04</span><span class="indice-pregunta">¿En cuántos días se paga una factura de Papelera Los Llanos?</span><span class="pastilla correcta">Correcta</span></a><a class="indice-fila" href="#Q05"><span class="indice-id">Q05</span><span class="indice-pregunta">Si Tecnología Zulia se atrasa porque la mercancía quedó retenida en la aduana, ¿se le cobra penalidad?</span><span class="pastilla correcta">Correcta</span></a><a class="indice-fila" href="#Q06"><span class="indice-id">Q06</span><span class="indice-pregunta">¿Quién aprueba un reclamo de más de 10.000 dólares?</span><span class="pastilla correcta">Correcta</span></a><a class="indice-fila" href="#Q07"><span class="indice-id">Q07</span><span class="indice-pregunta">¿A qué se comprometió Logística del Ávila en la reunión de septiembre?</span><span class="pastilla correcta">Correcta</span></a><a class="indice-fila" href="#Q08"><span class="indice-id">Q08</span><span class="indice-pregunta">¿Qué descuento por pronto pago ofrece Tecnología Zulia?</span><span class="pastilla correcta">Correcta</span></a><a class="indice-fila" href="#Q09"><span class="indice-id">Q09</span><span class="indice-pregunta">¿Cuántos días tiene un proveedor para responder un reclamo formal?</span><span class="pastilla correcta">Correcta</span></a><a class="indice-fila" href="#Q10"><span class="indice-id">Q10</span><span class="indice-pregunta">¿A qué correo se envía un reclamo formal a Importadora Margarita?</span><span class="pastilla correcta">Correcta</span></a><a class="indice-fila" href="#Q11"><span class="indice-id">Q11</span><span class="indice-pregunta">¿Cuánto es la penalidad por día de atraso de Importadora Margarita?</span><span class="pastilla correcta">Correcta</span></a><a class="indice-fila" href="#Q12"><span class="indice-id">Q12</span><span class="indice-pregunta">¿Cuántos empleados tiene Distribuidora Andina?</span><span class="pastilla correcta">Correcta</span></a>
+  </nav>
+
+  <h2 class="seccion">Detalle pregunta por pregunta</h2>
+  <article class="pregunta correcta" id="Q01"><div class="pregunta-cabecera"><div><span class="pregunta-id">Q01</span><h3>¿Cuántos días de gracia tiene Suministros Caroní antes de aplicar la penalidad por atraso?</h3></div><span class="pastilla correcta">Correcta</span></div><div class="bloque"><h4>Respuesta del asistente</h4><div class="respuesta">Suministros Caroní ofrece 5 días calendario de gracia antes de aplicar la penalidad por atraso [DOC: CT-2025-P03 · Cláusula 8 · Penalidad por atraso].</div></div><div class="bloque"><h4>Fuentes citadas <span class="conteo">1</span></h4><div class="lista-fuentes"><article class="fuente"><div class="fuente-cabecera"><span class="fuente-id">CT-2025-P03</span><span class="fuente-tipo">contrato de suministro</span></div><p class="fuente-titulo">Contrato de suministro CT-2025-P03 · Suministros Caroní</p><p class="fuente-seccion">Cláusula 8 · Penalidad por atraso</p><blockquote>Si EL PROVEEDOR entrega un pedido después de su fecha comprometida, LA COMPRADORA puede aplicar una penalidad del 0,4 % del importe del pedido
+atrasado por cada día calendario de atraso, contado desde la fecha comprometida hasta la fecha de entrega o, si el pedido sigue pendiente, hasta la fecha
+del cálculo.
+
+Los primeros 5 días calendario de atraso son días de gracia y no generan penalidad. La penalidad total de un pedido no puede superar el
+8 % de su importe. El importe del pedido es la cantidad por el precio unitario, sin impuestos.
+
+La penalidad se descuenta de la siguiente factura de EL PROVEEDOR, previa notificación según el Procedimiento de reclamos a proveedores. No se aplica
+penalidad cuando el atraso se deba a fuerza mayor notificada según la cláusula 9 o a una causa imputable a LA COMPRADORA.</blockquote><p class="fuente-ruta">documentos/contratos/CT-2025-P03_suministros-caroni.md</p></article></div></div><div class="bloque referencia"><details><summary>Respuesta de referencia y criterio de corrección</summary><p><strong>Referencia:</strong> 5 días calendario de gracia; después corre la penalidad del 0,4 % diario (CT-2025-P03, cláusula 8).</p><p><strong>Criterio automático:</strong> Debe indicar 5 días calendario de gracia.</p><p><strong>Resultado:</strong> Cumple los hechos clave.</p><p><strong>Tiempo de respuesta:</strong> 1.9 s</p></details></div></article><article class="pregunta correcta" id="Q02"><div class="pregunta-cabecera"><div><span class="pregunta-id">Q02</span><h3>¿Cuál es hoy el tope de la penalidad por atraso de Importadora Margarita?</h3></div><span class="pastilla correcta">Correcta</span></div><div class="bloque"><h4>Respuesta del asistente</h4><div class="respuesta">Hoy, 2026-11-05, el tope de la penalidad por atraso de Importadora Margarita es del 15 % de un pedido atrasado [DOC: AD-2026-P04-01 · Cláusula primera · Nueva penalidad por atraso]. Antes de la adenda, ese tope era del 10 % [DOC: CT-2025-P04 · Cláusula 8 · Penalidad por atraso]. La nueva penalidad aplica a órdenes de compra emitidas desde el 1 de julio de 2026 [DOC: AD-2026-P04-01 · Cláusula segunda · Pedidos a los que se aplica].</div></div><div class="bloque"><h4>Fuentes citadas <span class="conteo">3</span></h4><div class="lista-fuentes"><article class="fuente"><div class="fuente-cabecera"><span class="fuente-id">AD-2026-P04-01</span><span class="fuente-tipo">adenda de contrato</span></div><p class="fuente-titulo">Adenda N.º 1 al contrato CT-2025-P04 · Importadora Margarita</p><p class="fuente-seccion">Cláusula primera · Nueva penalidad por atraso</p><blockquote>Se sustituye la cláusula 8 del contrato CT-2025-P04 por la siguiente:
+
+Si EL PROVEEDOR entrega un pedido después de su fecha comprometida, LA COMPRADORA puede aplicar una penalidad del 1 % del importe del pedido atrasado por
+cada día calendario de atraso, contado desde la fecha comprometida hasta la fecha de entrega o, si el pedido sigue pendiente, hasta la fecha del cálculo.
+Los primeros 3 días calendario de atraso son días de gracia y no generan penalidad. La penalidad total de un pedido no puede superar el 15 % de su importe.
+El importe del pedido es la cantidad por el precio unitario, sin impuestos.</blockquote><p class="fuente-ruta">documentos/contratos/AD-2026-P04-01_adenda-importadora-margarita.md</p></article><article class="fuente"><div class="fuente-cabecera"><span class="fuente-id">CT-2025-P04</span><span class="fuente-tipo">contrato de suministro</span></div><p class="fuente-titulo">Contrato de suministro CT-2025-P04 · Importadora Margarita</p><p class="fuente-seccion">Cláusula 8 · Penalidad por atraso</p><blockquote>Si EL PROVEEDOR entrega un pedido después de su fecha comprometida, LA COMPRADORA puede aplicar una penalidad del 0,5 % del importe del pedido
+atrasado por cada día calendario de atraso, contado desde la fecha comprometida hasta la fecha de entrega o, si el pedido sigue pendiente, hasta la fecha
+del cálculo.
+
+Los primeros 7 días calendario de atraso son días de gracia y no generan penalidad. La penalidad total de un pedido no puede superar el
+10 % de su importe. El importe del pedido es la cantidad por el precio unitario, sin impuestos.
+
+La penalidad se descuenta de la siguiente factura de EL PROVEEDOR, previa notificación según el Procedimiento de reclamos a proveedores. No se aplica
+penalidad cuando el atraso se deba a fuerza mayor notificada según la cláusula 9 o a una causa imputable a LA COMPRADORA.</blockquote><p class="fuente-ruta">documentos/contratos/CT-2025-P04_importadora-margarita.md</p></article><article class="fuente"><div class="fuente-cabecera"><span class="fuente-id">AD-2026-P04-01</span><span class="fuente-tipo">adenda de contrato</span></div><p class="fuente-titulo">Adenda N.º 1 al contrato CT-2025-P04 · Importadora Margarita</p><p class="fuente-seccion">Cláusula segunda · Pedidos a los que se aplica</p><blockquote>La nueva penalidad se aplica a las órdenes de compra emitidas desde el 1 de julio de 2026. Las órdenes emitidas antes de esa fecha siguen con la
+cláusula 8 original del contrato.</blockquote><p class="fuente-ruta">documentos/contratos/AD-2026-P04-01_adenda-importadora-margarita.md</p></article></div></div><div class="bloque referencia"><details><summary>Respuesta de referencia y criterio de corrección</summary><p><strong>Referencia:</strong> 15 % del importe del pedido, para órdenes emitidas desde el 01/07/2026. Antes de la adenda era 10 % (AD-2026-P04-01, cláusula primera).</p><p><strong>Criterio automático:</strong> Debe indicar el tope vigente del 15 % (adenda).</p><p><strong>Resultado:</strong> Cumple los hechos clave.</p><p><strong>Tiempo de respuesta:</strong> 11.5 s</p></details></div></article><article class="pregunta correcta" id="Q03"><div class="pregunta-cabecera"><div><span class="pregunta-id">Q03</span><h3>¿A partir de qué monto una compra necesita tres cotizaciones?</h3></div><span class="pastilla correcta">Correcta</span></div><div class="bloque"><h4>Respuesta del asistente</h4><div class="respuesta">Una compra necesita tres cotizaciones a partir de 3.000 dólares [DOC: POL-COM-2026 · Cotizaciones]. Este umbral fue reducido en la política vigente [DOC: POL-COM-2026 · Qué cambió frente a la versión 2024].</div></div><div class="bloque"><h4>Fuentes citadas <span class="conteo">2</span></h4><div class="lista-fuentes"><article class="fuente"><div class="fuente-cabecera"><span class="fuente-id">POL-COM-2026</span><span class="fuente-tipo">política</span></div><p class="fuente-titulo">Política de compras · versión 2026</p><p class="fuente-seccion">Cotizaciones</p><blockquote>Las compras de hasta 3.000 dólares pueden hacerse con una sola cotización de un proveedor registrado. Desde 3.000 dólares se necesitan al menos tres
+cotizaciones de proveedores distintos, que se adjuntan a la solicitud en el ERP. Si no hay tres proveedores disponibles, el comprador lo justifica por escrito
+y la Gerencia de Compras lo aprueba.</blockquote><p class="fuente-ruta">documentos/politicas/POL-COM-2026_politica-de-compras.md</p></article><article class="fuente"><div class="fuente-cabecera"><span class="fuente-id">POL-COM-2026</span><span class="fuente-tipo">política</span></div><p class="fuente-titulo">Política de compras · versión 2026</p><p class="fuente-seccion">Qué cambió frente a la versión 2024</p><blockquote>Se bajó el umbral para pedir tres cotizaciones, se ajustaron los niveles de aprobación y se agregó la evaluación trimestral de proveedores.</blockquote><p class="fuente-ruta">documentos/politicas/POL-COM-2026_politica-de-compras.md</p></article></div></div><div class="bloque referencia"><details><summary>Respuesta de referencia y criterio de corrección</summary><p><strong>Referencia:</strong> Desde USD 3.000 se necesitan al menos tres cotizaciones de proveedores distintos (POL-COM-2026, Cotizaciones).</p><p><strong>Criterio automático:</strong> Debe indicar el umbral de USD 3.000 para tres cotizaciones.</p><p><strong>Resultado:</strong> Cumple los hechos clave.</p><p><strong>Tiempo de respuesta:</strong> 4.8 s</p></details></div></article><article class="pregunta correcta" id="Q04"><div class="pregunta-cabecera"><div><span class="pregunta-id">Q04</span><h3>¿En cuántos días se paga una factura de Papelera Los Llanos?</h3></div><span class="pastilla correcta">Correcta</span></div><div class="bloque"><h4>Respuesta del asistente</h4><div class="respuesta">La Compradora paga cada factura a los 45 días calendario de recibirla, siempre que la factura coincida con la orden de compra y con la recepción [DOC: CT-2025-P05 · Cláusula 7 · Facturación y pago]. Si se paga dentro de los 15 días calendario siguientes a su recepción, se concede un descuento por pronto pago del 1,5 % [DOC: CT-2025-P05 · Cláusula 7 · Facturación y pago].</div></div><div class="bloque"><h4>Fuentes citadas <span class="conteo">1</span></h4><div class="lista-fuentes"><article class="fuente"><div class="fuente-cabecera"><span class="fuente-id">CT-2025-P05</span><span class="fuente-tipo">contrato de suministro</span></div><p class="fuente-titulo">Contrato de suministro CT-2025-P05 · Papelera Los Llanos</p><p class="fuente-seccion">Cláusula 7 · Facturación y pago</p><blockquote>EL PROVEEDOR factura cada pedido una vez entregado y aceptado. LA COMPRADORA paga cada factura a los 45 días calendario de recibirla,
+siempre que la factura coincida con la orden de compra y con la recepción.
+
+Si Comercial Los Samanes, C.A. paga la factura dentro de los 15 días calendario siguientes a su recepción, EL PROVEEDOR concede un descuento por pronto pago del 1,5 % sobre el importe facturado, sin incluir impuestos. El descuento se aplica en el mismo pago y no requiere nota de crédito.</blockquote><p class="fuente-ruta">documentos/contratos/CT-2025-P05_papelera-los-llanos.md</p></article></div></div><div class="bloque referencia"><details><summary>Respuesta de referencia y criterio de corrección</summary><p><strong>Referencia:</strong> 45 días calendario desde la recepción de la factura (CT-2025-P05, cláusula 7).</p><p><strong>Criterio automático:</strong> Debe indicar 45 días calendario.</p><p><strong>Resultado:</strong> Cumple los hechos clave.</p><p><strong>Tiempo de respuesta:</strong> 3.3 s</p></details></div></article><article class="pregunta correcta" id="Q05"><div class="pregunta-cabecera"><div><span class="pregunta-id">Q05</span><h3>Si Tecnología Zulia se atrasa porque la mercancía quedó retenida en la aduana, ¿se le cobra penalidad?</h3></div><span class="pastilla correcta">Correcta</span></div><div class="bloque"><h4>Respuesta del asistente</h4><div class="respuesta">Si Tecnología Zulia se atrasa porque la mercancía quedó retenida en la aduana, no se le cobra penalidad siempre que el retén no se deba a errores de documentación imputables al proveedor [DOC: CT-2025-P06 · Cláusula 9 · Fuerza mayor]. Además, si el proveedor notifica la fuerza mayor dentro de los 5 días calendario siguientes a la fecha comprometida de entrega, se suspenden los días de penalidad durante el tiempo que dure la retención aduanera [DOC: CT-2025-P06 · Cláusula 9 · Fuerza mayor].</div></div><div class="bloque"><h4>Fuentes citadas <span class="conteo">1</span></h4><div class="lista-fuentes"><article class="fuente"><div class="fuente-cabecera"><span class="fuente-id">CT-2025-P06</span><span class="fuente-tipo">contrato de suministro</span></div><p class="fuente-titulo">Contrato de suministro CT-2025-P06 · Tecnología Zulia</p><p class="fuente-seccion">Cláusula 9 · Fuerza mayor</p><blockquote>Se consideran casos de fuerza mayor los hechos imprevisibles e inevitables que impidan cumplir una entrega, como desastres naturales, cortes generales de energía o actos de autoridad. Para equipos importados, también se considera fuerza mayor la retención aduanal de la mercancía, siempre que no se deba a errores de documentación imputables a EL PROVEEDOR.
+
+Para invocar la fuerza mayor, EL PROVEEDOR debe notificarla por escrito a Comercial Los Samanes, C.A. dentro de los 5 días calendario siguientes a la fecha comprometida de entrega del pedido afectado, con el documento que la acredite. Si la notificación llega después de ese plazo, no se acepta la fuerza mayor y se aplica la penalidad por atraso de la cláusula 8 por todos los días de atraso.
+
+Mientras dure la fuerza mayor debidamente notificada, no corren días de penalidad para el pedido afectado.</blockquote><p class="fuente-ruta">documentos/contratos/CT-2025-P06_tecnologia-zulia.md</p></article></div></div><div class="bloque referencia"><details><summary>Respuesta de referencia y criterio de corrección</summary><p><strong>Referencia:</strong> La retención aduanal es fuerza mayor si no se debe a errores de documentación del proveedor; debe notificarse por escrito dentro de 5 días calendario con la constancia. Si se notifica tarde, se aplica la penalidad por todos los días de atraso (CT-2025-P06, cláusulas 8 y 9).</p><p><strong>Criterio automático:</strong> Debe explicar la fuerza mayor aduanal, el plazo de 5 días y que no se cobra si se notifica bien.</p><p><strong>Resultado:</strong> Cumple los hechos clave.</p><p><strong>Tiempo de respuesta:</strong> 9.4 s</p></details></div></article><article class="pregunta correcta" id="Q06"><div class="pregunta-cabecera"><div><span class="pregunta-id">Q06</span><h3>¿Quién aprueba un reclamo de más de 10.000 dólares?</h3></div><span class="pastilla correcta">Correcta</span></div><div class="bloque"><h4>Respuesta del asistente</h4><div class="respuesta">Un reclamo de más de 10.000 dólares en juego es aprobado por la Gerencia General y la Gerencia de Finanzas, en ese orden [DOC: PR-COM-03 · Quién aprueba el reclamo].</div></div><div class="bloque"><h4>Fuentes citadas <span class="conteo">1</span></h4><div class="lista-fuentes"><article class="fuente"><div class="fuente-cabecera"><span class="fuente-id">PR-COM-03</span><span class="fuente-tipo">procedimiento</span></div><p class="fuente-titulo">Procedimiento de reclamos a proveedores</p><p class="fuente-seccion">Quién aprueba el reclamo</p><blockquote>- Reclamos de hasta 10.000 dólares en juego: los aprueba la Gerencia de Compras.
+- Reclamos de más de 10.000 dólares en juego: los aprueban la Gerencia General y la Gerencia de Finanzas, en ese orden.
+
+El dinero en juego es el importe del pedido afectado, no el de la penalidad.</blockquote><p class="fuente-ruta">documentos/procedimientos/PR-COM-03_reclamos-a-proveedores.md</p></article></div></div><div class="bloque referencia"><details><summary>Respuesta de referencia y criterio de corrección</summary><p><strong>Referencia:</strong> La Gerencia General y la Gerencia de Finanzas, en ese orden (PR-COM-03, Quién aprueba el reclamo).</p><p><strong>Criterio automático:</strong> Debe nombrar a la Gerencia General y a la Gerencia de Finanzas.</p><p><strong>Resultado:</strong> Cumple los hechos clave.</p><p><strong>Tiempo de respuesta:</strong> 2.3 s</p></details></div></article><article class="pregunta correcta" id="Q07"><div class="pregunta-cabecera"><div><span class="pregunta-id">Q07</span><h3>¿A qué se comprometió Logística del Ávila en la reunión de septiembre?</h3></div><span class="pastilla correcta">Correcta</span></div><div class="bloque"><h4>Respuesta del asistente</h4><div class="respuesta">Logística del Ávila se comprometió a cambiar de transportista desde el 1 de octubre a Transportes Guárico [DOC: ACT-2026-09 · P02 · Logística del Ávila], y a entregar las cajas de cartón a las cuatro sedes en un máximo de 5 días calendario desde la orden [DOC: ACT-2026-09 · P02 · Logística del Ávila].</div></div><div class="bloque"><h4>Fuentes citadas <span class="conteo">1</span></h4><div class="lista-fuentes"><article class="fuente"><div class="fuente-cabecera"><span class="fuente-id">ACT-2026-09</span><span class="fuente-tipo">acta de reunión</span></div><p class="fuente-titulo">Acta de la reunión mensual con proveedores · septiembre de 2026</p><p class="fuente-seccion">P02 · Logística del Ávila</p><blockquote>Mariana Echenique, por Logística del Ávila, reportó un camión averiado que retrasó dos entregas en Valencia. También pidió adelantar los pedidos de cinta de embalar antes de diciembre. Compras informó que en el mes el proveedor tuvo 2 pedidos y 2 atrasos.
+
+Acuerdo: Logística del Ávila se comprometió a cambiar de transportista desde el 1 de octubre, a Transportes Guárico, y a entregar las cajas de cartón a las cuatro sedes en un máximo de 5 días calendario desde la orden. Compras revisará el cumplimiento en la reunión de noviembre.</blockquote><p class="fuente-ruta">documentos/actas/ACT-2026-09_reunion-proveedores-septiembre.md</p></article></div></div><div class="bloque referencia"><details><summary>Respuesta de referencia y criterio de corrección</summary><p><strong>Referencia:</strong> Cambiar de transportista a Transportes Guárico desde el 1 de octubre y entregar las cajas de cartón a las cuatro sedes en un máximo de 5 días calendario desde la orden (ACT-2026-09, P02).</p><p><strong>Criterio automático:</strong> Debe indicar Transportes Guárico, las cajas de cartón y el máximo de 5 días.</p><p><strong>Resultado:</strong> Cumple los hechos clave.</p><p><strong>Tiempo de respuesta:</strong> 9.3 s</p></details></div></article><article class="pregunta correcta" id="Q08"><div class="pregunta-cabecera"><div><span class="pregunta-id">Q08</span><h3>¿Qué descuento por pronto pago ofrece Tecnología Zulia?</h3></div><span class="pastilla correcta">Correcta</span></div><div class="bloque"><h4>Respuesta del asistente</h4><div class="respuesta">No consta. El contrato CT-2025-P06 · Tecnología Zulia no menciona ningún descuento por pronto pago [DOC: CT-2025-P06 · Cláusula 7 · Facturación y pago].</div></div><div class="bloque"><h4>Fuentes citadas <span class="conteo">1</span></h4><div class="lista-fuentes"><article class="fuente"><div class="fuente-cabecera"><span class="fuente-id">CT-2025-P06</span><span class="fuente-tipo">contrato de suministro</span></div><p class="fuente-titulo">Contrato de suministro CT-2025-P06 · Tecnología Zulia</p><p class="fuente-seccion">Cláusula 7 · Facturación y pago</p><blockquote>EL PROVEEDOR factura cada pedido una vez entregado y aceptado. LA COMPRADORA paga cada factura a los 30 días calendario de recibirla,
+siempre que la factura coincida con la orden de compra y con la recepción.
+
+Los pagos se hacen por transferencia a la cuenta que EL PROVEEDOR indique por escrito. Cualquier cambio de cuenta se confirma por teléfono con el representante del proveedor antes del siguiente pago.</blockquote><p class="fuente-ruta">documentos/contratos/CT-2025-P06_tecnologia-zulia.md</p></article></div></div><div class="bloque referencia"><details><summary>Respuesta de referencia y criterio de corrección</summary><p><strong>Referencia:</strong> No ofrece descuento por pronto pago; el contrato fija el pago a 30 días y no prevé descuento (CT-2025-P06, cláusula 7).</p><p><strong>Criterio automático:</strong> Debe responder que no ofrece descuento por pronto pago, no evadir la pregunta.</p><p><strong>Resultado:</strong> Cumple los hechos clave.</p><p><strong>Tiempo de respuesta:</strong> 1.8 s</p></details></div></article><article class="pregunta correcta" id="Q09"><div class="pregunta-cabecera"><div><span class="pregunta-id">Q09</span><h3>¿Cuántos días tiene un proveedor para responder un reclamo formal?</h3></div><span class="pastilla correcta">Correcta</span></div><div class="bloque"><h4>Respuesta del asistente</h4><div class="respuesta">El proveedor tiene 5 días calendario desde la notificación para responder el reclamo [DOC: PR-COM-03 · Plazo de respuesta del proveedor]. Si no responde en ese plazo, Compras puede aplicar la penalidad sin más trámite [DOC: PR-COM-03 · Plazo de respuesta del proveedor].</div></div><div class="bloque"><h4>Fuentes citadas <span class="conteo">1</span></h4><div class="lista-fuentes"><article class="fuente"><div class="fuente-cabecera"><span class="fuente-id">PR-COM-03</span><span class="fuente-tipo">procedimiento</span></div><p class="fuente-titulo">Procedimiento de reclamos a proveedores</p><p class="fuente-seccion">Plazo de respuesta del proveedor</p><blockquote>El proveedor tiene 5 días calendario desde la notificación para responder el reclamo con una fecha de entrega o una propuesta de solución.
+Si no responde en ese plazo, Compras puede aplicar la penalidad sin más trámite y anotarlo en la evaluación trimestral del proveedor.</blockquote><p class="fuente-ruta">documentos/procedimientos/PR-COM-03_reclamos-a-proveedores.md</p></article></div></div><div class="bloque referencia"><details><summary>Respuesta de referencia y criterio de corrección</summary><p><strong>Referencia:</strong> 5 días calendario desde la notificación del reclamo (PR-COM-03, Plazo de respuesta del proveedor).</p><p><strong>Criterio automático:</strong> Debe indicar 5 días calendario desde la notificación.</p><p><strong>Resultado:</strong> Cumple los hechos clave.</p><p><strong>Tiempo de respuesta:</strong> 3.7 s</p></details></div></article><article class="pregunta correcta" id="Q10"><div class="pregunta-cabecera"><div><span class="pregunta-id">Q10</span><h3>¿A qué correo se envía un reclamo formal a Importadora Margarita?</h3></div><span class="pastilla correcta">Correcta</span></div><div class="bloque"><h4>Respuesta del asistente</h4><div class="respuesta">Los reclamos formales a Importadora Margarita se envían al correo reclamos@impmargarita.example.org, con copia al representante del proveedor [DOC: CT-2025-P04 · Cláusula 10 · Notificaciones y reclamos]. Esta cláusula sigue vigente tras la adenda AD-2026-P04-01, que no modificó su contenido [DOC: AD-2026-P04-01 · Cláusula tercera · Lo demás no cambia].</div></div><div class="bloque"><h4>Fuentes citadas <span class="conteo">2</span></h4><div class="lista-fuentes"><article class="fuente"><div class="fuente-cabecera"><span class="fuente-id">CT-2025-P04</span><span class="fuente-tipo">contrato de suministro</span></div><p class="fuente-titulo">Contrato de suministro CT-2025-P04 · Importadora Margarita</p><p class="fuente-seccion">Cláusula 10 · Notificaciones y reclamos</p><blockquote>Las comunicaciones ordinarias se envían al correo atencion@impmargarita.example.org. Los reclamos formales y las notificaciones de penalidad se envían al correo
+reclamos@impmargarita.example.org, con copia al representante del proveedor. Un reclamo enviado a otro correo no se considera notificado.</blockquote><p class="fuente-ruta">documentos/contratos/CT-2025-P04_importadora-margarita.md</p></article><article class="fuente"><div class="fuente-cabecera"><span class="fuente-id">AD-2026-P04-01</span><span class="fuente-tipo">adenda de contrato</span></div><p class="fuente-titulo">Adenda N.º 1 al contrato CT-2025-P04 · Importadora Margarita</p><p class="fuente-seccion">Cláusula tercera · Lo demás no cambia</p><blockquote>Las demás cláusulas del contrato CT-2025-P04 siguen vigentes sin cambios, incluidas la de fuerza mayor y la de notificaciones y reclamos.</blockquote><p class="fuente-ruta">documentos/contratos/AD-2026-P04-01_adenda-importadora-margarita.md</p></article></div></div><div class="bloque referencia"><details><summary>Respuesta de referencia y criterio de corrección</summary><p><strong>Referencia:</strong> reclamos@impmargarita.example.org, con copia al representante (CT-2025-P04, cláusula 10).</p><p><strong>Criterio automático:</strong> Debe indicar el correo de reclamos de Importadora Margarita.</p><p><strong>Resultado:</strong> Cumple los hechos clave.</p><p><strong>Tiempo de respuesta:</strong> 3.8 s</p></details></div></article><article class="pregunta correcta" id="Q11"><div class="pregunta-cabecera"><div><span class="pregunta-id">Q11</span><h3>¿Cuánto es la penalidad por día de atraso de Importadora Margarita?</h3></div><span class="pastilla correcta">Correcta</span></div><div class="bloque"><h4>Respuesta del asistente</h4><div class="respuesta">La penalidad por día de atraso de Importadora Margarita es del 1 % del importe del pedido atrasado, contado desde la fecha comprometida hasta la fecha de entrega o, si el pedido sigue pendiente, hasta la fecha del cálculo [DOC: AD-2026-P04-01 · Cláusula primera · Nueva penalidad por atraso]. Esta nueva penalidad aplica a las órdenes de compra emitidas desde el 1 de julio de 2026 [DOC: AD-2026-P04-01 · Cláusula segunda · Pedidos a los que se aplica]. Antes de esa fecha, la penalidad era del 0,5 % por día de atraso [DOC: CT-2025-P04 · Cláusula 8 · Penalidad por atraso].</div></div><div class="bloque"><h4>Fuentes citadas <span class="conteo">3</span></h4><div class="lista-fuentes"><article class="fuente"><div class="fuente-cabecera"><span class="fuente-id">AD-2026-P04-01</span><span class="fuente-tipo">adenda de contrato</span></div><p class="fuente-titulo">Adenda N.º 1 al contrato CT-2025-P04 · Importadora Margarita</p><p class="fuente-seccion">Cláusula primera · Nueva penalidad por atraso</p><blockquote>Se sustituye la cláusula 8 del contrato CT-2025-P04 por la siguiente:
+
+Si EL PROVEEDOR entrega un pedido después de su fecha comprometida, LA COMPRADORA puede aplicar una penalidad del 1 % del importe del pedido atrasado por
+cada día calendario de atraso, contado desde la fecha comprometida hasta la fecha de entrega o, si el pedido sigue pendiente, hasta la fecha del cálculo.
+Los primeros 3 días calendario de atraso son días de gracia y no generan penalidad. La penalidad total de un pedido no puede superar el 15 % de su importe.
+El importe del pedido es la cantidad por el precio unitario, sin impuestos.</blockquote><p class="fuente-ruta">documentos/contratos/AD-2026-P04-01_adenda-importadora-margarita.md</p></article><article class="fuente"><div class="fuente-cabecera"><span class="fuente-id">AD-2026-P04-01</span><span class="fuente-tipo">adenda de contrato</span></div><p class="fuente-titulo">Adenda N.º 1 al contrato CT-2025-P04 · Importadora Margarita</p><p class="fuente-seccion">Cláusula segunda · Pedidos a los que se aplica</p><blockquote>La nueva penalidad se aplica a las órdenes de compra emitidas desde el 1 de julio de 2026. Las órdenes emitidas antes de esa fecha siguen con la
+cláusula 8 original del contrato.</blockquote><p class="fuente-ruta">documentos/contratos/AD-2026-P04-01_adenda-importadora-margarita.md</p></article><article class="fuente"><div class="fuente-cabecera"><span class="fuente-id">CT-2025-P04</span><span class="fuente-tipo">contrato de suministro</span></div><p class="fuente-titulo">Contrato de suministro CT-2025-P04 · Importadora Margarita</p><p class="fuente-seccion">Cláusula 8 · Penalidad por atraso</p><blockquote>Si EL PROVEEDOR entrega un pedido después de su fecha comprometida, LA COMPRADORA puede aplicar una penalidad del 0,5 % del importe del pedido
+atrasado por cada día calendario de atraso, contado desde la fecha comprometida hasta la fecha de entrega o, si el pedido sigue pendiente, hasta la fecha
+del cálculo.
+
+Los primeros 7 días calendario de atraso son días de gracia y no generan penalidad. La penalidad total de un pedido no puede superar el
+10 % de su importe. El importe del pedido es la cantidad por el precio unitario, sin impuestos.
+
+La penalidad se descuenta de la siguiente factura de EL PROVEEDOR, previa notificación según el Procedimiento de reclamos a proveedores. No se aplica
+penalidad cuando el atraso se deba a fuerza mayor notificada según la cláusula 9 o a una causa imputable a LA COMPRADORA.</blockquote><p class="fuente-ruta">documentos/contratos/CT-2025-P04_importadora-margarita.md</p></article></div></div><div class="bloque referencia"><details><summary>Respuesta de referencia y criterio de corrección</summary><p><strong>Referencia:</strong> 1 % del importe por cada día calendario de atraso, para órdenes emitidas desde el 01/07/2026. Antes era 0,5 % (AD-2026-P04-01, cláusula primera).</p><p><strong>Criterio automático:</strong> Debe indicar el 1 % diario vigente (adenda).</p><p><strong>Resultado:</strong> Cumple los hechos clave.</p><p><strong>Tiempo de respuesta:</strong> 14.2 s</p></details></div></article><article class="pregunta correcta" id="Q12"><div class="pregunta-cabecera"><div><span class="pregunta-id">Q12</span><h3>¿Cuántos empleados tiene Distribuidora Andina?</h3></div><span class="pastilla correcta">Correcta</span></div><div class="bloque"><h4>Respuesta del asistente</h4><div class="respuesta">No está en los documentos de compras. No se proporciona información sobre el número de empleados de Distribuidora Andina.</div></div><div class="bloque"><h4>Fuentes citadas <span class="conteo">0</span></h4><p class="sin-fuente negativa">Respuesta negativa: el dato no está en los documentos, por eso no se cita una fuente.</p></div><div class="bloque referencia"><details><summary>Respuesta de referencia y criterio de corrección</summary><p><strong>Referencia:</strong> No está en los documentos: ningún documento de compras indica cuántos empleados tiene Distribuidora Andina.</p><p><strong>Criterio automático:</strong> Debe decir que el dato no está en los documentos y no inventar una cifra.</p><p><strong>Resultado:</strong> Cumple los hechos clave.</p><p><strong>Tiempo de respuesta:</strong> 1.2 s</p></details></div></article>
+
+  <footer class="pie">
+    <span>Evaluación automática contra hechos clave; las respuestas y sus fuentes quedan a la vista para la revisión humana de Legal.</span>
+    <span>Generado el 05/11/2026 11:56</span>
+  </footer>
+</div>
+</body>
+</html>

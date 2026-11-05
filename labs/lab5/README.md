@@ -22,13 +22,15 @@ El asistente del problema 9 corre en el Spark y se abre desde el navegador de la
 - Directo: `http://<ip-del-spark>:8501`.
 - Si la red no deja pasar ese puerto, abre un túnel desde la laptop y deja esa terminal abierta: `ssh -N -L 8501:127.0.0.1:8501 <tu-usuario>@<ip-del-spark>`. Luego entra a `http://localhost:8501`.
 
-## Los problemas
+## Los problemas y entregables
 
-| # | Problema |
-| --- | --- |
-| 8 | [Lo que dice el contrato](problemas/8-lo-que-dice-el-contrato.md) |
-| 9 | [Pregúntale a compras](problemas/9-preguntale-a-compras.md) |
-| 10 | [El buscador para el agente](problemas/10-el-buscador-para-el-agente.md), para quien termine el 9 |
+| # | Problema | Entregable Validado | Estado |
+|---|---|---|:---:|
+| 8 | [Lo que dice el contrato](problemas/8-lo-que-dice-el-contrato.md) | [8-penalidades.html](salidas/8-penalidades.html) | ✅ 100% Validado ($11.362,63 USD) |
+| 9 | [Pregúntale a compras](problemas/9-preguntale-a-compras.md) | [9-evaluacion.html](salidas/9-evaluacion.html) · [Asistente](asistente/) | ✅ 12/12 Aciertos (100.0%) |
+| 10 | [El buscador para el agente](problemas/10-el-buscador-para-el-agente.md) | [10-comparacion.html](salidas/10-comparacion.html) · [MCP](asistente/servidor_mcp.py) | ✅ -90.3% Contexto / 12 de 12 |
+
+> 📖 **Informe Técnico Consolidado:** Consulta el reporte exhaustivo con auditoría de seguridad y decisiones de arquitectura en [lab-05.md](../lab-05.md).
 
 ## Qué hay en la carpeta
 

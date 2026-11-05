@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Buscador para el agente · Comparación para TI</title>
+<style>
+  :root {
+    --tinta:#12283f; --suave:#4a6076; --azul:#173f63; --azul-claro:#e8f0f6;
+    --verde:#0c6b5c; --verde-claro:#e6f4f0; --dorado:#b28a2e; --dorado-claro:#fbf4e2;
+    --rojo:#a33d2f; --rojo-claro:#f8e9e6; --ambar:#8a6414; --ambar-claro:#fbf1d7;
+    --fondo:#f2f5f7; --blanco:#fff; --linea:#d9e2e8;
+    --fuente:"Segoe UI","Helvetica Neue",Arial,"Noto Sans",sans-serif;
+    --mono:ui-monospace,"SFMono-Regular",Consolas,monospace;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--fondo); color:var(--tinta); font-family:var(--fuente); line-height:1.55; }
+  .pagina { width:min(1180px, calc(100% - 32px)); margin:0 auto; padding:34px 0 70px; }
+  .cabecera { display:flex; justify-content:space-between; gap:20px; align-items:flex-start;
+    border-bottom:1px solid var(--linea); padding-bottom:18px; }
+  .marca { display:flex; gap:13px; align-items:center; }
+  .monograma { width:46px; height:46px; display:grid; place-items:center; background:var(--tinta);
+    color:#fff; font-size:14px; font-weight:700; letter-spacing:.06em; border-radius:4px; position:relative; }
+  .monograma::after { content:""; position:absolute; left:8px; right:8px; bottom:8px; height:2px; background:var(--dorado); }
+  .empresa { font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--suave); font-weight:600; }
+  h1 { margin:2px 0 0; font-size:23px; letter-spacing:-.01em; }
+  .meta { text-align:right; font-size:12px; color:var(--suave); }
+  .meta strong { display:block; color:var(--tinta); font-size:12.5px; }
+
+  .recomendacion { margin-top:26px; background:linear-gradient(135deg,#12324f,#173f63); color:#fff;
+    border-radius:14px; padding:28px 30px; box-shadow:0 14px 34px rgba(18,40,63,.18); }
+  .recomendacion .etiqueta { margin:0 0 8px; font-size:10.5px; letter-spacing:.18em; text-transform:uppercase;
+    color:#e8c879; font-weight:700; }
+  .recomendacion h2 { margin:0; font-size:24px; line-height:1.25; max-width:900px; }
+  .recomendacion p { margin:12px 0 0; color:#cfe0ec; font-size:14px; max-width:980px; }
+  .recomendacion code { background:rgba(255,255,255,.12); padding:1px 5px; border-radius:4px; color:#fff; }
+  .sello { display:inline-flex; align-items:center; gap:7px; margin-top:17px; background:rgba(255,255,255,.10);
+    border:1px solid rgba(255,255,255,.22); border-radius:999px; padding:6px 13px; font-size:12px; font-weight:600; }
+  .sello::before { content:""; width:7px; height:7px; border-radius:50%; background:#63d2a8; }
+
+  .metricas { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:16px; }
+  .metrica { background:var(--blanco); border:1px solid var(--linea); border-radius:11px; padding:15px 17px; }
+  .metrica .rotulo { font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--suave); }
+  .metrica strong { display:block; font-size:24px; line-height:1.25; margin-top:3px; letter-spacing:-.01em; }
+  .metrica small { display:block; color:var(--suave); font-size:11.5px; margin-top:2px; }
+  .metrica.verde strong { color:var(--verde); }
+  .metrica.ambar strong { color:var(--ambar); }
+  .metrica.rojo strong { color:var(--rojo); }
+
+  h2.seccion { font-size:12.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--suave);
+    margin:34px 0 10px; }
+  .metodos { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .metodo { display:flex; gap:13px; background:var(--blanco); border:1px solid var(--linea);
+    border-radius:11px; padding:16px 18px; }
+  .metodo .letra { flex:0 0 auto; width:28px; height:28px; border-radius:50%; display:grid; place-items:center;
+    background:var(--azul-claro); color:var(--azul); font-weight:700; font-size:13px; }
+  .metodo h3 { margin:2px 0 4px; font-size:14px; }
+  .metodo p { margin:0; font-size:12.5px; color:var(--suave); }
+  .metodo code { font-family:var(--mono); font-size:11.5px; background:#eef2f5; padding:1px 4px; border-radius:3px; }
+
+  .tabla-envoltura { background:var(--blanco); border:1px solid var(--linea); border-radius:12px; overflow:hidden; }
+  table { width:100%; border-collapse:collapse; font-size:12.5px; }
+  thead th { background:#eef3f6; color:var(--suave); text-align:left; font-size:10.5px;
+    letter-spacing:.07em; text-transform:uppercase; padding:11px 12px; border-bottom:1px solid var(--linea); }
+  thead th.grupo-a { border-top:2px solid #9fb4c6; }
+  thead th.grupo-b { border-top:2px solid var(--verde); }
+  tbody td { padding:12px; border-bottom:1px solid #edf1f4; vertical-align:top; }
+  tbody tr:last-child td { border-bottom:0; }
+  tbody tr:hover { background:#fafcfd; }
+  td.id { font-family:var(--mono); font-size:11px; font-weight:700; color:var(--azul); white-space:nowrap; }
+  td.pregunta { min-width:230px; }
+  .dato { display:block; font-weight:700; font-size:13px; white-space:nowrap; }
+  .sub { display:block; font-size:11px; color:var(--suave); white-space:nowrap; }
+  .pastilla { display:inline-block; font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+    padding:3px 8px; border-radius:999px; white-space:nowrap; }
+  .pastilla.ok { background:var(--verde-claro); color:var(--verde); }
+  .pastilla.falla { background:var(--rojo-claro); color:var(--rojo); }
+  details { margin-top:6px; font-size:11.5px; }
+  summary { cursor:pointer; color:var(--azul); font-weight:600; }
+  details p { margin:6px 0 0; color:var(--tinta); font-size:11.5px; }
+  details p.ref { color:var(--suave); font-family:var(--mono); font-size:10px; }
+  .ganador { display:inline-block; font-size:10.5px; font-weight:700; padding:3px 8px; border-radius:5px; white-space:nowrap; }
+  .ganador.mcp { background:var(--verde-claro); color:var(--verde); }
+  .ganador.directo { background:var(--ambar-claro); color:var(--ambar); }
+  .ganador.empate { background:#eef2f5; color:var(--suave); }
+
+  .condicion { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:10px; }
+  .panel { background:var(--blanco); border:1px solid var(--linea); border-radius:11px; padding:18px 20px; }
+  .panel h3 { margin:0 0 7px; font-size:14px; }
+  .panel p { margin:0; font-size:12.5px; color:var(--suave); }
+  .panel ul { margin:8px 0 0 18px; padding:0; font-size:12.5px; color:var(--suave); }
+  .panel li { margin:3px 0; }
+  .panel code { font-family:var(--mono); font-size:11.5px; background:#eef2f5; padding:1px 4px; border-radius:3px; }
+  pre { margin:10px 0 0; background:#0f2233; color:#d6e4ef; border-radius:8px; padding:12px 14px;
+    font-family:var(--mono); font-size:10.8px; line-height:1.5; overflow-x:auto; }
+
+  .pie { margin-top:32px; border-top:1px solid var(--linea); padding-top:14px;
+    font-size:11.5px; color:#7b8fa1; display:flex; justify-content:space-between; gap:16px; }
+  @media (max-width:900px) {
+    .metricas { grid-template-columns:repeat(2,1fr); }
+    .metodos, .condicion { grid-template-columns:1fr; }
+    .cabecera { flex-direction:column; }
+    .meta { text-align:left; }
+    .tabla-envoltura { overflow-x:auto; }
+    table { min-width:980px; }
+  }
+  @media print {
+    body { background:#fff; }
+    .pagina { width:100%; padding:0; }
+    .recomendacion, .metrica, .metodo, .panel, .tabla-envoltura { box-shadow:none; }
+    details { display:block; }
+    details > * { display:block; }
+  }
+</style>
+</head>
+<body>
+<div class="pagina">
+  <header class="cabecera">
+    <div class="marca">
+      <div class="monograma" aria-hidden="true">LS</div>
+      <div>
+        <span class="empresa">Comercial Los Samanes, C.A. · Compras y TI</span>
+        <h1>El buscador para el agente</h1>
+      </div>
+    </div>
+    <div class="meta">
+      <strong>Decisión de arquitectura para TI</strong>
+      Problema 10 · 05/11/2026 11:56
+    </div>
+  </header>
+
+  <section class="recomendacion">
+    <p class="etiqueta">Recomendación para TI</p>
+    <h2>Adoptar el buscador MCP como única vía de acceso del agente a <code>documentos/</code>. Reduce el contexto documental en 90 % y mantiene 12 de 12 respuestas correctas.</h2>
+    <p>El ahorro de contexto es la diferencia decisiva: el modo directo vuelca archivos completos y deja menos espacio para el razonamiento; el buscador entrega solo los fragmentos pertinentes, con documento y sección, y permite auditar qué ve el modelo. La condición de TI se cumple porque el agente MCP no puede abrir, listar ni buscar dentro de <code>documentos/</code>: solo recibe lo que devuelve el servidor.</p>
+    <span class="sello">Condición de TI verificada: el agente MCP no abre archivos de documentos/</span>
+  </section>
+
+  <div class="metricas">
+    <div class="metrica verde">
+      <span class="rotulo">Ahorro de contexto</span>
+      <strong>90 %</strong>
+      <small>24.437 → 2.377 caracteres por pregunta</small>
+    </div>
+    <div class="metrica verde">
+      <span class="rotulo">Acierto con MCP</span>
+      <strong>100 %</strong>
+      <small>12 de 12 · modo directo 100 %</small>
+    </div>
+    <div class="metrica">
+      <span class="rotulo">Latencia promedio</span>
+      <strong>2.9 s</strong>
+      <small>MCP 44 % más rápida que el modo directo</small>
+    </div>
+    <div class="metrica">
+      <span class="rotulo">Contexto estimado</span>
+      <strong>1.262</strong>
+      <small>tokens con MCP vs 6.777 en directo</small>
+    </div>
+  </div>
+
+  <h2 class="seccion">Cómo se probó</h2>
+  <div class="metodos"><article class="metodo"><span class="letra">A</span><div><h3>Modo A · Archivos directos</h3><p>El agente busca con <code>glob</code>/<code>grep</code> y abre hasta 15 archivos completos de <code>documentos/</code>.</p></div></article><article class="metodo"><span class="letra">B</span><div><h3>Modo B · Buscador MCP</h3><p>El agente llama <code>buscar_documentos</code> y recibe los 5 fragmentos más pertinentes, con cita de documento y sección. No abre archivos.</p></div></article></div>
+
+  <h2 class="seccion">Resultado pregunta por pregunta</h2>
+  <div class="tabla-envoltura">
+    <table>
+      <thead>
+        <tr>
+          <th rowspan="2">ID</th>
+          <th rowspan="2">Pregunta</th>
+          <th colspan="2" class="grupo-a">Modo A · Archivos directos</th>
+          <th colspan="2" class="grupo-b">Modo B · Buscador MCP</th>
+          <th rowspan="2">Ganador</th>
+        </tr>
+        <tr>
+          <th>Tiempo / contexto</th><th>Acierto</th>
+          <th>Tiempo / contexto</th><th>Acierto</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr id="fila-Q01"><td class="id">Q01</td><td class="pregunta">¿Cuántos días de gracia tiene Suministros Caroní antes de aplicar la penalidad por atraso?</td><td><span class="dato">1.2 s</span><span class="sub">21.551 car</span></td><td><span class="pastilla ok">Correcta</span><details><summary>Ver respuesta</summary><p>Suministros Caroní tiene 5 días de gracia antes de aplicar la penalidad por atraso [DOC: CT-2025-P03 · Contrato de suministro CT-2025-P03 · Suministros Caroní · Cláusula 8].</p><p class="ref">Documentos: CT-2025-P03, LP-2026-P03_suministros-caroni, EV-2026-T1-P03, EV-2026-T2-P03, EV-2026-T3-P03, 2026-01-12_P03_factura-del-pedido-po-1340, 2026-02-05_P03_recordatorio-de-evaluacion-trimestral, 2026-02-13_P03_recordatorio-de-evaluacion-trimestral, 2026-03-02_P03_recordatorio-de-evaluacion-trimestral, 2026-03-09_P03_confirmacion-de-orden-po-1116, 2026-03-20_P03_estado-de-cuenta, 2026-03-27_P03_confirmacion-de-orden-po-1032, 2026-04-04_P03_recordatorio-de-evaluacion-trimestral, 2026-04-17_P03_invitacion-a-la-feria-anual, 2026-04-20_P03_consulta-sobre-entrega-en-maracaibo</p></details></td><td><span class="dato">0.8 s</span><span class="sub">2.897 car</span></td><td><span class="pastilla ok">Correcta</span><details><summary>Ver respuesta</summary><p>Suministros Caroní ofrece 5 días calendario de gracia antes de aplicar la penalidad por atraso [DOC: CT-2025-P03 · Cláusula 8 · Penalidad por atraso].</p><p class="ref">Fragmentos: CT-2025-P03 · CT-2025-P03 · LP-2026-P03_suministros-caroni · CT-2025-P03 · CT-2025-P03</p></details></td><td><span class="ganador mcp">Buscador MCP</span></td></tr><tr id="fila-Q02"><td class="id">Q02</td><td class="pregunta">¿Cuál es hoy el tope de la penalidad por atraso de Importadora Margarita?</td><td><span class="dato">5.5 s</span><span class="sub">21.625 car</span></td><td><span class="pastilla ok">Correcta</span><details><summary>Ver respuesta</summary><p>La penalidad por atraso de Importadora Margarita tiene un tope del 15 % del importe del pedido atrasado [DOC: AD-2026-P04-01 · Adenda N.º 1 al contrato CT-2025-P04 · Importadora Margarita]. Esta nueva cláusula entró en vigencia el 1 de julio de 2026 [DOC: AD-2026-P04-01 · Adenda N.º 1 al contrato CT-2025-P04 · Importadora Margarita]. Antes de esa fecha, el tope era del 10 % [DOC: CT-2025-P04 · Contrato de suministro CT-2025-P04 · Importadora Margarita].</p><p class="ref">Documentos: AD-2026-P04-01, CT-2025-P04, LP-2026-P04_importadora-margarita, 2026-10-27_P04_actualizacion-de-condiciones-comerciales, EV-2026-T1-P04, EV-2026-T2-P04, EV-2026-T3-P04, 2026-01-12_P04_despacho-del-pedido-po-1192, 2026-01-28_P04_despacho-del-pedido-po-1269, 2026-02-25_P04_despacho-del-pedido-po-1124, 2026-09-20_P04_despacho-del-pedido-po-1321, 2026-01-05_P04_estado-de-cuenta, 2026-01-06_P04_lista-de-precios, 2026-01-07_P04_lista-de-precios, 2026-01-12_P04_factura-del-pedido-po-1326</p></details></td><td><span class="dato">1.9 s</span><span class="sub">3.360 car</span></td><td><span class="pastilla ok">Correcta</span><details><summary>Ver respuesta</summary><p>Hoy, el tope de la penalidad por atraso de Importadora Margarita es del 15 % del importe del pedido atrasado [DOC: AD-2026-P04-01 · Cláusula primera]. Antes de la adenda, ese tope era del 10 % [DOC: CT-2025-P04 · Cláusula 8 · Penalidad por atraso].</p><p class="ref">Fragmentos: AD-2026-P04-01 · AD-2026-P04-01 · CT-2025-P04 · 2026-10-27_P04_actualizacion-de-condiciones-comerciales · AD-2026-P04-01</p></details></td><td><span class="ganador mcp">Buscador MCP</span></td></tr><tr id="fila-Q03"><td class="id">Q03</td><td class="pregunta">¿A partir de qué monto una compra necesita tres cotizaciones?</td><td><span class="dato">3.5 s</span><span class="sub">16.832 car</span></td><td><span class="pastilla ok">Correcta</span><details><summary>Ver respuesta</summary><p>Una compra necesita tres cotizaciones a partir de 3.000 dólares [DOC: POL-COM-2026 · Política de compras · versión 2026]. Antes de la nueva política, ese umbral era más alto, pero se bajó en la versión 2026 de la política [DOC: POL-COM-2026 · Política de compras · versión 2026].</p><p class="ref">Documentos: POL-COM-2026, ACT-2026-02, 2026-01-11_P01_cambio-de-contacto-comercial, 2026-01-27_P06_cambio-de-contacto-comercial, 2026-01-28_P03_cambio-de-contacto-comercial, 2026-02-07_P01_cambio-de-contacto-comercial, 2026-02-19_P02_cambio-de-contacto-comercial, 2026-02-26_P03_cambio-de-contacto-comercial, 2026-03-17_P01_cambio-de-contacto-comercial, 2026-03-17_P05_cambio-de-contacto-comercial, 2026-03-24_P02_cambio-de-contacto-comercial, 2026-03-31_P04_cambio-de-contacto-comercial, 2026-04-01_P04_cambio-de-contacto-comercial, 2026-04-25_P01_cambio-de-contacto-comercial, 2026-05-01_P01_cambio-de-contacto-comercial</p></details></td><td><span class="dato">1.5 s</span><span class="sub">1.734 car</span></td><td><span class="pastilla ok">Correcta</span><details><summary>Ver respuesta</summary><p>Una compra necesita tres cotizaciones a partir de 3.000 dólares [DOC: POL-COM-2026 · Cotizaciones]. Este umbral reemplazó al anterior establecido en la política 2024 [DOC: POL-COM-2026 · Qué cambió frente a la versión 2024].</p><p class="ref">Fragmentos: POL-COM-2026 · POL-COM-2026 · POL-COM-2026 · POL-COM-2026 · ACT-2026-02</p></details></td><td><span class="ganador mcp">Buscador MCP</span></td></tr><tr id="fila-Q04"><td class="id">Q04</td><td class="pregunta">¿En cuántos días se paga una factura de Papelera Los Llanos?</td><td><span class="dato">7.5 s</span><span class="sub">20.583 car</span></td><td><span class="pastilla ok">Correcta</span><details><summary>Ver respuesta</summary><p>La COMPRADORA paga cada factura a los 45 días calendario de recibirla, si la factura coincide con la orden de compra y con la recepción [DOC: CT-2025-P05 · Contrato de suministro CT-2025-P05 · Papelera Los Llanos · Cláusula 7]. Si se paga dentro de los 15 días calendario siguientes a su recepción, se concede un descuento por pronto pago del 1,5 % [DOC: CT-2025-P05 · Contrato de suministro CT-2025-P05 · Papelera Los Llanos · Cláusula 7].</p><p class="ref">Documentos: CT-2025-P05, LP-2026-P05_papelera-los-llanos, 2026-02-12_P05_factura-del-pedido-po-1094, 2026-05-16_P05_factura-del-pedido-po-1071, EV-2026-T1-P05, EV-2026-T2-P05, EV-2026-T3-P05, 2026-02-14_P05_factura-del-pedido-po-1103, 2026-03-03_P05_factura-del-pedido-po-1261, 2026-03-27_P05_factura-del-pedido-po-1013, 2026-08-24_P05_factura-del-pedido-po-1288, 2026-09-09_P05_factura-del-pedido-po-1321, 2026-01-24_P05_confirmacion-de-orden-po-1212, 2026-01-31_P05_confirmacion-de-orden-po-1329, 2026-02-06_P05_confirmacion-de-orden-po-1112</p></details></td><td><span class="dato">3.3 s</span><span class="sub">2.313 car</span></td><td><span class="pastilla ok">Correcta</span><details><summary>Ver respuesta</summary><p>La Compradora paga cada factura a los 45 días calendario de recibirla, siempre que la factura coincida con la orden de compra y con la recepción [DOC: CT-2025-P05 · Cláusula 7 · Facturación y pago]. Si se paga dentro de los 15 días calendario siguientes a su recepción, se concede un descuento por pronto pago del 1,5 % [DOC: CT-2025-P05 · Cláusula 7 · Facturación y pago].</p><p class="ref">Fragmentos: CT-2025-P05 · LP-2026-P05_papelera-los-llanos · LP-2026-P05_papelera-los-llanos · CT-2025-P05 · 2026-05-16_P05_factura-del-pedido-po-1071</p></details></td><td><span class="ganador mcp">Buscador MCP</span></td></tr><tr id="fila-Q05"><td class="id">Q05</td><td class="pregunta">Si Tecnología Zulia se atrasa porque la mercancía quedó retenida en la aduana, ¿se le cobra penalidad?</td><td><span class="dato">7.6 s</span><span class="sub">20.942 car</span></td><td><span class="pastilla ok">Correcta</span><details><summary>Ver respuesta</summary><p>No se aplica penalidad si el atraso se debe a la retención aduanal de la mercancía, siempre que no se deba a errores de documentación imputables al proveedor. [DOC: CT-2025-P06 · Contrato de suministro CT-2025-P06 · Tecnología Zulia · Cláusula 9]
+
+Para que se considere fuerza mayor, el proveedor debe notificar la retención aduanal por escrito dentro de los 5 días calendario siguientes a la fecha comprometida de entrega, con el documento que la acredite. [DOC: CT-2025-P06 · Contrato de suministro CT-2025-P06 · Tecnología Zulia · Cláusula 9]</p><p class="ref">Documentos: CT-2025-P06, LP-2026-P06_tecnologia-zulia, EV-2026-T1-P06, EV-2026-T2-P06, EV-2026-T3-P06, 2026-01-05_P06_lista-de-precios, 2026-01-25_P06_lista-de-precios, 2026-01-27_P06_despacho-del-pedido-po-1086, 2026-02-18_P06_recordatorio-de-evaluacion-trimestral, 2026-03-01_P06_factura-del-pedido-po-1089, 2026-03-29_P06_despacho-del-pedido-po-1034, 2026-04-08_P06_despacho-del-pedido-po-1274, 2026-04-24_P06_recordatorio-de-evaluacion-trimestral, 2026-05-11_P06_lista-de-precios, 2026-06-19_P06_estado-de-cuenta</p></details></td><td><span class="dato">9.1 s</span><span class="sub">3.310 car</span></td><td><span class="pastilla ok">Correcta</span><details><summary>Ver respuesta</summary><p>Si Tecnología Zulia se atrasa porque la mercancía quedó retenida en la aduana, **no se le cobra penalidad**, siempre que el retén no se deba a errores de documentación imputables al proveedor. [DOC: CT-2025-P06 · Cláusula 9 · Fuerza mayor]  
+La retención aduanal se considera fuerza mayor, lo cual excusa la penalidad por atraso, siempre que el proveedor notifique el caso dentro de los 5 días calendario siguientes a la fecha comprometida de entrega. [DOC: CT-2025-P06 · Cláusula 9 · Fuerza mayor]  
+Si se notifica fuera de plazo, no se acepta la fuerza mayor y se aplica la penalidad por atraso. [DOC: CT-2025-P06 · Cláusula 9 · Fuerza mayor]  
+La penalidad por atraso es del 0,2 % del importe del pedido por cada día de retraso, con un máximo del 6 %, pero no se aplica si el atraso se debe a fuerza mayor o a causas imputables a la compradora. [DOC: CT-2025-P06 · Cláusula 8 · Penalidad por atraso]</p><p class="ref">Fragmentos: 2026-10-22_P06_retencion-aduanal-del-pedido-po-1314 · CT-2025-P06 · CT-2025-P06 · CT-2025-P06 · LP-2026-P06_tecnologia-zulia</p></details></td><td><span class="ganador mcp">Buscador MCP</span></td></tr><tr id="fila-Q06"><td class="id">Q06</td><td class="pregunta">¿Quién aprueba un reclamo de más de 10.000 dólares?</td><td><span class="dato">9.8 s</span><span class="sub">41.907 car</span></td><td><span class="pastilla ok">Correcta</span><details><summary>Ver respuesta</summary><p>Un reclamo de más de 10.000 dólares en juego es aprobado por la Gerencia General y la Gerencia de Finanzas, en ese orden [DOC: PR-COM-03 · Procedimiento de reclamos a proveedores]. El dinero en juego es el importe del pedido afectado, no el de la penalidad [DOC: PR-COM-03 · Procedimiento de reclamos a proveedores].</p><p class="ref">Documentos: PR-COM-03, POL-COM-2026, PR-COM-05, PR-ALM-02, CT-2025-P01, CT-2025-P02, CT-2025-P03, CT-2025-P04, ACT-2026-02, AD-2026-P04-01, EV-2026-T1-P01</p></details></td><td><span class="dato">2.9 s</span><span class="sub">2.086 car</span></td><td><span class="pastilla ok">Correcta</span><details><summary>Ver respuesta</summary><p>Un reclamo de más de 10.000 dólares en juego debe ser aprobado por la Gerencia General y luego por la Gerencia de Finanzas, en ese orden [DOC: PR-COM-03 · Quién aprueba el reclamo]. El monto en juego se refiere al importe del pedido afectado, no a la penalidad [DOC: PR-COM-03 · Quién aprueba el reclamo].</p><p class="ref">Fragmentos: PR-COM-03 · POL-COM-2026 · POL-COM-2026 · PR-COM-03 · PR-COM-03</p></details></td><td><span class="ganador mcp">Buscador MCP</span></td></tr><tr id="fila-Q07"><td class="id">Q07</td><td class="pregunta">¿A qué se comprometió Logística del Ávila en la reunión de septiembre?</td><td><span class="dato">3.7 s</span><span class="sub">22.331 car</span></td><td><span class="pastilla ok">Correcta</span><details><summary>Ver respuesta</summary><p>Logística del Ávila se comprometió a cambiar de transportista desde el 1 de octubre, a Transportes Guárico, y a entregar las cajas de cartón a las cuatro sedes en un máximo de 5 días calendario desde la orden [DOC: ACT-2026-09 · Acta de la reunión mensual con proveedores · septiembre de 2026].</p><p class="ref">Documentos: CT-2025-P02, EV-2026-T1-P02, EV-2026-T2-P02, EV-2026-T3-P02, LP-2026-P02_logistica-del-avila, 2026-10-09_P02_nuevo-transportista-desde-octubre, ACT-2026-09, 2026-01-12_P02_factura-del-pedido-po-1040, 2026-01-27_P02_despacho-del-pedido-po-1104, 2026-01-27_P02_despacho-del-pedido-po-1297, 2026-01-28_P02_lista-de-precios, 2026-01-30_P02_recordatorio-de-evaluacion-trimestral, 2026-01-31_P02_estado-de-cuenta, 2026-02-05_P02_despacho-del-pedido-po-1270, 2026-02-16_P02_consulta-sobre-entrega-en-maracaibo</p></details></td><td><span class="dato">4.9 s</span><span class="sub">2.091 car</span></td><td><span class="pastilla ok">Correcta</span><details><summary>Ver respuesta</summary><p>Logística del Ávila se comprometió a cambiar de transportista desde el 1 de octubre a Transportes Guárico [ACT-2026-09 · P02 · Logística del Ávila]. También se comprometió a entregar las cajas de cartón a las cuatro sedes en un máximo de 5 días calendario desde la orden [ACT-2026-09 · P02 · Logística del Ávila]. Compras revisará el cumplimiento en la reunión de noviembre [ACT-2026-09 · P02 · Logística del Ávila].</p><p class="ref">Fragmentos: ACT-2026-09 · 2026-10-09_P02_nuevo-transportista-desde-octubre · ACT-2026-09 · CT-2025-P02 · CT-2025-P02</p></details></td><td><span class="ganador mcp">Buscador MCP</span></td></tr><tr id="fila-Q08"><td class="id">Q08</td><td class="pregunta">¿Qué descuento por pronto pago ofrece Tecnología Zulia?</td><td><span class="dato">4.3 s</span><span class="sub">20.400 car</span></td><td><span class="pastilla ok">Correcta</span><details><summary>Ver respuesta</summary><p>No ofrece descuento por pronto pago. Según el contrato CT-2025-P06, las condiciones de pago son a los 30 días calendario de recibida la factura, sin mención de descuentos por antelación [DOC: CT-2025-P06 · Contrato de suministro CT-2025-P06 · Tecnología Zulia · Cláusula 7].</p><p class="ref">Documentos: CT-2025-P06, LP-2026-P06_tecnologia-zulia, EV-2026-T1-P06, EV-2026-T2-P06, EV-2026-T3-P06, 2026-01-05_P06_estado-de-cuenta, 2026-01-13_P06_invitacion-a-la-feria-anual, 2026-02-13_P06_invitacion-a-la-feria-anual, 2026-03-15_P06_invitacion-a-la-feria-anual, 2026-04-05_P06_estado-de-cuenta, 2026-04-26_P06_invitacion-a-la-feria-anual, 2026-06-03_P06_estado-de-cuenta, 2026-06-15_P06_estado-de-cuenta, 2026-06-16_P06_invitacion-a-la-feria-anual, 2026-06-19_P06_estado-de-cuenta</p></details></td><td><span class="dato">2.5 s</span><span class="sub">1.950 car</span></td><td><span class="pastilla ok">Correcta</span><details><summary>Ver respuesta</summary><p>No consta. El contrato vigente [DOC: CT-2025-P06 · Cláusula 7 · Facturación y pago] no menciona descuentos por pronto pago. Las condiciones de pago son las establecidas en el contrato, que no incluyen tal beneficio.</p><p class="ref">Fragmentos: CT-2025-P06 · LP-2026-P06_tecnologia-zulia · 2026-01-05_P06_estado-de-cuenta · LP-2026-P06_tecnologia-zulia · 2026-08-29_P06_estado-de-cuenta</p></details></td><td><span class="ganador mcp">Buscador MCP</span></td></tr><tr id="fila-Q09"><td class="id">Q09</td><td class="pregunta">¿Cuántos días tiene un proveedor para responder un reclamo formal?</td><td><span class="dato">6.3 s</span><span class="sub">42.124 car</span></td><td><span class="pastilla ok">Correcta</span><details><summary>Ver respuesta</summary><p>Un proveedor tiene 5 días calendario desde la notificación para responder un reclamo formal [DOC: PR-COM-03 · Procedimiento de reclamos a proveedores].</p><p class="ref">Documentos: PR-COM-03, PR-COM-05, CT-2025-P01, CT-2025-P02, CT-2025-P03, CT-2025-P04, CT-2025-P05, 2026-01-11_P01_cambio-de-contacto-comercial, 2026-01-12_P04_despacho-del-pedido-po-1192</p></details></td><td><span class="dato">2.8 s</span><span class="sub">2.079 car</span></td><td><span class="pastilla ok">Correcta</span><details><summary>Ver respuesta</summary><p>El proveedor tiene 5 días calendario desde la notificación para responder el reclamo con una fecha de entrega o una propuesta de solución [DOC: PR-COM-03 · Plazo de respuesta del proveedor]. Si no responde en ese plazo, Compras puede aplicar la penalidad sin más trámite [DOC: PR-COM-03 · Plazo de respuesta del proveedor].</p><p class="ref">Fragmentos: PR-COM-03 · PR-COM-03 · PR-COM-05 · CT-2025-P01 · CT-2025-P03</p></details></td><td><span class="ganador mcp">Buscador MCP</span></td></tr><tr id="fila-Q10"><td class="id">Q10</td><td class="pregunta">¿A qué correo se envía un reclamo formal a Importadora Margarita?</td><td><span class="dato">5.9 s</span><span class="sub">21.942 car</span></td><td><span class="pastilla ok">Correcta</span><details><summary>Ver respuesta</summary><p>Los reclamos formales a Importadora Margarita se envían al correo reclamos@impmargarita.example.org, con copia al representante del proveedor [DOC: CT-2025-P04 · Contrato de suministro CT-2025-P04 · Importadora Margarita · Cláusula 10].</p><p class="ref">Documentos: CT-2025-P04, AD-2026-P04-01, EV-2026-T1-P04, EV-2026-T2-P04, EV-2026-T3-P04, LP-2026-P04_importadora-margarita, 2026-01-05_P04_estado-de-cuenta, 2026-01-06_P04_lista-de-precios, 2026-01-07_P04_lista-de-precios, 2026-01-12_P04_despacho-del-pedido-po-1192, 2026-01-12_P04_factura-del-pedido-po-1326, 2026-01-20_P04_recordatorio-de-evaluacion-trimestral, 2026-01-26_P04_consulta-sobre-entrega-en-barquisimeto, 2026-01-27_P04_lista-de-precios, 2026-01-28_P04_despacho-del-pedido-po-1269</p></details></td><td><span class="dato">2.3 s</span><span class="sub">2.005 car</span></td><td><span class="pastilla ok">Correcta</span><details><summary>Ver respuesta</summary><p>Los reclamos formales a Importadora Margarita se envían al correo reclamos@impmargarita.example.org, con copia al representante del proveedor [DOC: CT-2025-P04 · Cláusula 10 · Notificaciones y reclamos]. Esta cláusula sigue vigente tras la adenda AD-2026-P04-01 [DOC: AD-2026-P04-01 · Cláusula tercera · Lo demás no cambia].</p><p class="ref">Fragmentos: CT-2025-P04 · AD-2026-P04-01 · AD-2026-P04-01 · AD-2026-P04-01 · AD-2026-P04-01</p></details></td><td><span class="ganador mcp">Buscador MCP</span></td></tr><tr id="fila-Q11"><td class="id">Q11</td><td class="pregunta">¿Cuánto es la penalidad por día de atraso de Importadora Margarita?</td><td><span class="dato">4.8 s</span><span class="sub">21.954 car</span></td><td><span class="pastilla ok">Correcta</span><details><summary>Ver respuesta</summary><p>La penalidad por día de atraso de Importadora Margarita es del 1 % del importe del pedido atrasado, aplicable desde el 1 de julio de 2026 [DOC: AD-2026-P04-01 · Adenda N.º 1 al contrato CT-2025-P04 · Importadora Margarita]. Antes de esa fecha, la penalidad era del 0,5 % por día [DOC: CT-2025-P04 · Contrato de suministro CT-2025-P04 · Importadora Margarita].</p><p class="ref">Documentos: AD-2026-P04-01, CT-2025-P04, LP-2026-P04_importadora-margarita, 2026-10-27_P04_actualizacion-de-condiciones-comerciales, EV-2026-T1-P04, EV-2026-T2-P04, EV-2026-T3-P04, 2026-01-05_P04_estado-de-cuenta, 2026-01-06_P04_lista-de-precios, 2026-01-07_P04_lista-de-precios, 2026-01-12_P04_despacho-del-pedido-po-1192, 2026-01-12_P04_factura-del-pedido-po-1326, 2026-01-20_P04_recordatorio-de-evaluacion-trimestral, 2026-01-26_P04_consulta-sobre-entrega-en-barquisimeto, 2026-01-27_P04_lista-de-precios</p></details></td><td><span class="dato">2.6 s</span><span class="sub">3.360 car</span></td><td><span class="pastilla ok">Correcta</span><details><summary>Ver respuesta</summary><p>La penalidad por día de atraso de Importadora Margarita es del 1 % del importe del pedido atrasado, contado desde la fecha comprometida hasta la fecha de entrega [DOC: AD-2026-P04-01 · Cláusula primera]. Esta nueva penalidad aplica a órdenes de compra emitidas desde el 1 de julio de 2026 [DOC: AD-2026-P04-01 · Cláusula segunda]. Antes de esa fecha, la penalidad era del 0,5 % por día [DOC: CT-2025-P04 · Cláusula 8].</p><p class="ref">Fragmentos: AD-2026-P04-01 · AD-2026-P04-01 · CT-2025-P04 · AD-2026-P04-01 · 2026-10-27_P04_actualizacion-de-condiciones-comerciales</p></details></td><td><span class="ganador mcp">Buscador MCP</span></td></tr><tr id="fila-Q12"><td class="id">Q12</td><td class="pregunta">¿Cuántos empleados tiene Distribuidora Andina?</td><td><span class="dato">3.1 s</span><span class="sub">21.057 car</span></td><td><span class="pastilla ok">Correcta</span><details><summary>Ver respuesta</summary><p>No está en los documentos de compras. Los documentos no incluyen información sobre el número de empleados de Distribuidora Andina.</p><p class="ref">Documentos: CT-2025-P01, EV-2026-T1-P01, EV-2026-T2-P01, EV-2026-T3-P01, LP-2026-P01_distribuidora-andina, 2026-01-05_P01_consulta-sobre-entrega-en-maracaibo, 2026-01-08_P01_confirmacion-de-orden-po-1261, 2026-01-09_P01_factura-del-pedido-po-1060, 2026-01-11_P01_cambio-de-contacto-comercial, 2026-01-14_P01_despacho-del-pedido-po-1004, 2026-01-16_P01_recordatorio-de-evaluacion-trimestral, 2026-01-19_P01_despacho-del-pedido-po-1264, 2026-01-27_P01_consulta-sobre-entrega-en-valencia, 2026-01-31_P01_invitacion-a-la-feria-anual, 2026-02-07_P01_cambio-de-contacto-comercial</p></details></td><td><span class="dato">0.7 s</span><span class="sub">1.339 car</span></td><td><span class="pastilla ok">Correcta</span><details><summary>Ver respuesta</summary><p>No está en los documentos de compras. No se proporciona información sobre el número de empleados de Distribuidora Andina.</p><p class="ref">Fragmentos: LP-2026-P01_distribuidora-andina · LP-2026-P01_distribuidora-andina · EV-2026-T1-P01 · EV-2026-T2-P01 · EV-2026-T3-P01</p></details></td><td><span class="ganador mcp">Buscador MCP</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="seccion">Condición de TI y alcance</h2>
+  <div class="condicion">
+    <div class="panel">
+      <h3>Qué ve el agente en cada modo</h3>
+      <ul>
+        <li><strong>Modo A:</strong> puede listar, buscar y abrir cualquier archivo de <code>documentos/</code>. El contexto depende de cuántos archivos abra.</li>
+        <li><strong>Modo B:</strong> solo recibe los fragmentos que devuelve <code>buscar_documentos</code> y las secciones que pida con <code>leer_fragmento</code>.</li>
+        <li>En ambos modos se usó el mismo modelo local, el mismo prompt de sistema y los mismos criterios de corrección de Legal.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Configuración que hace cumplir la condición</h3>
+      <p>El agente <code>agente-mcp</code> tiene denegado <code>read</code>, <code>glob</code> y <code>grep</code> sobre <code>documentos/**</code>, además de <code>shell</code>. El servidor está registrado en <code>opencode.json</code>.</p>
+      <pre>{
+  "mcp": { "servers": { "buscador": {
+    "type": "local",
+    "command": ["python3", "asistente/servidor_mcp.py"]
+  }}},
+  "agents": { "agente-mcp": { "permissions": [
+    { "action": "read", "resource": "documentos/**", "effect": "deny" },
+    { "action": "glob", "resource": "documentos/**", "effect": "deny" },
+    { "action": "grep", "resource": "documentos/**", "effect": "deny" },
+    { "action": "shell", "resource": "*", "effect": "deny" }
+  ] }}
+}</pre>
+    </div>
+  </div>
+
+  <h2 class="seccion">Lectura de los números</h2>
+  <div class="panel">
+    <p><strong>Contexto:</strong> caracteres de documentos enviados al modelo en cada pregunta; no incluye el prompt de sistema, que es idéntico en ambos modos. La estimación de tokens usa 4 caracteres por token.
+    <strong>Tiempo:</strong> recuperación más generación, medido de punta a punta en el Spark. <strong>Acierto:</strong> verificación automática de los hechos clave que Legal exige para cada pregunta; las respuestas completas quedan a la vista en la tabla. <strong>Ganador:</strong> se decide primero por acierto y, si ambos aciertan, por menor contexto; el tiempo se informa por separado.</p>
+  </div>
+
+  <footer class="pie">
+    <span>Comparación automática con las 12 preguntas de <code>preguntas_de_prueba.csv</code>. Documentos de compras ficticios, de solo lectura.</span>
+    <span>Generado el 05/11/2026 11:56 · 98.3 s de ejecución</span>
+  </footer>
+</div>
+</body>
+</html>

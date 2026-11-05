@@ -1,0 +1,1016 @@
+{
+  "generado": "05/11/2026 11:56",
+  "hoy": "2026-11-05",
+  "modelo": "qwen3-coder (llama-server local)",
+  "documentos": 436,
+  "fragmentos_indice": 848,
+  "duracion_s": 98.3,
+  "limite_mcp": 5,
+  "tope_contexto_directo": 40000,
+  "total": 12,
+  "resumen": {
+    "total": 12,
+    "aciertos_a": 12,
+    "aciertos_b": 12,
+    "porcentaje_a": 100.0,
+    "porcentaje_b": 100.0,
+    "contexto_promedio_a": 24437,
+    "contexto_promedio_b": 2377,
+    "ahorro_contexto_pct": 90.3,
+    "latencia_promedio_a_ms": 5257,
+    "latencia_promedio_b_ms": 2932,
+    "delta_latencia_pct": -44.2,
+    "tokens_estimados_a": 6777,
+    "tokens_estimados_b": 1262
+  },
+  "resultados": [
+    {
+      "id": "Q01",
+      "pregunta": "¿Cuántos días de gracia tiene Suministros Caroní antes de aplicar la penalidad por atraso?",
+      "esperada": "5 días calendario de gracia; después corre la penalidad del 0,4 % diario (CT-2025-P03, cláusula 8).",
+      "criterio": "Debe indicar 5 días calendario de gracia.",
+      "modo_a": {
+        "respuesta": "Suministros Caroní tiene 5 días de gracia antes de aplicar la penalidad por atraso [DOC: CT-2025-P03 · Contrato de suministro CT-2025-P03 · Suministros Caroní · Cláusula 8].",
+        "documentos": [
+          "CT-2025-P03",
+          "LP-2026-P03_suministros-caroni",
+          "EV-2026-T1-P03",
+          "EV-2026-T2-P03",
+          "EV-2026-T3-P03",
+          "2026-01-12_P03_factura-del-pedido-po-1340",
+          "2026-02-05_P03_recordatorio-de-evaluacion-trimestral",
+          "2026-02-13_P03_recordatorio-de-evaluacion-trimestral",
+          "2026-03-02_P03_recordatorio-de-evaluacion-trimestral",
+          "2026-03-09_P03_confirmacion-de-orden-po-1116",
+          "2026-03-20_P03_estado-de-cuenta",
+          "2026-03-27_P03_confirmacion-de-orden-po-1032",
+          "2026-04-04_P03_recordatorio-de-evaluacion-trimestral",
+          "2026-04-17_P03_invitacion-a-la-feria-anual",
+          "2026-04-20_P03_consulta-sobre-entrega-en-maracaibo"
+        ],
+        "rutas": [
+          "documentos/contratos/CT-2025-P03_suministros-caroni.md",
+          "documentos/listas_de_precios/LP-2026-P03_suministros-caroni.md",
+          "documentos/evaluaciones/EV-2026-T1-P03_suministros-caroni.md",
+          "documentos/evaluaciones/EV-2026-T2-P03_suministros-caroni.md",
+          "documentos/evaluaciones/EV-2026-T3-P03_suministros-caroni.md",
+          "documentos/correos/2026-01-12_P03_factura-del-pedido-po-1340.md",
+          "documentos/correos/2026-02-05_P03_recordatorio-de-evaluacion-trimestral.md",
+          "documentos/correos/2026-02-13_P03_recordatorio-de-evaluacion-trimestral.md",
+          "documentos/correos/2026-03-02_P03_recordatorio-de-evaluacion-trimestral.md",
+          "documentos/correos/2026-03-09_P03_confirmacion-de-orden-po-1116.md",
+          "documentos/correos/2026-03-20_P03_estado-de-cuenta.md",
+          "documentos/correos/2026-03-27_P03_confirmacion-de-orden-po-1032.md",
+          "documentos/correos/2026-04-04_P03_recordatorio-de-evaluacion-trimestral.md",
+          "documentos/correos/2026-04-17_P03_invitacion-a-la-feria-anual.md",
+          "documentos/correos/2026-04-20_P03_consulta-sobre-entrega-en-maracaibo.md"
+        ],
+        "fragmentos": 15,
+        "contexto_documentos": 21551,
+        "ms_recuperacion": 1,
+        "ms_modelo": 1165,
+        "ms_total": 1167,
+        "herramientas": [
+          "glob",
+          "grep",
+          "read"
+        ],
+        "correcta": true,
+        "detalle": "Cumple los hechos clave."
+      },
+      "modo_b": {
+        "respuesta": "Suministros Caroní ofrece 5 días calendario de gracia antes de aplicar la penalidad por atraso [DOC: CT-2025-P03 · Cláusula 8 · Penalidad por atraso].",
+        "documentos": [
+          "CT-2025-P03",
+          "CT-2025-P03",
+          "LP-2026-P03_suministros-caroni",
+          "CT-2025-P03",
+          "CT-2025-P03"
+        ],
+        "secciones": [
+          "Cláusula 8 · Penalidad por atraso",
+          "Cláusula 5 · Recepción e inspección",
+          "Condiciones",
+          "Cláusula 10 · Notificaciones y reclamos",
+          "Cláusula 9 · Fuerza mayor"
+        ],
+        "fragmentos": 5,
+        "contexto_documentos": 2897,
+        "ms_busqueda": 5,
+        "ms_recuperacion": 5,
+        "ms_modelo": 830,
+        "ms_total": 836,
+        "herramientas": [
+          "buscar_documentos"
+        ],
+        "correcta": true,
+        "detalle": "Cumple los hechos clave."
+      },
+      "ganador": "mcp"
+    },
+    {
+      "id": "Q02",
+      "pregunta": "¿Cuál es hoy el tope de la penalidad por atraso de Importadora Margarita?",
+      "esperada": "15 % del importe del pedido, para órdenes emitidas desde el 01/07/2026. Antes de la adenda era 10 % (AD-2026-P04-01, cláusula primera).",
+      "criterio": "Debe indicar el tope vigente del 15 % (adenda).",
+      "modo_a": {
+        "respuesta": "La penalidad por atraso de Importadora Margarita tiene un tope del 15 % del importe del pedido atrasado [DOC: AD-2026-P04-01 · Adenda N.º 1 al contrato CT-2025-P04 · Importadora Margarita]. Esta nueva cláusula entró en vigencia el 1 de julio de 2026 [DOC: AD-2026-P04-01 · Adenda N.º 1 al contrato CT-2025-P04 · Importadora Margarita]. Antes de esa fecha, el tope era del 10 % [DOC: CT-2025-P04 · Contrato de suministro CT-2025-P04 · Importadora Margarita].",
+        "documentos": [
+          "AD-2026-P04-01",
+          "CT-2025-P04",
+          "LP-2026-P04_importadora-margarita",
+          "2026-10-27_P04_actualizacion-de-condiciones-comerciales",
+          "EV-2026-T1-P04",
+          "EV-2026-T2-P04",
+          "EV-2026-T3-P04",
+          "2026-01-12_P04_despacho-del-pedido-po-1192",
+          "2026-01-28_P04_despacho-del-pedido-po-1269",
+          "2026-02-25_P04_despacho-del-pedido-po-1124",
+          "2026-09-20_P04_despacho-del-pedido-po-1321",
+          "2026-01-05_P04_estado-de-cuenta",
+          "2026-01-06_P04_lista-de-precios",
+          "2026-01-07_P04_lista-de-precios",
+          "2026-01-12_P04_factura-del-pedido-po-1326"
+        ],
+        "rutas": [
+          "documentos/contratos/AD-2026-P04-01_adenda-importadora-margarita.md",
+          "documentos/contratos/CT-2025-P04_importadora-margarita.md",
+          "documentos/listas_de_precios/LP-2026-P04_importadora-margarita.md",
+          "documentos/correos/2026-10-27_P04_actualizacion-de-condiciones-comerciales.md",
+          "documentos/evaluaciones/EV-2026-T1-P04_importadora-margarita.md",
+          "documentos/evaluaciones/EV-2026-T2-P04_importadora-margarita.md",
+          "documentos/evaluaciones/EV-2026-T3-P04_importadora-margarita.md",
+          "documentos/correos/2026-01-12_P04_despacho-del-pedido-po-1192.md",
+          "documentos/correos/2026-01-28_P04_despacho-del-pedido-po-1269.md",
+          "documentos/correos/2026-02-25_P04_despacho-del-pedido-po-1124.md",
+          "documentos/correos/2026-09-20_P04_despacho-del-pedido-po-1321.md",
+          "documentos/correos/2026-01-05_P04_estado-de-cuenta.md",
+          "documentos/correos/2026-01-06_P04_lista-de-precios.md",
+          "documentos/correos/2026-01-07_P04_lista-de-precios.md",
+          "documentos/correos/2026-01-12_P04_factura-del-pedido-po-1326.md"
+        ],
+        "fragmentos": 15,
+        "contexto_documentos": 21625,
+        "ms_recuperacion": 1,
+        "ms_modelo": 5513,
+        "ms_total": 5514,
+        "herramientas": [
+          "glob",
+          "grep",
+          "read"
+        ],
+        "correcta": true,
+        "detalle": "Cumple los hechos clave."
+      },
+      "modo_b": {
+        "respuesta": "Hoy, el tope de la penalidad por atraso de Importadora Margarita es del 15 % del importe del pedido atrasado [DOC: AD-2026-P04-01 · Cláusula primera]. Antes de la adenda, ese tope era del 10 % [DOC: CT-2025-P04 · Cláusula 8 · Penalidad por atraso].",
+        "documentos": [
+          "AD-2026-P04-01",
+          "AD-2026-P04-01",
+          "CT-2025-P04",
+          "2026-10-27_P04_actualizacion-de-condiciones-comerciales",
+          "AD-2026-P04-01"
+        ],
+        "secciones": [
+          "Cláusula primera · Nueva penalidad por atraso",
+          "Antecedentes",
+          "Cláusula 8 · Penalidad por atraso",
+          "Mensaje",
+          "Cláusula segunda · Pedidos a los que se aplica"
+        ],
+        "fragmentos": 5,
+        "contexto_documentos": 3360,
+        "ms_busqueda": 4,
+        "ms_recuperacion": 4,
+        "ms_modelo": 1915,
+        "ms_total": 1919,
+        "herramientas": [
+          "buscar_documentos"
+        ],
+        "correcta": true,
+        "detalle": "Cumple los hechos clave."
+      },
+      "ganador": "mcp"
+    },
+    {
+      "id": "Q03",
+      "pregunta": "¿A partir de qué monto una compra necesita tres cotizaciones?",
+      "esperada": "Desde USD 3.000 se necesitan al menos tres cotizaciones de proveedores distintos (POL-COM-2026, Cotizaciones).",
+      "criterio": "Debe indicar el umbral de USD 3.000 para tres cotizaciones.",
+      "modo_a": {
+        "respuesta": "Una compra necesita tres cotizaciones a partir de 3.000 dólares [DOC: POL-COM-2026 · Política de compras · versión 2026]. Antes de la nueva política, ese umbral era más alto, pero se bajó en la versión 2026 de la política [DOC: POL-COM-2026 · Política de compras · versión 2026].",
+        "documentos": [
+          "POL-COM-2026",
+          "ACT-2026-02",
+          "2026-01-11_P01_cambio-de-contacto-comercial",
+          "2026-01-27_P06_cambio-de-contacto-comercial",
+          "2026-01-28_P03_cambio-de-contacto-comercial",
+          "2026-02-07_P01_cambio-de-contacto-comercial",
+          "2026-02-19_P02_cambio-de-contacto-comercial",
+          "2026-02-26_P03_cambio-de-contacto-comercial",
+          "2026-03-17_P01_cambio-de-contacto-comercial",
+          "2026-03-17_P05_cambio-de-contacto-comercial",
+          "2026-03-24_P02_cambio-de-contacto-comercial",
+          "2026-03-31_P04_cambio-de-contacto-comercial",
+          "2026-04-01_P04_cambio-de-contacto-comercial",
+          "2026-04-25_P01_cambio-de-contacto-comercial",
+          "2026-05-01_P01_cambio-de-contacto-comercial"
+        ],
+        "rutas": [
+          "documentos/politicas/POL-COM-2026_politica-de-compras.md",
+          "documentos/actas/ACT-2026-02_reunion-proveedores-febrero.md",
+          "documentos/correos/2026-01-11_P01_cambio-de-contacto-comercial.md",
+          "documentos/correos/2026-01-27_P06_cambio-de-contacto-comercial.md",
+          "documentos/correos/2026-01-28_P03_cambio-de-contacto-comercial.md",
+          "documentos/correos/2026-02-07_P01_cambio-de-contacto-comercial.md",
+          "documentos/correos/2026-02-19_P02_cambio-de-contacto-comercial.md",
+          "documentos/correos/2026-02-26_P03_cambio-de-contacto-comercial.md",
+          "documentos/correos/2026-03-17_P01_cambio-de-contacto-comercial.md",
+          "documentos/correos/2026-03-17_P05_cambio-de-contacto-comercial.md",
+          "documentos/correos/2026-03-24_P02_cambio-de-contacto-comercial.md",
+          "documentos/correos/2026-03-31_P04_cambio-de-contacto-comercial.md",
+          "documentos/correos/2026-04-01_P04_cambio-de-contacto-comercial.md",
+          "documentos/correos/2026-04-25_P01_cambio-de-contacto-comercial.md",
+          "documentos/correos/2026-05-01_P01_cambio-de-contacto-comercial.md"
+        ],
+        "fragmentos": 15,
+        "contexto_documentos": 16832,
+        "ms_recuperacion": 1,
+        "ms_modelo": 3451,
+        "ms_total": 3452,
+        "herramientas": [
+          "glob",
+          "grep",
+          "read"
+        ],
+        "correcta": true,
+        "detalle": "Cumple los hechos clave."
+      },
+      "modo_b": {
+        "respuesta": "Una compra necesita tres cotizaciones a partir de 3.000 dólares [DOC: POL-COM-2026 · Cotizaciones]. Este umbral reemplazó al anterior establecido en la política 2024 [DOC: POL-COM-2026 · Qué cambió frente a la versión 2024].",
+        "documentos": [
+          "POL-COM-2026",
+          "POL-COM-2026",
+          "POL-COM-2026",
+          "POL-COM-2026",
+          "ACT-2026-02"
+        ],
+        "secciones": [
+          "Cotizaciones",
+          "Qué cambió frente a la versión 2024",
+          "Solicitud de compra",
+          "Fraccionamiento",
+          "Anuncio de la Gerencia de Compras"
+        ],
+        "fragmentos": 5,
+        "contexto_documentos": 1734,
+        "ms_busqueda": 3,
+        "ms_recuperacion": 3,
+        "ms_modelo": 1453,
+        "ms_total": 1457,
+        "herramientas": [
+          "buscar_documentos"
+        ],
+        "correcta": true,
+        "detalle": "Cumple los hechos clave."
+      },
+      "ganador": "mcp"
+    },
+    {
+      "id": "Q04",
+      "pregunta": "¿En cuántos días se paga una factura de Papelera Los Llanos?",
+      "esperada": "45 días calendario desde la recepción de la factura (CT-2025-P05, cláusula 7).",
+      "criterio": "Debe indicar 45 días calendario.",
+      "modo_a": {
+        "respuesta": "La COMPRADORA paga cada factura a los 45 días calendario de recibirla, si la factura coincide con la orden de compra y con la recepción [DOC: CT-2025-P05 · Contrato de suministro CT-2025-P05 · Papelera Los Llanos · Cláusula 7]. Si se paga dentro de los 15 días calendario siguientes a su recepción, se concede un descuento por pronto pago del 1,5 % [DOC: CT-2025-P05 · Contrato de suministro CT-2025-P05 · Papelera Los Llanos · Cláusula 7].",
+        "documentos": [
+          "CT-2025-P05",
+          "LP-2026-P05_papelera-los-llanos",
+          "2026-02-12_P05_factura-del-pedido-po-1094",
+          "2026-05-16_P05_factura-del-pedido-po-1071",
+          "EV-2026-T1-P05",
+          "EV-2026-T2-P05",
+          "EV-2026-T3-P05",
+          "2026-02-14_P05_factura-del-pedido-po-1103",
+          "2026-03-03_P05_factura-del-pedido-po-1261",
+          "2026-03-27_P05_factura-del-pedido-po-1013",
+          "2026-08-24_P05_factura-del-pedido-po-1288",
+          "2026-09-09_P05_factura-del-pedido-po-1321",
+          "2026-01-24_P05_confirmacion-de-orden-po-1212",
+          "2026-01-31_P05_confirmacion-de-orden-po-1329",
+          "2026-02-06_P05_confirmacion-de-orden-po-1112"
+        ],
+        "rutas": [
+          "documentos/contratos/CT-2025-P05_papelera-los-llanos.md",
+          "documentos/listas_de_precios/LP-2026-P05_papelera-los-llanos.md",
+          "documentos/correos/2026-02-12_P05_factura-del-pedido-po-1094.md",
+          "documentos/correos/2026-05-16_P05_factura-del-pedido-po-1071.md",
+          "documentos/evaluaciones/EV-2026-T1-P05_papelera-los-llanos.md",
+          "documentos/evaluaciones/EV-2026-T2-P05_papelera-los-llanos.md",
+          "documentos/evaluaciones/EV-2026-T3-P05_papelera-los-llanos.md",
+          "documentos/correos/2026-02-14_P05_factura-del-pedido-po-1103.md",
+          "documentos/correos/2026-03-03_P05_factura-del-pedido-po-1261.md",
+          "documentos/correos/2026-03-27_P05_factura-del-pedido-po-1013.md",
+          "documentos/correos/2026-08-24_P05_factura-del-pedido-po-1288.md",
+          "documentos/correos/2026-09-09_P05_factura-del-pedido-po-1321.md",
+          "documentos/correos/2026-01-24_P05_confirmacion-de-orden-po-1212.md",
+          "documentos/correos/2026-01-31_P05_confirmacion-de-orden-po-1329.md",
+          "documentos/correos/2026-02-06_P05_confirmacion-de-orden-po-1112.md"
+        ],
+        "fragmentos": 15,
+        "contexto_documentos": 20583,
+        "ms_recuperacion": 1,
+        "ms_modelo": 7452,
+        "ms_total": 7453,
+        "herramientas": [
+          "glob",
+          "grep",
+          "read"
+        ],
+        "correcta": true,
+        "detalle": "Cumple los hechos clave."
+      },
+      "modo_b": {
+        "respuesta": "La Compradora paga cada factura a los 45 días calendario de recibirla, siempre que la factura coincida con la orden de compra y con la recepción [DOC: CT-2025-P05 · Cláusula 7 · Facturación y pago]. Si se paga dentro de los 15 días calendario siguientes a su recepción, se concede un descuento por pronto pago del 1,5 % [DOC: CT-2025-P05 · Cláusula 7 · Facturación y pago].",
+        "documentos": [
+          "CT-2025-P05",
+          "LP-2026-P05_papelera-los-llanos",
+          "LP-2026-P05_papelera-los-llanos",
+          "CT-2025-P05",
+          "2026-05-16_P05_factura-del-pedido-po-1071"
+        ],
+        "secciones": [
+          "Cláusula 7 · Facturación y pago",
+          "Condiciones",
+          "Precios",
+          "Cláusula 6 · Calidad y garantía",
+          "Mensaje"
+        ],
+        "fragmentos": 5,
+        "contexto_documentos": 2313,
+        "ms_busqueda": 11,
+        "ms_recuperacion": 11,
+        "ms_modelo": 3246,
+        "ms_total": 3257,
+        "herramientas": [
+          "buscar_documentos"
+        ],
+        "correcta": true,
+        "detalle": "Cumple los hechos clave."
+      },
+      "ganador": "mcp"
+    },
+    {
+      "id": "Q05",
+      "pregunta": "Si Tecnología Zulia se atrasa porque la mercancía quedó retenida en la aduana, ¿se le cobra penalidad?",
+      "esperada": "La retención aduanal es fuerza mayor si no se debe a errores de documentación del proveedor; debe notificarse por escrito dentro de 5 días calendario con la constancia. Si se notifica tarde, se aplica la penalidad por todos los días de atraso (CT-2025-P06, cláusulas 8 y 9).",
+      "criterio": "Debe explicar la fuerza mayor aduanal, el plazo de 5 días y que no se cobra si se notifica bien.",
+      "modo_a": {
+        "respuesta": "No se aplica penalidad si el atraso se debe a la retención aduanal de la mercancía, siempre que no se deba a errores de documentación imputables al proveedor. [DOC: CT-2025-P06 · Contrato de suministro CT-2025-P06 · Tecnología Zulia · Cláusula 9]\n\nPara que se considere fuerza mayor, el proveedor debe notificar la retención aduanal por escrito dentro de los 5 días calendario siguientes a la fecha comprometida de entrega, con el documento que la acredite. [DOC: CT-2025-P06 · Contrato de suministro CT-2025-P06 · Tecnología Zulia · Cláusula 9]",
+        "documentos": [
+          "CT-2025-P06",
+          "LP-2026-P06_tecnologia-zulia",
+          "EV-2026-T1-P06",
+          "EV-2026-T2-P06",
+          "EV-2026-T3-P06",
+          "2026-01-05_P06_lista-de-precios",
+          "2026-01-25_P06_lista-de-precios",
+          "2026-01-27_P06_despacho-del-pedido-po-1086",
+          "2026-02-18_P06_recordatorio-de-evaluacion-trimestral",
+          "2026-03-01_P06_factura-del-pedido-po-1089",
+          "2026-03-29_P06_despacho-del-pedido-po-1034",
+          "2026-04-08_P06_despacho-del-pedido-po-1274",
+          "2026-04-24_P06_recordatorio-de-evaluacion-trimestral",
+          "2026-05-11_P06_lista-de-precios",
+          "2026-06-19_P06_estado-de-cuenta"
+        ],
+        "rutas": [
+          "documentos/contratos/CT-2025-P06_tecnologia-zulia.md",
+          "documentos/listas_de_precios/LP-2026-P06_tecnologia-zulia.md",
+          "documentos/evaluaciones/EV-2026-T1-P06_tecnologia-zulia.md",
+          "documentos/evaluaciones/EV-2026-T2-P06_tecnologia-zulia.md",
+          "documentos/evaluaciones/EV-2026-T3-P06_tecnologia-zulia.md",
+          "documentos/correos/2026-01-05_P06_lista-de-precios.md",
+          "documentos/correos/2026-01-25_P06_lista-de-precios.md",
+          "documentos/correos/2026-01-27_P06_despacho-del-pedido-po-1086.md",
+          "documentos/correos/2026-02-18_P06_recordatorio-de-evaluacion-trimestral.md",
+          "documentos/correos/2026-03-01_P06_factura-del-pedido-po-1089.md",
+          "documentos/correos/2026-03-29_P06_despacho-del-pedido-po-1034.md",
+          "documentos/correos/2026-04-08_P06_despacho-del-pedido-po-1274.md",
+          "documentos/correos/2026-04-24_P06_recordatorio-de-evaluacion-trimestral.md",
+          "documentos/correos/2026-05-11_P06_lista-de-precios.md",
+          "documentos/correos/2026-06-19_P06_estado-de-cuenta.md"
+        ],
+        "fragmentos": 15,
+        "contexto_documentos": 20942,
+        "ms_recuperacion": 3,
+        "ms_modelo": 7586,
+        "ms_total": 7590,
+        "herramientas": [
+          "glob",
+          "grep",
+          "read"
+        ],
+        "correcta": true,
+        "detalle": "Cumple los hechos clave."
+      },
+      "modo_b": {
+        "respuesta": "Si Tecnología Zulia se atrasa porque la mercancía quedó retenida en la aduana, **no se le cobra penalidad**, siempre que el retén no se deba a errores de documentación imputables al proveedor. [DOC: CT-2025-P06 · Cláusula 9 · Fuerza mayor]  \nLa retención aduanal se considera fuerza mayor, lo cual excusa la penalidad por atraso, siempre que el proveedor notifique el caso dentro de los 5 días calendario siguientes a la fecha comprometida de entrega. [DOC: CT-2025-P06 · Cláusula 9 · Fuerza mayor]  \nSi se notifica fuera de plazo, no se acepta la fuerza mayor y se aplica la penalidad por atraso. [DOC: CT-2025-P06 · Cláusula 9 · Fuerza mayor]  \nLa penalidad por atraso es del 0,2 % del importe del pedido por cada día de retraso, con un máximo del 6 %, pero no se aplica si el atraso se debe a fuerza mayor o a causas imputables a la compradora. [DOC: CT-2025-P06 · Cláusula 8 · Penalidad por atraso]",
+        "documentos": [
+          "2026-10-22_P06_retencion-aduanal-del-pedido-po-1314",
+          "CT-2025-P06",
+          "CT-2025-P06",
+          "CT-2025-P06",
+          "LP-2026-P06_tecnologia-zulia"
+        ],
+        "secciones": [
+          "Mensaje",
+          "Cláusula 9 · Fuerza mayor",
+          "Cláusula 5 · Recepción e inspección",
+          "Cláusula 8 · Penalidad por atraso",
+          "Condiciones"
+        ],
+        "fragmentos": 5,
+        "contexto_documentos": 3310,
+        "ms_busqueda": 10,
+        "ms_recuperacion": 10,
+        "ms_modelo": 9117,
+        "ms_total": 9128,
+        "herramientas": [
+          "buscar_documentos"
+        ],
+        "correcta": true,
+        "detalle": "Cumple los hechos clave."
+      },
+      "ganador": "mcp"
+    },
+    {
+      "id": "Q06",
+      "pregunta": "¿Quién aprueba un reclamo de más de 10.000 dólares?",
+      "esperada": "La Gerencia General y la Gerencia de Finanzas, en ese orden (PR-COM-03, Quién aprueba el reclamo).",
+      "criterio": "Debe nombrar a la Gerencia General y a la Gerencia de Finanzas.",
+      "modo_a": {
+        "respuesta": "Un reclamo de más de 10.000 dólares en juego es aprobado por la Gerencia General y la Gerencia de Finanzas, en ese orden [DOC: PR-COM-03 · Procedimiento de reclamos a proveedores]. El dinero en juego es el importe del pedido afectado, no el de la penalidad [DOC: PR-COM-03 · Procedimiento de reclamos a proveedores].",
+        "documentos": [
+          "PR-COM-03",
+          "POL-COM-2026",
+          "PR-COM-05",
+          "PR-ALM-02",
+          "CT-2025-P01",
+          "CT-2025-P02",
+          "CT-2025-P03",
+          "CT-2025-P04",
+          "ACT-2026-02",
+          "AD-2026-P04-01",
+          "EV-2026-T1-P01"
+        ],
+        "rutas": [
+          "documentos/procedimientos/PR-COM-03_reclamos-a-proveedores.md",
+          "documentos/politicas/POL-COM-2026_politica-de-compras.md",
+          "documentos/procedimientos/PR-COM-05_evaluacion-de-proveedores.md",
+          "documentos/procedimientos/PR-ALM-02_recepcion-de-mercancia.md",
+          "documentos/contratos/CT-2025-P01_distribuidora-andina.md",
+          "documentos/contratos/CT-2025-P02_logistica-del-avila.md",
+          "documentos/contratos/CT-2025-P03_suministros-caroni.md",
+          "documentos/contratos/CT-2025-P04_importadora-margarita.md",
+          "documentos/actas/ACT-2026-02_reunion-proveedores-febrero.md",
+          "documentos/contratos/AD-2026-P04-01_adenda-importadora-margarita.md",
+          "documentos/evaluaciones/EV-2026-T1-P01_distribuidora-andina.md"
+        ],
+        "fragmentos": 11,
+        "contexto_documentos": 41907,
+        "ms_recuperacion": 2,
+        "ms_modelo": 9835,
+        "ms_total": 9837,
+        "herramientas": [
+          "glob",
+          "grep",
+          "read"
+        ],
+        "correcta": true,
+        "detalle": "Cumple los hechos clave."
+      },
+      "modo_b": {
+        "respuesta": "Un reclamo de más de 10.000 dólares en juego debe ser aprobado por la Gerencia General y luego por la Gerencia de Finanzas, en ese orden [DOC: PR-COM-03 · Quién aprueba el reclamo]. El monto en juego se refiere al importe del pedido afectado, no a la penalidad [DOC: PR-COM-03 · Quién aprueba el reclamo].",
+        "documentos": [
+          "PR-COM-03",
+          "POL-COM-2026",
+          "POL-COM-2026",
+          "PR-COM-03",
+          "PR-COM-03"
+        ],
+        "secciones": [
+          "Quién aprueba el reclamo",
+          "Aprobaciones",
+          "Cotizaciones",
+          "Plazo de respuesta del proveedor",
+          "Cómo se registra y se notifica"
+        ],
+        "fragmentos": 5,
+        "contexto_documentos": 2086,
+        "ms_busqueda": 7,
+        "ms_recuperacion": 7,
+        "ms_modelo": 2849,
+        "ms_total": 2856,
+        "herramientas": [
+          "buscar_documentos"
+        ],
+        "correcta": true,
+        "detalle": "Cumple los hechos clave."
+      },
+      "ganador": "mcp"
+    },
+    {
+      "id": "Q07",
+      "pregunta": "¿A qué se comprometió Logística del Ávila en la reunión de septiembre?",
+      "esperada": "Cambiar de transportista a Transportes Guárico desde el 1 de octubre y entregar las cajas de cartón a las cuatro sedes en un máximo de 5 días calendario desde la orden (ACT-2026-09, P02).",
+      "criterio": "Debe indicar Transportes Guárico, las cajas de cartón y el máximo de 5 días.",
+      "modo_a": {
+        "respuesta": "Logística del Ávila se comprometió a cambiar de transportista desde el 1 de octubre, a Transportes Guárico, y a entregar las cajas de cartón a las cuatro sedes en un máximo de 5 días calendario desde la orden [DOC: ACT-2026-09 · Acta de la reunión mensual con proveedores · septiembre de 2026].",
+        "documentos": [
+          "CT-2025-P02",
+          "EV-2026-T1-P02",
+          "EV-2026-T2-P02",
+          "EV-2026-T3-P02",
+          "LP-2026-P02_logistica-del-avila",
+          "2026-10-09_P02_nuevo-transportista-desde-octubre",
+          "ACT-2026-09",
+          "2026-01-12_P02_factura-del-pedido-po-1040",
+          "2026-01-27_P02_despacho-del-pedido-po-1104",
+          "2026-01-27_P02_despacho-del-pedido-po-1297",
+          "2026-01-28_P02_lista-de-precios",
+          "2026-01-30_P02_recordatorio-de-evaluacion-trimestral",
+          "2026-01-31_P02_estado-de-cuenta",
+          "2026-02-05_P02_despacho-del-pedido-po-1270",
+          "2026-02-16_P02_consulta-sobre-entrega-en-maracaibo"
+        ],
+        "rutas": [
+          "documentos/contratos/CT-2025-P02_logistica-del-avila.md",
+          "documentos/evaluaciones/EV-2026-T1-P02_logistica-del-avila.md",
+          "documentos/evaluaciones/EV-2026-T2-P02_logistica-del-avila.md",
+          "documentos/evaluaciones/EV-2026-T3-P02_logistica-del-avila.md",
+          "documentos/listas_de_precios/LP-2026-P02_logistica-del-avila.md",
+          "documentos/correos/2026-10-09_P02_nuevo-transportista-desde-octubre.md",
+          "documentos/actas/ACT-2026-09_reunion-proveedores-septiembre.md",
+          "documentos/correos/2026-01-12_P02_factura-del-pedido-po-1040.md",
+          "documentos/correos/2026-01-27_P02_despacho-del-pedido-po-1104.md",
+          "documentos/correos/2026-01-27_P02_despacho-del-pedido-po-1297.md",
+          "documentos/correos/2026-01-28_P02_lista-de-precios.md",
+          "documentos/correos/2026-01-30_P02_recordatorio-de-evaluacion-trimestral.md",
+          "documentos/correos/2026-01-31_P02_estado-de-cuenta.md",
+          "documentos/correos/2026-02-05_P02_despacho-del-pedido-po-1270.md",
+          "documentos/correos/2026-02-16_P02_consulta-sobre-entrega-en-maracaibo.md"
+        ],
+        "fragmentos": 15,
+        "contexto_documentos": 22331,
+        "ms_recuperacion": 2,
+        "ms_modelo": 3668,
+        "ms_total": 3670,
+        "herramientas": [
+          "glob",
+          "grep",
+          "read"
+        ],
+        "correcta": true,
+        "detalle": "Cumple los hechos clave."
+      },
+      "modo_b": {
+        "respuesta": "Logística del Ávila se comprometió a cambiar de transportista desde el 1 de octubre a Transportes Guárico [ACT-2026-09 · P02 · Logística del Ávila]. También se comprometió a entregar las cajas de cartón a las cuatro sedes en un máximo de 5 días calendario desde la orden [ACT-2026-09 · P02 · Logística del Ávila]. Compras revisará el cumplimiento en la reunión de noviembre [ACT-2026-09 · P02 · Logística del Ávila].",
+        "documentos": [
+          "ACT-2026-09",
+          "2026-10-09_P02_nuevo-transportista-desde-octubre",
+          "ACT-2026-09",
+          "CT-2025-P02",
+          "CT-2025-P02"
+        ],
+        "secciones": [
+          "P02 · Logística del Ávila",
+          "Mensaje",
+          "Orden del día",
+          "Cláusula 17 · Modificaciones",
+          "Cláusula 3 · Precios"
+        ],
+        "fragmentos": 5,
+        "contexto_documentos": 2091,
+        "ms_busqueda": 10,
+        "ms_recuperacion": 10,
+        "ms_modelo": 4855,
+        "ms_total": 4866,
+        "herramientas": [
+          "buscar_documentos"
+        ],
+        "correcta": true,
+        "detalle": "Cumple los hechos clave."
+      },
+      "ganador": "mcp"
+    },
+    {
+      "id": "Q08",
+      "pregunta": "¿Qué descuento por pronto pago ofrece Tecnología Zulia?",
+      "esperada": "No ofrece descuento por pronto pago; el contrato fija el pago a 30 días y no prevé descuento (CT-2025-P06, cláusula 7).",
+      "criterio": "Debe responder que no ofrece descuento por pronto pago, no evadir la pregunta.",
+      "modo_a": {
+        "respuesta": "No ofrece descuento por pronto pago. Según el contrato CT-2025-P06, las condiciones de pago son a los 30 días calendario de recibida la factura, sin mención de descuentos por antelación [DOC: CT-2025-P06 · Contrato de suministro CT-2025-P06 · Tecnología Zulia · Cláusula 7].",
+        "documentos": [
+          "CT-2025-P06",
+          "LP-2026-P06_tecnologia-zulia",
+          "EV-2026-T1-P06",
+          "EV-2026-T2-P06",
+          "EV-2026-T3-P06",
+          "2026-01-05_P06_estado-de-cuenta",
+          "2026-01-13_P06_invitacion-a-la-feria-anual",
+          "2026-02-13_P06_invitacion-a-la-feria-anual",
+          "2026-03-15_P06_invitacion-a-la-feria-anual",
+          "2026-04-05_P06_estado-de-cuenta",
+          "2026-04-26_P06_invitacion-a-la-feria-anual",
+          "2026-06-03_P06_estado-de-cuenta",
+          "2026-06-15_P06_estado-de-cuenta",
+          "2026-06-16_P06_invitacion-a-la-feria-anual",
+          "2026-06-19_P06_estado-de-cuenta"
+        ],
+        "rutas": [
+          "documentos/contratos/CT-2025-P06_tecnologia-zulia.md",
+          "documentos/listas_de_precios/LP-2026-P06_tecnologia-zulia.md",
+          "documentos/evaluaciones/EV-2026-T1-P06_tecnologia-zulia.md",
+          "documentos/evaluaciones/EV-2026-T2-P06_tecnologia-zulia.md",
+          "documentos/evaluaciones/EV-2026-T3-P06_tecnologia-zulia.md",
+          "documentos/correos/2026-01-05_P06_estado-de-cuenta.md",
+          "documentos/correos/2026-01-13_P06_invitacion-a-la-feria-anual.md",
+          "documentos/correos/2026-02-13_P06_invitacion-a-la-feria-anual.md",
+          "documentos/correos/2026-03-15_P06_invitacion-a-la-feria-anual.md",
+          "documentos/correos/2026-04-05_P06_estado-de-cuenta.md",
+          "documentos/correos/2026-04-26_P06_invitacion-a-la-feria-anual.md",
+          "documentos/correos/2026-06-03_P06_estado-de-cuenta.md",
+          "documentos/correos/2026-06-15_P06_estado-de-cuenta.md",
+          "documentos/correos/2026-06-16_P06_invitacion-a-la-feria-anual.md",
+          "documentos/correos/2026-06-19_P06_estado-de-cuenta.md"
+        ],
+        "fragmentos": 15,
+        "contexto_documentos": 20400,
+        "ms_recuperacion": 3,
+        "ms_modelo": 4306,
+        "ms_total": 4309,
+        "herramientas": [
+          "glob",
+          "grep",
+          "read"
+        ],
+        "correcta": true,
+        "detalle": "Cumple los hechos clave."
+      },
+      "modo_b": {
+        "respuesta": "No consta. El contrato vigente [DOC: CT-2025-P06 · Cláusula 7 · Facturación y pago] no menciona descuentos por pronto pago. Las condiciones de pago son las establecidas en el contrato, que no incluyen tal beneficio.",
+        "documentos": [
+          "CT-2025-P06",
+          "LP-2026-P06_tecnologia-zulia",
+          "2026-01-05_P06_estado-de-cuenta",
+          "LP-2026-P06_tecnologia-zulia",
+          "2026-08-29_P06_estado-de-cuenta"
+        ],
+        "secciones": [
+          "Cláusula 7 · Facturación y pago",
+          "Condiciones",
+          "Mensaje",
+          "Precios",
+          "Mensaje"
+        ],
+        "fragmentos": 5,
+        "contexto_documentos": 1950,
+        "ms_busqueda": 9,
+        "ms_recuperacion": 9,
+        "ms_modelo": 2520,
+        "ms_total": 2530,
+        "herramientas": [
+          "buscar_documentos"
+        ],
+        "correcta": true,
+        "detalle": "Cumple los hechos clave."
+      },
+      "ganador": "mcp"
+    },
+    {
+      "id": "Q09",
+      "pregunta": "¿Cuántos días tiene un proveedor para responder un reclamo formal?",
+      "esperada": "5 días calendario desde la notificación del reclamo (PR-COM-03, Plazo de respuesta del proveedor).",
+      "criterio": "Debe indicar 5 días calendario desde la notificación.",
+      "modo_a": {
+        "respuesta": "Un proveedor tiene 5 días calendario desde la notificación para responder un reclamo formal [DOC: PR-COM-03 · Procedimiento de reclamos a proveedores].",
+        "documentos": [
+          "PR-COM-03",
+          "PR-COM-05",
+          "CT-2025-P01",
+          "CT-2025-P02",
+          "CT-2025-P03",
+          "CT-2025-P04",
+          "CT-2025-P05",
+          "2026-01-11_P01_cambio-de-contacto-comercial",
+          "2026-01-12_P04_despacho-del-pedido-po-1192"
+        ],
+        "rutas": [
+          "documentos/procedimientos/PR-COM-03_reclamos-a-proveedores.md",
+          "documentos/procedimientos/PR-COM-05_evaluacion-de-proveedores.md",
+          "documentos/contratos/CT-2025-P01_distribuidora-andina.md",
+          "documentos/contratos/CT-2025-P02_logistica-del-avila.md",
+          "documentos/contratos/CT-2025-P03_suministros-caroni.md",
+          "documentos/contratos/CT-2025-P04_importadora-margarita.md",
+          "documentos/contratos/CT-2025-P05_papelera-los-llanos.md",
+          "documentos/correos/2026-01-11_P01_cambio-de-contacto-comercial.md",
+          "documentos/correos/2026-01-12_P04_despacho-del-pedido-po-1192.md"
+        ],
+        "fragmentos": 9,
+        "contexto_documentos": 42124,
+        "ms_recuperacion": 4,
+        "ms_modelo": 6346,
+        "ms_total": 6350,
+        "herramientas": [
+          "glob",
+          "grep",
+          "read"
+        ],
+        "correcta": true,
+        "detalle": "Cumple los hechos clave."
+      },
+      "modo_b": {
+        "respuesta": "El proveedor tiene 5 días calendario desde la notificación para responder el reclamo con una fecha de entrega o una propuesta de solución [DOC: PR-COM-03 · Plazo de respuesta del proveedor]. Si no responde en ese plazo, Compras puede aplicar la penalidad sin más trámite [DOC: PR-COM-03 · Plazo de respuesta del proveedor].",
+        "documentos": [
+          "PR-COM-03",
+          "PR-COM-03",
+          "PR-COM-05",
+          "CT-2025-P01",
+          "CT-2025-P03"
+        ],
+        "secciones": [
+          "Plazo de respuesta del proveedor",
+          "Cuándo se hace un reclamo formal",
+          "Puntaje",
+          "Cláusula 10 · Notificaciones y reclamos",
+          "Cláusula 10 · Notificaciones y reclamos"
+        ],
+        "fragmentos": 5,
+        "contexto_documentos": 2079,
+        "ms_busqueda": 15,
+        "ms_recuperacion": 15,
+        "ms_modelo": 2774,
+        "ms_total": 2790,
+        "herramientas": [
+          "buscar_documentos"
+        ],
+        "correcta": true,
+        "detalle": "Cumple los hechos clave."
+      },
+      "ganador": "mcp"
+    },
+    {
+      "id": "Q10",
+      "pregunta": "¿A qué correo se envía un reclamo formal a Importadora Margarita?",
+      "esperada": "reclamos@impmargarita.example.org, con copia al representante (CT-2025-P04, cláusula 10).",
+      "criterio": "Debe indicar el correo de reclamos de Importadora Margarita.",
+      "modo_a": {
+        "respuesta": "Los reclamos formales a Importadora Margarita se envían al correo reclamos@impmargarita.example.org, con copia al representante del proveedor [DOC: CT-2025-P04 · Contrato de suministro CT-2025-P04 · Importadora Margarita · Cláusula 10].",
+        "documentos": [
+          "CT-2025-P04",
+          "AD-2026-P04-01",
+          "EV-2026-T1-P04",
+          "EV-2026-T2-P04",
+          "EV-2026-T3-P04",
+          "LP-2026-P04_importadora-margarita",
+          "2026-01-05_P04_estado-de-cuenta",
+          "2026-01-06_P04_lista-de-precios",
+          "2026-01-07_P04_lista-de-precios",
+          "2026-01-12_P04_despacho-del-pedido-po-1192",
+          "2026-01-12_P04_factura-del-pedido-po-1326",
+          "2026-01-20_P04_recordatorio-de-evaluacion-trimestral",
+          "2026-01-26_P04_consulta-sobre-entrega-en-barquisimeto",
+          "2026-01-27_P04_lista-de-precios",
+          "2026-01-28_P04_despacho-del-pedido-po-1269"
+        ],
+        "rutas": [
+          "documentos/contratos/CT-2025-P04_importadora-margarita.md",
+          "documentos/contratos/AD-2026-P04-01_adenda-importadora-margarita.md",
+          "documentos/evaluaciones/EV-2026-T1-P04_importadora-margarita.md",
+          "documentos/evaluaciones/EV-2026-T2-P04_importadora-margarita.md",
+          "documentos/evaluaciones/EV-2026-T3-P04_importadora-margarita.md",
+          "documentos/listas_de_precios/LP-2026-P04_importadora-margarita.md",
+          "documentos/correos/2026-01-05_P04_estado-de-cuenta.md",
+          "documentos/correos/2026-01-06_P04_lista-de-precios.md",
+          "documentos/correos/2026-01-07_P04_lista-de-precios.md",
+          "documentos/correos/2026-01-12_P04_despacho-del-pedido-po-1192.md",
+          "documentos/correos/2026-01-12_P04_factura-del-pedido-po-1326.md",
+          "documentos/correos/2026-01-20_P04_recordatorio-de-evaluacion-trimestral.md",
+          "documentos/correos/2026-01-26_P04_consulta-sobre-entrega-en-barquisimeto.md",
+          "documentos/correos/2026-01-27_P04_lista-de-precios.md",
+          "documentos/correos/2026-01-28_P04_despacho-del-pedido-po-1269.md"
+        ],
+        "fragmentos": 15,
+        "contexto_documentos": 21942,
+        "ms_recuperacion": 1,
+        "ms_modelo": 5863,
+        "ms_total": 5865,
+        "herramientas": [
+          "glob",
+          "grep",
+          "read"
+        ],
+        "correcta": true,
+        "detalle": "Cumple los hechos clave."
+      },
+      "modo_b": {
+        "respuesta": "Los reclamos formales a Importadora Margarita se envían al correo reclamos@impmargarita.example.org, con copia al representante del proveedor [DOC: CT-2025-P04 · Cláusula 10 · Notificaciones y reclamos]. Esta cláusula sigue vigente tras la adenda AD-2026-P04-01 [DOC: AD-2026-P04-01 · Cláusula tercera · Lo demás no cambia].",
+        "documentos": [
+          "CT-2025-P04",
+          "AD-2026-P04-01",
+          "AD-2026-P04-01",
+          "AD-2026-P04-01",
+          "AD-2026-P04-01"
+        ],
+        "secciones": [
+          "Cláusula 10 · Notificaciones y reclamos",
+          "Cláusula tercera · Lo demás no cambia",
+          "Ficha del documento",
+          "Antecedentes",
+          "Cláusula segunda · Pedidos a los que se aplica"
+        ],
+        "fragmentos": 5,
+        "contexto_documentos": 2005,
+        "ms_busqueda": 4,
+        "ms_recuperacion": 4,
+        "ms_modelo": 2295,
+        "ms_total": 2300,
+        "herramientas": [
+          "buscar_documentos"
+        ],
+        "correcta": true,
+        "detalle": "Cumple los hechos clave."
+      },
+      "ganador": "mcp"
+    },
+    {
+      "id": "Q11",
+      "pregunta": "¿Cuánto es la penalidad por día de atraso de Importadora Margarita?",
+      "esperada": "1 % del importe por cada día calendario de atraso, para órdenes emitidas desde el 01/07/2026. Antes era 0,5 % (AD-2026-P04-01, cláusula primera).",
+      "criterio": "Debe indicar el 1 % diario vigente (adenda).",
+      "modo_a": {
+        "respuesta": "La penalidad por día de atraso de Importadora Margarita es del 1 % del importe del pedido atrasado, aplicable desde el 1 de julio de 2026 [DOC: AD-2026-P04-01 · Adenda N.º 1 al contrato CT-2025-P04 · Importadora Margarita]. Antes de esa fecha, la penalidad era del 0,5 % por día [DOC: CT-2025-P04 · Contrato de suministro CT-2025-P04 · Importadora Margarita].",
+        "documentos": [
+          "AD-2026-P04-01",
+          "CT-2025-P04",
+          "LP-2026-P04_importadora-margarita",
+          "2026-10-27_P04_actualizacion-de-condiciones-comerciales",
+          "EV-2026-T1-P04",
+          "EV-2026-T2-P04",
+          "EV-2026-T3-P04",
+          "2026-01-05_P04_estado-de-cuenta",
+          "2026-01-06_P04_lista-de-precios",
+          "2026-01-07_P04_lista-de-precios",
+          "2026-01-12_P04_despacho-del-pedido-po-1192",
+          "2026-01-12_P04_factura-del-pedido-po-1326",
+          "2026-01-20_P04_recordatorio-de-evaluacion-trimestral",
+          "2026-01-26_P04_consulta-sobre-entrega-en-barquisimeto",
+          "2026-01-27_P04_lista-de-precios"
+        ],
+        "rutas": [
+          "documentos/contratos/AD-2026-P04-01_adenda-importadora-margarita.md",
+          "documentos/contratos/CT-2025-P04_importadora-margarita.md",
+          "documentos/listas_de_precios/LP-2026-P04_importadora-margarita.md",
+          "documentos/correos/2026-10-27_P04_actualizacion-de-condiciones-comerciales.md",
+          "documentos/evaluaciones/EV-2026-T1-P04_importadora-margarita.md",
+          "documentos/evaluaciones/EV-2026-T2-P04_importadora-margarita.md",
+          "documentos/evaluaciones/EV-2026-T3-P04_importadora-margarita.md",
+          "documentos/correos/2026-01-05_P04_estado-de-cuenta.md",
+          "documentos/correos/2026-01-06_P04_lista-de-precios.md",
+          "documentos/correos/2026-01-07_P04_lista-de-precios.md",
+          "documentos/correos/2026-01-12_P04_despacho-del-pedido-po-1192.md",
+          "documentos/correos/2026-01-12_P04_factura-del-pedido-po-1326.md",
+          "documentos/correos/2026-01-20_P04_recordatorio-de-evaluacion-trimestral.md",
+          "documentos/correos/2026-01-26_P04_consulta-sobre-entrega-en-barquisimeto.md",
+          "documentos/correos/2026-01-27_P04_lista-de-precios.md"
+        ],
+        "fragmentos": 15,
+        "contexto_documentos": 21954,
+        "ms_recuperacion": 2,
+        "ms_modelo": 4789,
+        "ms_total": 4791,
+        "herramientas": [
+          "glob",
+          "grep",
+          "read"
+        ],
+        "correcta": true,
+        "detalle": "Cumple los hechos clave."
+      },
+      "modo_b": {
+        "respuesta": "La penalidad por día de atraso de Importadora Margarita es del 1 % del importe del pedido atrasado, contado desde la fecha comprometida hasta la fecha de entrega [DOC: AD-2026-P04-01 · Cláusula primera]. Esta nueva penalidad aplica a órdenes de compra emitidas desde el 1 de julio de 2026 [DOC: AD-2026-P04-01 · Cláusula segunda]. Antes de esa fecha, la penalidad era del 0,5 % por día [DOC: CT-2025-P04 · Cláusula 8].",
+        "documentos": [
+          "AD-2026-P04-01",
+          "AD-2026-P04-01",
+          "CT-2025-P04",
+          "AD-2026-P04-01",
+          "2026-10-27_P04_actualizacion-de-condiciones-comerciales"
+        ],
+        "secciones": [
+          "Cláusula primera · Nueva penalidad por atraso",
+          "Antecedentes",
+          "Cláusula 8 · Penalidad por atraso",
+          "Cláusula segunda · Pedidos a los que se aplica",
+          "Mensaje"
+        ],
+        "fragmentos": 5,
+        "contexto_documentos": 3360,
+        "ms_busqueda": 3,
+        "ms_recuperacion": 3,
+        "ms_modelo": 2556,
+        "ms_total": 2559,
+        "herramientas": [
+          "buscar_documentos"
+        ],
+        "correcta": true,
+        "detalle": "Cumple los hechos clave."
+      },
+      "ganador": "mcp"
+    },
+    {
+      "id": "Q12",
+      "pregunta": "¿Cuántos empleados tiene Distribuidora Andina?",
+      "esperada": "No está en los documentos: ningún documento de compras indica cuántos empleados tiene Distribuidora Andina.",
+      "criterio": "Debe decir que el dato no está en los documentos y no inventar una cifra.",
+      "modo_a": {
+        "respuesta": "No está en los documentos de compras. Los documentos no incluyen información sobre el número de empleados de Distribuidora Andina.",
+        "documentos": [
+          "CT-2025-P01",
+          "EV-2026-T1-P01",
+          "EV-2026-T2-P01",
+          "EV-2026-T3-P01",
+          "LP-2026-P01_distribuidora-andina",
+          "2026-01-05_P01_consulta-sobre-entrega-en-maracaibo",
+          "2026-01-08_P01_confirmacion-de-orden-po-1261",
+          "2026-01-09_P01_factura-del-pedido-po-1060",
+          "2026-01-11_P01_cambio-de-contacto-comercial",
+          "2026-01-14_P01_despacho-del-pedido-po-1004",
+          "2026-01-16_P01_recordatorio-de-evaluacion-trimestral",
+          "2026-01-19_P01_despacho-del-pedido-po-1264",
+          "2026-01-27_P01_consulta-sobre-entrega-en-valencia",
+          "2026-01-31_P01_invitacion-a-la-feria-anual",
+          "2026-02-07_P01_cambio-de-contacto-comercial"
+        ],
+        "rutas": [
+          "documentos/contratos/CT-2025-P01_distribuidora-andina.md",
+          "documentos/evaluaciones/EV-2026-T1-P01_distribuidora-andina.md",
+          "documentos/evaluaciones/EV-2026-T2-P01_distribuidora-andina.md",
+          "documentos/evaluaciones/EV-2026-T3-P01_distribuidora-andina.md",
+          "documentos/listas_de_precios/LP-2026-P01_distribuidora-andina.md",
+          "documentos/correos/2026-01-05_P01_consulta-sobre-entrega-en-maracaibo.md",
+          "documentos/correos/2026-01-08_P01_confirmacion-de-orden-po-1261.md",
+          "documentos/correos/2026-01-09_P01_factura-del-pedido-po-1060.md",
+          "documentos/correos/2026-01-11_P01_cambio-de-contacto-comercial.md",
+          "documentos/correos/2026-01-14_P01_despacho-del-pedido-po-1004.md",
+          "documentos/correos/2026-01-16_P01_recordatorio-de-evaluacion-trimestral.md",
+          "documentos/correos/2026-01-19_P01_despacho-del-pedido-po-1264.md",
+          "documentos/correos/2026-01-27_P01_consulta-sobre-entrega-en-valencia.md",
+          "documentos/correos/2026-01-31_P01_invitacion-a-la-feria-anual.md",
+          "documentos/correos/2026-02-07_P01_cambio-de-contacto-comercial.md"
+        ],
+        "fragmentos": 15,
+        "contexto_documentos": 21057,
+        "ms_recuperacion": 1,
+        "ms_modelo": 3086,
+        "ms_total": 3087,
+        "herramientas": [
+          "glob",
+          "grep",
+          "read"
+        ],
+        "correcta": true,
+        "detalle": "Cumple los hechos clave."
+      },
+      "modo_b": {
+        "respuesta": "No está en los documentos de compras. No se proporciona información sobre el número de empleados de Distribuidora Andina.",
+        "documentos": [
+          "LP-2026-P01_distribuidora-andina",
+          "LP-2026-P01_distribuidora-andina",
+          "EV-2026-T1-P01",
+          "EV-2026-T2-P01",
+          "EV-2026-T3-P01"
+        ],
+        "secciones": [
+          "Condiciones",
+          "Precios",
+          "Acciones",
+          "Acciones",
+          "Acciones"
+        ],
+        "fragmentos": 5,
+        "contexto_documentos": 1339,
+        "ms_busqueda": 2,
+        "ms_recuperacion": 2,
+        "ms_modelo": 679,
+        "ms_total": 681,
+        "herramientas": [
+          "buscar_documentos"
+        ],
+        "correcta": true,
+        "detalle": "Cumple los hechos clave."
+      },
+      "ganador": "mcp"
+    }
+  ]
+}
