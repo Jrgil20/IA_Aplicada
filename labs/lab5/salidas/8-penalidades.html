@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dictamen Legal · Liquidación de Penalidades Contractuales por Atraso</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src 'none'; script-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Informe de liquidación · Penalidades contractuales por atraso (borrador)</title>
   <style>
     :root {
       --primary: #0f172a;
@@ -130,7 +131,6 @@
       padding: 24px;
       margin-bottom: 24px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      overflow-x: auto;
     }
     .section-title {
       font-size: 18px;
@@ -243,16 +243,6 @@
       color: var(--text-muted);
     }
 
-    @media (max-width: 768px) {
-      .container { padding: 12px; }
-      .header h1 { font-size: 20px; }
-      .meta-bar { flex-direction: column; gap: 8px; }
-      .kpi-grid { grid-template-columns: 1fr; }
-      .signatures { grid-template-columns: 1fr; }
-      .section { padding: 16px; }
-      table { min-width: 680px; }
-    }
-
     @media print {
       body { padding: 0; background: #fff; }
       .header { box-shadow: none; border: 1px solid #000; color: #000; background: #fff; }
@@ -266,18 +256,20 @@
 
   <!-- HEADER -->
   <div class="header">
-    <div class="header-badge">Dictamen Legal Vinculante · Liquidación de Descuentos</div>
-    <h1>Comercial Los Samanes, C.A. — Liquidación de Penalidades Contractuales</h1>
+    <div class="header-badge">Borrador para revisión legal · Liquidación de Descuentos</div>
+    <h1>Comercial Los Samanes, C.A. — Liquidación de Penalidades Contractuales <span style="font-size: 15px; font-weight: 500; color: #cbd5e1;">(borrador)</span></h1>
     <p>
-      Informe exhaustivo para la firma y ejecución de compensación de créditos sobre facturación pendiente de proveedores.
-      Cálculo formal de penalidades aplicables sobre órdenes de compra en estado <strong>Pendiente</strong> con atraso superior a <strong>10 días calendario</strong>,
-      fundamentado en los contratos mercantiles y adendas vigentes.
+      Informe generado automáticamente para revisión de Legal antes de una eventual compensación de créditos sobre facturación pendiente.
+      Cálculo de penalidades aplicables sobre órdenes de compra en estado <strong>Pendiente</strong> con atraso superior a <strong>10 días calendario</strong>,
+      fundamentado en los contratos mercantiles y adendas vigentes. <strong>Requiere revisión y firma humana.</strong>
     </p>
     <div class="meta-bar">
-      <div>Fecha de Corte Pericial: <strong>2026-11-05</strong></div>
-      <div>Fuente Transaccional: <strong>pedidos_pendientes.csv (ERP Central)</strong></div>
+      <div>Fecha de Corte: <strong>2026-11-05</strong></div>
+      <div>Fuente: <strong>pedidos_pendientes.csv (ERP Central)</strong></div>
       <div>Órdenes Evaluadas: <strong>15 Pedidos Críticos (&gt;10 días)</strong></div>
-      <div>Estatus Legal: <strong>Listo para Firma y Notificación Formal</strong></div>
+      <div>Estatus: <strong>Borrador · Requiere revisión y firma humana</strong></div>
+      <div>Generado: <strong>2026-11-05 12:46</strong></div>
+      <div>Huella CSV: <strong>5d90d0d3be1affb2</strong></div>
     </div>
   </div>
 
@@ -285,8 +277,8 @@
   <div class="summary-grid">
     <div class="summary-card highlight">
       <div class="summary-title">Monto Total a Descontar</div>
-      <div class="summary-value danger">$11,362.63 USD</div>
-      <div class="summary-sub">Liquidación aplicable contra las próximas facturas</div>
+      <div class="summary-value danger">$11,343.33 USD</div>
+      <div class="summary-sub">Liquidación aplicable contra las próximas facturas, sujeta a revisión legal</div>
     </div>
     <div class="summary-card">
       <div class="summary-title">Importe Total Afectado</div>
@@ -294,14 +286,14 @@
       <div class="summary-sub">Valor neto sin impuestos de las 15 órdenes atrasadas</div>
     </div>
     <div class="summary-card">
-      <div class="summary-title">Proveedores Sancionados</div>
+      <div class="summary-title">Proveedores con Penalidad</div>
       <div class="summary-value">6 / 6</div>
-      <div class="summary-sub">100% de la cartera de proveedores presenta incumplimientos</div>
+      <div class="summary-sub">100% de la cartera de proveedores tiene pedidos con penalidad</div>
     </div>
     <div class="summary-card">
       <div class="summary-title">Impacto P04 (Adenda 1)</div>
       <div class="summary-value">$6,480.83 USD</div>
-      <div class="summary-sub">57.0% del total de deducciones corresponde a Importadora Margarita</div>
+      <div class="summary-sub">57.1% del total de deducciones corresponde a Importadora Margarita</div>
     </div>
   </div>
 
@@ -333,7 +325,7 @@
           <td class="num">$3,742.30</td>
           <td class="num" style="color: var(--accent); font-weight: 700;">$345.57</td>
           <td class="num">9.2%</td>
-          <td><span class="badge badge-danger">Compensación Procedente</span></td>
+          <td><span class="badge badge-warning">Sujeta a revisión legal</span></td>
         </tr>
         <tr>
           <td><span class="badge badge-neutral">P02</span></td>
@@ -343,7 +335,7 @@
           <td class="num">$3,076.75</td>
           <td class="num" style="color: var(--accent); font-weight: 700;">$113.32</td>
           <td class="num">3.7%</td>
-          <td><span class="badge badge-danger">Compensación Procedente</span></td>
+          <td><span class="badge badge-warning">Sujeta a revisión legal</span></td>
         </tr>
         <tr>
           <td><span class="badge badge-neutral">P03</span></td>
@@ -353,7 +345,7 @@
           <td class="num">$3,187.06</td>
           <td class="num" style="color: var(--accent); font-weight: 700;">$207.76</td>
           <td class="num">6.5%</td>
-          <td><span class="badge badge-danger">Compensación Procedente</span></td>
+          <td><span class="badge badge-warning">Sujeta a revisión legal</span></td>
         </tr>
         <tr>
           <td><span class="badge badge-neutral">P04</span></td>
@@ -363,7 +355,7 @@
           <td class="num">$43,205.58</td>
           <td class="num" style="color: var(--accent); font-weight: 700;">$6,480.83</td>
           <td class="num">15.0%</td>
-          <td><span class="badge badge-danger">Compensación Procedente</span></td>
+          <td><span class="badge badge-warning">Sujeta a revisión legal</span></td>
         </tr>
         <tr>
           <td><span class="badge badge-neutral">P05</span></td>
@@ -373,7 +365,7 @@
           <td class="num">$25,254.81</td>
           <td class="num" style="color: var(--accent); font-weight: 700;">$3,030.58</td>
           <td class="num">12.0%</td>
-          <td><span class="badge badge-danger">Compensación Procedente</span></td>
+          <td><span class="badge badge-warning">Sujeta a revisión legal</span></td>
         </tr>
         <tr>
           <td><span class="badge badge-neutral">P06</span></td>
@@ -381,17 +373,17 @@
           <td><code>CT-2025-P06</code></td>
           <td class="num">2</td>
           <td class="num">$20,815.12</td>
-          <td class="num" style="color: var(--accent); font-weight: 700;">$1,184.57</td>
-          <td class="num">5.7%</td>
-          <td><span class="badge badge-danger">Compensación Procedente</span></td>
+          <td class="num" style="color: var(--accent); font-weight: 700;">$1,165.27</td>
+          <td class="num">5.6%</td>
+          <td><span class="badge badge-warning">Sujeta a revisión legal</span></td>
         </tr>
         <tr style="background-color: #f8fafc; font-weight: 800; border-top: 2px solid var(--border);">
           <td colspan="3" style="text-transform: uppercase;">Total General Liquidable</td>
           <td class="num">15</td>
           <td class="num">$99,281.62</td>
-          <td class="num" style="color: var(--accent); font-size: 15px;">$11,362.63 USD</td>
+          <td class="num" style="color: var(--accent); font-size: 15px;">$11,343.33 USD</td>
           <td class="num">11.4%</td>
-          <td><span class="badge badge-danger">15 Retenciones Validadas</span></td>
+          <td><span class="badge badge-warning">15 Retenciones Calculadas</span></td>
         </tr>
       </tbody>
     </table>
@@ -440,6 +432,7 @@
           <td>
             <div style="font-weight: 600; color: var(--primary);"><code>AD-2026-P04-01</code></div>
             <div style="font-size: 11px; color: #475569;">AD-2026-P04-01, Cláusula 1 y 2 (sustituye Cláusula 8)</div>
+            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Aplica Adenda N.º 1 vigente desde 01/07/2026: penalidad endurecida del 1,0% diario tras 3 días de gracia con tope del 15% para órdenes emitidas en el segundo semestre 2026.</div>
             
           </td>
         </tr>
@@ -463,6 +456,7 @@
           <td>
             <div style="font-weight: 600; color: var(--primary);"><code>CT-2025-P05</code></div>
             <div style="font-size: 11px; color: #475569;">Cláusula 8 (Penalidad por atraso)</div>
+            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Aplica tasa de 0,6% diario tras 5 días de gracia, con tope del 12% del importe.</div>
             
           </td>
         </tr>
@@ -486,6 +480,7 @@
           <td>
             <div style="font-weight: 600; color: var(--primary);"><code>AD-2026-P04-01</code></div>
             <div style="font-size: 11px; color: #475569;">AD-2026-P04-01, Cláusula 1 y 2 (sustituye Cláusula 8)</div>
+            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Aplica Adenda N.º 1 vigente desde 01/07/2026: penalidad endurecida del 1,0% diario tras 3 días de gracia con tope del 15% para órdenes emitidas en el segundo semestre 2026.</div>
             
           </td>
         </tr>
@@ -503,12 +498,13 @@
           <td class="num">$19,206.72</td>
           <td class="num">
             6.0%<span class="badge badge-warning" style="margin-left: 4px; font-size: 9px;">TOPE</span>
-            <div style="font-size: 10px; color: var(--text-muted);">15.0% bruto</div>
+            <div style="font-size: 10px; color: var(--text-muted);">6.0% bruto</div>
           </td>
           <td class="num" style="color: var(--accent); font-weight: 700; font-size: 14px;">$1,152.40</td>
           <td>
             <div style="font-weight: 600; color: var(--primary);"><code>CT-2025-P06</code></div>
             <div style="font-size: 11px; color: #475569;">Cláusula 8 (Penalidad por atraso) y Cláusula 9 (Fuerza mayor extemporánea)</div>
+            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Aplica tasa de 0,2% diario tras 10 días de gracia con tope del 6% del importe. Para PO-1314 la fuerza mayor aduanal fue desestimada por notificación extemporánea, violando el lapso perentorio de 5 días de la Cláusula 9.</div>
             <br><span class="badge badge-danger" style="margin-top: 4px;">Fuerza Mayor Desestimada</span>
           </td>
         </tr>
@@ -532,6 +528,7 @@
           <td>
             <div style="font-weight: 600; color: var(--primary);"><code>CT-2025-P05</code></div>
             <div style="font-size: 11px; color: #475569;">Cláusula 8 (Penalidad por atraso)</div>
+            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Aplica tasa de 0,6% diario tras 5 días de gracia, con tope del 12% del importe.</div>
             
           </td>
         </tr>
@@ -555,6 +552,7 @@
           <td>
             <div style="font-weight: 600; color: var(--primary);"><code>CT-2025-P01</code></div>
             <div style="font-size: 11px; color: #475569;">Cláusula 8 (Penalidad por atraso)</div>
+            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Aplica tasa de 0,5% diario sobre importe sin impuestos tras 5 días de gracia, con tope del 10%.</div>
             
           </td>
         </tr>
@@ -578,6 +576,7 @@
           <td>
             <div style="font-weight: 600; color: var(--primary);"><code>CT-2025-P03</code></div>
             <div style="font-size: 11px; color: #475569;">Cláusula 8 (Penalidad por atraso)</div>
+            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Aplica tasa de 0,4% diario tras 5 días de gracia, con tope del 8% del importe.</div>
             
           </td>
         </tr>
@@ -601,6 +600,7 @@
           <td>
             <div style="font-weight: 600; color: var(--primary);"><code>CT-2025-P01</code></div>
             <div style="font-size: 11px; color: #475569;">Cláusula 8 (Penalidad por atraso)</div>
+            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Aplica tasa de 0,5% diario sobre importe sin impuestos tras 5 días de gracia, con tope del 10%.</div>
             
           </td>
         </tr>
@@ -624,6 +624,7 @@
           <td>
             <div style="font-weight: 600; color: var(--primary);"><code>CT-2025-P03</code></div>
             <div style="font-size: 11px; color: #475569;">Cláusula 8 (Penalidad por atraso)</div>
+            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Aplica tasa de 0,4% diario tras 5 días de gracia, con tope del 8% del importe.</div>
             
           </td>
         </tr>
@@ -647,6 +648,7 @@
           <td>
             <div style="font-weight: 600; color: var(--primary);"><code>CT-2025-P01</code></div>
             <div style="font-size: 11px; color: #475569;">Cláusula 8 (Penalidad por atraso)</div>
+            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Aplica tasa de 0,5% diario sobre importe sin impuestos tras 5 días de gracia, con tope del 10%.</div>
             
           </td>
         </tr>
@@ -670,6 +672,7 @@
           <td>
             <div style="font-weight: 600; color: var(--primary);"><code>CT-2025-P02</code></div>
             <div style="font-size: 11px; color: #475569;">Cláusula 8 (Penalidad por atraso)</div>
+            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Aplica tasa de 0,3% diario tras 2 días de gracia, con tope del 5% del importe.</div>
             
           </td>
         </tr>
@@ -693,6 +696,7 @@
           <td>
             <div style="font-weight: 600; color: var(--primary);"><code>CT-2025-P02</code></div>
             <div style="font-size: 11px; color: #475569;">Cláusula 8 (Penalidad por atraso)</div>
+            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Aplica tasa de 0,3% diario tras 2 días de gracia, con tope del 5% del importe.</div>
             
           </td>
         </tr>
@@ -716,29 +720,7 @@
           <td>
             <div style="font-weight: 600; color: var(--primary);"><code>CT-2025-P01</code></div>
             <div style="font-size: 11px; color: #475569;">Cláusula 8 (Penalidad por atraso)</div>
-            
-          </td>
-        </tr>
-        <tr>
-          <td><strong>PO-1365</strong></td>
-          <td><span class="badge badge-neutral">P06</span></td>
-          <td>
-            <div style="font-weight: 600;">Monitores 24"</div>
-            <div style="font-size: 11px; color: var(--text-muted);">10 unid. @ $160.84 | Sede Maracaibo</div>
-          </td>
-          <td>2026-10-22</td>
-          <td class="num"><strong style="color: var(--accent);">14 d</strong></td>
-          <td class="num" style="color: var(--text-muted);">10 d</td>
-          <td class="num"><strong>4 d</strong></td>
-          <td class="num">$1,608.40</td>
-          <td class="num">
-            2.0%
-            <div style="font-size: 10px; color: var(--text-muted);">2.0% bruto</div>
-          </td>
-          <td class="num" style="color: var(--accent); font-weight: 700; font-size: 14px;">$32.17</td>
-          <td>
-            <div style="font-weight: 600; color: var(--primary);"><code>CT-2025-P06</code></div>
-            <div style="font-size: 11px; color: #475569;">Cláusula 8 (Penalidad por atraso) y Cláusula 9 (Fuerza mayor extemporánea)</div>
+            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Aplica tasa de 0,5% diario sobre importe sin impuestos tras 5 días de gracia, con tope del 10%.</div>
             
           </td>
         </tr>
@@ -762,6 +744,31 @@
           <td>
             <div style="font-weight: 600; color: var(--primary);"><code>CT-2025-P02</code></div>
             <div style="font-size: 11px; color: #475569;">Cláusula 8 (Penalidad por atraso)</div>
+            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Aplica tasa de 0,3% diario tras 2 días de gracia, con tope del 5% del importe.</div>
+            
+          </td>
+        </tr>
+        <tr>
+          <td><strong>PO-1365</strong></td>
+          <td><span class="badge badge-neutral">P06</span></td>
+          <td>
+            <div style="font-weight: 600;">Monitores 24&quot;</div>
+            <div style="font-size: 11px; color: var(--text-muted);">10 unid. @ $160.84 | Sede Maracaibo</div>
+          </td>
+          <td>2026-10-22</td>
+          <td class="num"><strong style="color: var(--accent);">14 d</strong></td>
+          <td class="num" style="color: var(--text-muted);">10 d</td>
+          <td class="num"><strong>4 d</strong></td>
+          <td class="num">$1,608.40</td>
+          <td class="num">
+            0.8%
+            <div style="font-size: 10px; color: var(--text-muted);">0.8% bruto</div>
+          </td>
+          <td class="num" style="color: var(--accent); font-weight: 700; font-size: 14px;">$12.87</td>
+          <td>
+            <div style="font-weight: 600; color: var(--primary);"><code>CT-2025-P06</code></div>
+            <div style="font-size: 11px; color: #475569;">Cláusula 8 (Penalidad por atraso)</div>
+            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Aplica tasa de 0,2% diario tras 10 días de gracia con tope del 6% del importe.</div>
             
           </td>
         </tr>
@@ -772,7 +779,7 @@
     <div class="legal-alert">
       <strong>Dictamen sobre incidentes documentales y alegatos de proveedores:</strong>
       <ul style="margin-left: 20px; margin-top: 6px;">
-        <li><strong>Importadora Margarita (P04) — Aplicación de Adenda N.º 1:</strong> Todas las órdenes atrasadas (<code>PO-1295</code> emitida el 24/08/2026 y <code>PO-1324</code> emitida el 22/09/2026) son posteriores al 01/07/2026. Conforme a la Cláusula Segunda de la <code>AD-2026-P04-01</code>, rige la penalidad agravada del 1,0% diario tras 3 días de gracia y tope del 15% (liquidando $4,521.82 y $1,959.01 respectivamente).</li>
+        <li><strong>Importadora Margarita (P04) — Aplicación de Adenda N.º 1:</strong> Las órdenes atrasadas <code>PO-1295</code> (emitida el 24/08/2026) y <code>PO-1324</code> (emitida el 22/09/2026) son posteriores al 01/07/2026. Conforme a la Cláusula Segunda de la <code>AD-2026-P04-01</code>, rige la penalidad agravada del 1,0% diario tras 3 días de gracia y tope del 15% (liquidando $4,521.82 y $1,959.01 respectivamente).</li>
         <li><strong>Tecnología Zulia (P06) — Desestimación de Fuerza Mayor en PO-1314:</strong> El proveedor intentó justificar la retención aduanal de laptops mediante correo ordinario enviado el 22/10/2026. Habiendo vencido la fecha comprometida el 26/09/2026, el plazo de caducidad de 5 días previsto en la Cláusula 9 expiró el 01/10/2026. Al ser extemporánea por 21 días y enviada a cuenta ordinaria (violando la Cláusula 10), la Cláusula 9 ordena expresamente la aplicación plena de la penalidad por atraso al tope del 6% ($1,152.40 USD).</li>
       </ul>
     </div>
@@ -781,11 +788,16 @@
   <!-- SIGNATURES BLOCK -->
   <div class="section">
     <div class="section-title">
-      <span>3. Conformación y Firma de Autorización Legal</span>
-      <span class="badge badge-success">Conformidad Plena</span>
+      <span>3. Revisión y Firma de Autorización Legal</span>
+      <span class="badge badge-warning">Requiere revisión</span>
     </div>
     <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
-      Al estampar la firma al pie, la Consultoría Jurídica y la Gerencia de Compras certifican que los cálculos han sido confrontados contra los contratos mercantiles originales y sus adendas, autorizando al Departamento de Cuentas por Pagar a efectuar la deducción compensatoria en la siguiente emisión de pagos.
+      Este documento fue generado automáticamente a partir de <code>datos/pedidos_pendientes.csv</code> y de las reglas contractuales vigentes.
+      La firma al pie declara que la persona revisó los cálculos y los confrontó con los contratos y adendas originales; no sustituye la revisión legal.
+      Una vez firmado, autoriza a Cuentas por Pagar a evaluar la deducción compensatoria en la siguiente emisión de pagos.
+    </p>
+    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
+      Generado: <strong>2026-11-05 12:46</strong> · Fuente: <code>pedidos_pendientes.csv</code> · Huella SHA-256 (16): <code>5d90d0d3be1affb2</code>
     </p>
 
     <div class="signature-grid">

@@ -7,12 +7,12 @@
 > **Company:** Comercial Los Samanes, C.A.  
 > **Inference Infrastructure:** `llama-server` (port `8080`, `Qwen3-Coder-30B-A3B-Instruct-UD-Q4_K_XL.gguf`, context `32768`)  
 > **Primary Deliverables:**
-> - Penalty Calculation Engine & Legal Report: [`labs/lab5/salidas/8-penalidades.html`](file:///home/jr_g/Develop/IA_Aplicada/labs/lab5/salidas/8-penalidades.html)
-> - Legal QA Evaluation Matrix (100% Accuracy): [`labs/lab5/salidas/9-evaluacion.html`](file:///home/jr_g/Develop/IA_Aplicada/labs/lab5/salidas/9-evaluacion.html) · [`9-evaluacion.json`](file:///home/jr_g/Develop/IA_Aplicada/labs/lab5/salidas/9-evaluacion.json)
+> - Penalty Calculation Engine & Legal Report: [`labs/lab5/salidas/8-penalidades.html`](file:///home/jr_g/Develop/IA_Aplicada/labs/lab5/salidas/8-penalidades.html) · [`8-auditoria.md`](file:///home/jr_g/Develop/IA_Aplicada/labs/lab5/salidas/8-auditoria.md)
+> - Legal QA Evaluation Matrix (100% Accuracy): [`labs/lab5/salidas/9-evaluacion.html`](file:///home/jr_g/Develop/IA_Aplicada/labs/lab5/salidas/9-evaluacion.html) · [`9-evaluacion.json`](file:///home/jr_g/Develop/IA_Aplicada/labs/lab5/salidas/9-evaluacion.json) · [`9-auditoria.md`](file:///home/jr_g/Develop/IA_Aplicada/labs/lab5/salidas/9-auditoria.md)
 > - Hardened Document Assistant Server: [`labs/lab5/asistente/servidor.py`](file:///home/jr_g/Develop/IA_Aplicada/labs/lab5/asistente/servidor.py) (Running on Spark port `8501`)
 > - Model Context Protocol (MCP) Search Engine: [`labs/lab5/asistente/servidor_mcp.py`](file:///home/jr_g/Develop/IA_Aplicada/labs/lab5/asistente/servidor_mcp.py)
 > - OpenCode Multi-Agent Sandbox Configuration: [`labs/lab5/opencode.json`](file:///home/jr_g/Develop/IA_Aplicada/labs/lab5/opencode.json)
-> - Architectural Decision Report for IT: [`labs/lab5/salidas/10-comparacion.html`](file:///home/jr_g/Develop/IA_Aplicada/labs/lab5/salidas/10-comparacion.html) · [`10-comparacion.json`](file:///home/jr_g/Develop/IA_Aplicada/labs/lab5/salidas/10-comparacion.json)
+> - Architectural Decision Report for IT: [`labs/lab5/salidas/10-comparacion.html`](file:///home/jr_g/Develop/IA_Aplicada/labs/lab5/salidas/10-comparacion.html) · [`10-comparacion.json`](file:///home/jr_g/Develop/IA_Aplicada/labs/lab5/salidas/10-comparacion.json) · [`10-condicion-ti.json`](file:///home/jr_g/Develop/IA_Aplicada/labs/lab5/salidas/10-condicion-ti.json)
 
 ---
 
@@ -31,7 +31,7 @@ Comercial Los Samanes, C.A. faced 15 delayed purchase orders across 6 key suppli
    - *Legal Dismissal:* Clause 9 mandates written notice within 5 calendar days of occurrence (expired Oct 1, 2026; notification was 21 days late). Furthermore, email was sent to general support instead of `cuentasclave@` (violating Clause 10). Force majeure was rejected. Capped at 6% maximum penalty: **$1,152.40 USD**.
 3. **Total Portfolio Penalty:**
    - Evaluated Orders: 15 overdue orders.
-   - Total Deductions: **$11,362.63 USD** from pending supplier payments.
+   - Total Deductions: **$11,343.33 USD** from pending supplier payments (accounting for exact 0.2%/day rate in CT-2025-P06 Cl. 8).
 
 ---
 

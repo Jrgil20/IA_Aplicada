@@ -34,6 +34,9 @@ DOCUMENTOS = os.path.normpath(os.path.join(BASE, "..", "documentos"))
 VERSION_PROTOCOLO = "2025-06-18"
 NOMBRE_SERVIDOR = "buscador-compras"
 VERSION_SERVIDOR = "1.0"
+MAX_CONSULTA = 2000
+MAX_DOCUMENTO_ID = 200
+MAX_SECCION = 300
 
 INSTRUCCIONES = (
     "Buscador de los documentos de compras de Comercial Los Samanes. "
@@ -72,6 +75,8 @@ def buscar_documentos(args: dict) -> list[dict]:
     consulta = str(args.get("consulta") or "").strip()
     if not consulta:
         raise ValueError("El parámetro 'consulta' es obligatorio.")
+    if len(consulta) > MAX_CONSULTA:
+        raise ValueError(f"La consulta supera el máximo de {MAX_CONSULTA} caracteres.")
     try:
         limite = int(args.get("limite", 5))
     except (TypeError, ValueError):
@@ -105,6 +110,10 @@ def leer_fragmento(args: dict) -> dict:
         raise ValueError("El parámetro 'documento_id' es obligatorio.")
     if not seccion:
         raise ValueError("El parámetro 'seccion' es obligatorio.")
+    if len(doc_id) > MAX_DOCUMENTO_ID:
+        raise ValueError(f"'documento_id' supera el máximo de {MAX_DOCUMENTO_ID} caracteres.")
+    if len(seccion) > MAX_SECCION:
+        raise ValueError(f"'seccion' supera el máximo de {MAX_SECCION} caracteres.")
 
     documento = indice().documento(doc_id)
     if documento is None:
@@ -316,7 +325,7 @@ def main() -> None:
         indice()
     except Exception:
         traceback.print_exc(file=sys.stderr)
-        return
+        sys.exit(1)
 
     for linea in sys.stdin:
         linea = linea.strip()

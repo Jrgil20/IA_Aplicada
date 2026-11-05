@@ -19,22 +19,18 @@
       "description": "Modo A de la comparación: explora y abre los archivos de documentos/ por su cuenta.",
       "mode": "all",
       "permissions": [
-        { "action": "*", "resource": "*", "effect": "allow" },
         { "action": "read", "resource": "documentos/**", "effect": "allow" },
-        { "action": "glob", "resource": "documentos/**", "effect": "allow" },
-        { "action": "grep", "resource": "documentos/**", "effect": "allow" }
+        { "action": "glob", "resource": "*", "effect": "allow" },
+        { "action": "grep", "resource": "*", "effect": "allow" }
       ]
     },
     "agente-mcp": {
       "description": "Modo B de la comparación: solo ve documentos/ a través del servidor MCP buscador. Cumple la condición de TI.",
       "mode": "all",
       "permissions": [
-        { "action": "*", "resource": "*", "effect": "allow" },
-        { "action": "read", "resource": "documentos/**", "effect": "deny" },
-        { "action": "glob", "resource": "documentos/**", "effect": "deny" },
-        { "action": "grep", "resource": "documentos/**", "effect": "deny" },
-        { "action": "edit", "resource": "documentos/**", "effect": "deny" },
-        { "action": "shell", "resource": "*", "effect": "deny" }
+        { "action": "*", "resource": "*", "effect": "deny" },
+        { "action": "buscador_buscar_documentos", "resource": "*", "effect": "allow" },
+        { "action": "buscador_leer_fragmento", "resource": "*", "effect": "allow" }
       ]
     }
   }

@@ -21,8 +21,10 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import html
 import json
+import math
 import os
 import re
 import subprocess
@@ -36,17 +38,18 @@ SALIDAS = os.path.join(RAIZ, "salidas")
 PREGUNTAS = os.path.join(RAIZ, "preguntas_de_prueba.csv")
 SERVIDOR_MCP = os.path.join(ASISTENTE, "servidor_mcp.py")
 DOCUMENTOS = os.path.join(RAIZ, "documentos")
+CONDICION = os.path.join(SALIDAS, "10-condicion-ti.json")
 
 if ASISTENTE not in sys.path:
     sys.path.insert(0, ASISTENTE)
 
-from busqueda import Indice, normalizar, tokenizar  # noqa: E402
+from busqueda import Fragmento, Indice, normalizar, tokenizar  # noqa: E402
 from evaluar import CRITERIOS, RESPUESTAS_ESPERADAS, evaluar_respuesta  # noqa: E402
-from llm import SISTEMA, _llamar_modelo  # noqa: E402
+from llm import SISTEMA, construir_contexto, redactar, sanitizar_texto  # noqa: E402
 
 LIMITE_MCP = 5
 TOPE_CONTEXTO_DIRECTO = 40000  # caracteres de documentos que "lee" el agente
-MAX_DOCS_DIRECTO = 15
+MAX_DOCS_DIRECTO = 6
 HOY = "2026-11-05"
 
 
@@ -118,48 +121,67 @@ class ClienteMCP:
 # Motor de respuesta común a los dos modos
 # ---------------------------------------------------------------------------
 
-def responder_modelo(documentos_texto: str, pregunta: str) -> tuple[str, int]:
-    mensaje = (
-        "DOCUMENTOS DISPONIBLES PARA RESPONDER:\n\n"
-        f"{documentos_texto}\n\n"
-        f"PREGUNTA DE LA SEDE: {pregunta.strip()}\n\n"
-        "Responde con la información de los documentos y cita cada afirmación."
+def _fragmento_desde_documento(documento) -> Fragmento:
+    """Convierte un documento completo en un fragmento citable."""
+    return Fragmento(
+        fragmento_id=documento.doc_id,
+        doc_id=documento.doc_id,
+        titulo=documento.titulo,
+        tipo=documento.tipo,
+        clase=documento.clase,
+        proveedor=documento.proveedor,
+        fecha=documento.fecha,
+        vigente_desde=documento.vigente_desde,
+        estado=documento.estado,
+        seccion="Documento completo",
+        texto=documento.texto,
+        ruta=documento.ruta,
     )
+
+
+def _fragmento_desde_mcp(datos: dict) -> Fragmento:
+    """Convierte la respuesta de la herramienta MCP en un fragmento citable."""
+    return Fragmento(
+        fragmento_id=f"{datos.get('id', '')}#{datos.get('seccion', '')}",
+        doc_id=datos.get("id", ""),
+        titulo=datos.get("titulo", ""),
+        tipo=datos.get("tipo", ""),
+        clase="",
+        proveedor=datos.get("proveedor", ""),
+        fecha=datos.get("fecha", ""),
+        vigente_desde="",
+        estado=datos.get("estado", ""),
+        seccion=datos.get("seccion", ""),
+        texto=datos.get("texto", ""),
+        ruta="",
+    )
+
+
+def _contexto_total(pregunta: str, contexto_documentos: str) -> int:
+    """Caracteres exactos del mensaje enviado al modelo, incluido el sistema."""
+    envoltorio = (
+        "FRAGMENTOS DOCUMENTALES:\n\n"
+        "<untrusted_document_context>\n"
+        f"{contexto_documentos}\n"
+        "</untrusted_document_context>\n\n"
+        "<user_query>\n"
+        f"{sanitizar_texto(pregunta)}\n"
+        "</user_query>\n\n"
+        "Responde con la información de los fragmentos y cita cada afirmación."
+    )
+    return len(SISTEMA) + len(envoltorio)
+
+
+def responder(fragmentos: list[Fragmento], pregunta: str) -> dict:
+    """Usa el mismo pipeline endurecido del asistente en ambos modos."""
+    contexto = construir_contexto(fragmentos)
     inicio = time.monotonic()
-    respuesta = _llamar_modelo(
-        [
-            {"role": "system", "content": SISTEMA},
-            {"role": "user", "content": mensaje},
-        ],
-        max_tokens=380,
-    )
+    salida = redactar(pregunta, fragmentos)
     ms = int((time.monotonic() - inicio) * 1000)
-    return respuesta.strip(), ms
-
-
-def _bloque_completo(documento) -> str:
-    return (
-        f"[DOC: {documento.doc_id} · {documento.titulo}]\n"
-        f"Tipo: {documento.tipo}\n"
-        f"Proveedor: {documento.proveedor or 'No aplica'}\n"
-        f"Fecha: {documento.fecha or 'Sin fecha'}\n"
-        f"Estado: {documento.estado or 'Sin estado'}\n"
-        f"Ruta: {documento.ruta}\n"
-        "Texto:\n"
-        f"{documento.texto.strip()}"
-    )
-
-
-def _bloque_fragmento(fragmento: dict) -> str:
-    return (
-        f"[DOC: {fragmento['id']} · {fragmento['seccion']}]\n"
-        f"Tipo: {fragmento.get('tipo', '')}\n"
-        f"Proveedor: {fragmento.get('proveedor') or 'No aplica'}\n"
-        f"Fecha: {fragmento.get('fecha') or 'Sin fecha'}\n"
-        f"Estado: {fragmento.get('estado') or 'Sin estado'}\n"
-        "Texto:\n"
-        f"{fragmento.get('texto', '').strip()}"
-    )
+    salida["contexto_documentos"] = len(contexto)
+    salida["contexto_total"] = _contexto_total(pregunta, contexto)
+    salida["ms_modelo"] = ms
+    return salida
 
 
 # ---------------------------------------------------------------------------
@@ -167,7 +189,11 @@ def _bloque_fragmento(fragmento: dict) -> str:
 # ---------------------------------------------------------------------------
 
 class ExploradorDirecto:
-    """Simula grep + lectura de archivos completos, sin índice BM25."""
+    """Simula `grep` por el término más específico y lectura de archivos.
+
+    No usa el índice BM25: reproduce lo que haría un agente que busca
+    coincidencias literales y luego abre los archivos candidatos completos.
+    """
 
     def __init__(self, indice: Indice):
         self.indice = indice
@@ -192,68 +218,61 @@ class ExploradorDirecto:
             documento.doc_id: set(tokenizar(documento.titulo))
             for documento in indice.documentos
         }
-        self._textos_normalizados = {
-            documento.doc_id: normalizar(documento.texto)
+        self._postings: dict[str, set[str]] = {}
+        for doc_id, tokens in self._tokens.items():
+            for token in tokens:
+                self._postings.setdefault(token, set()).add(doc_id)
+        self._proveedor_doc = {
+            documento.doc_id: Indice._proveedor_detectado(tokenizar(documento.proveedor))
             for documento in indice.documentos
         }
 
+    def _idf(self, token: str) -> float:
+        df = len(self._postings.get(token, ()))
+        total = len(self.indice.documentos)
+        if not df:
+            return 0.0
+        return math.log(1 + (total - df + 0.5) / (df + 0.5))
+
     def seleccionar(self, pregunta: str):
         tokens_unicos = sorted(set(tokenizar(pregunta)))
-        proveedor = self.indice._proveedor_detectado(tokenizar(pregunta))
-        clases = self.indice._clases_relevantes(tokenizar(pregunta))
-        aliases = {
-            "P01": ("distribuidora", "andina"),
-            "P02": ("logistica", "avila"),
-            "P03": ("suministros", "caroni"),
-            "P04": ("importadora", "margarita"),
-            "P05": ("papelera", "llanos"),
-            "P06": ("tecnologia", "zulia"),
-        }
+        if not tokens_unicos:
+            return []
 
-        candidatos = []
-        meses = set(tokens_unicos) & {
-            "enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
-            "agosto", "septiembr", "setiembr", "octubr", "noviembr", "diciembr",
-        }
-        pide_acta = bool(set(tokens_unicos) & {"reunion", "acta", "actas", "comprometio", "acuerdo"})
+        proveedor = self.indice._proveedor_detectado(tokens_unicos)
+        pregunta_normal = normalizar(pregunta)
+        menciona_historia = bool(
+            re.search(
+                r"\b(2024|2025|anterior(?:es)?|antes|historic[oa]s?|reemplazad[oa]s?|"
+                r"derogad[oa]s?|viej[oa]s?|antigu[oa]s?)\b",
+                pregunta_normal,
+            )
+        )
+
+        # `grep` encuentra los archivos que contienen los términos. El agente
+        # los ordena por especificidad (IDF) y por coincidencia en el título, y
+        # abre los primeros. No se usa el índice BM25 del buscador MCP.
+        ranking = []
         for documento in self.indice.documentos:
-            if "reemplazad" in normalizar(documento.estado):
+            if not menciona_historia and "reemplazad" in normalizar(documento.estado):
                 continue
             tokens_doc = self._tokens[documento.doc_id]
             titulo_tokens = self._titulos[documento.doc_id]
-            presentes = sum(1 for token in tokens_unicos if token in tokens_doc)
-            en_titulo = sum(1 for token in tokens_unicos if token in titulo_tokens)
-            puntos = 2.0 * presentes + 3.0 * en_titulo
-
-            if documento.clase == "acta" and pide_acta:
-                puntos += 15.0
-                if meses and meses & titulo_tokens:
-                    puntos += 30.0
-
-            if proveedor:
-                texto = self._textos_normalizados[documento.doc_id]
-                menciona = documento.proveedor.startswith(proveedor)
-                if not menciona:
-                    menciona = any(alias in texto for alias in aliases.get(proveedor, ()))
-                if documento.proveedor.startswith(proveedor):
-                    puntos += 40.0
-                elif menciona:
-                    puntos += 8.0
-                else:
-                    puntos -= 20.0
-            if clases and documento.clase in clases:
-                puntos += 6.0
+            puntos = sum(self._idf(token) for token in tokens_unicos if token in tokens_doc)
+            puntos += 2.0 * sum(
+                self._idf(token) for token in tokens_unicos if token in titulo_tokens
+            )
+            if proveedor and self._proveedor_doc.get(documento.doc_id) == proveedor:
+                puntos += 3.0
             if puntos > 0:
-                candidatos.append((puntos, documento))
+                ranking.append((puntos, documento))
 
-        candidatos.sort(key=lambda par: (-par[0], par[1].doc_id))
+        ranking.sort(key=lambda par: (-par[0], par[1].doc_id))
         elegidos = []
         usados = 0
-        for puntos, documento in candidatos:
+        for _puntos, documento in ranking:
             if len(elegidos) >= MAX_DOCS_DIRECTO or usados >= TOPE_CONTEXTO_DIRECTO:
                 break
-            if documento in elegidos:
-                continue
             largo = len(documento.texto)
             if elegidos and usados + largo > TOPE_CONTEXTO_DIRECTO:
                 continue
@@ -264,20 +283,22 @@ class ExploradorDirecto:
     def ejecutar(self, pregunta: str) -> dict:
         inicio = time.monotonic()
         documentos = self.seleccionar(pregunta)
-        bloques = [_bloque_completo(documento) for documento in documentos]
-        contexto = "\n\n".join(bloques)
+        fragmentos = [_fragmento_desde_documento(documento) for documento in documentos]
         ms_recuperacion = int((time.monotonic() - inicio) * 1000)
-        respuesta, ms_modelo = responder_modelo(contexto, pregunta)
+        salida = responder(fragmentos, pregunta)
         return {
-            "respuesta": respuesta,
+            "respuesta": salida["respuesta"],
+            "fuentes": salida.get("fuentes", []),
+            "negativa": salida.get("negativa", False),
             "documentos": [documento.doc_id for documento in documentos],
             "rutas": [documento.ruta for documento in documentos],
-            "fragmentos": len(documentos),
-            "contexto_documentos": len(contexto),
+            "fragmentos": len(fragmentos),
+            "contexto_documentos": salida["contexto_documentos"],
+            "contexto_total": salida["contexto_total"],
             "ms_recuperacion": ms_recuperacion,
-            "ms_modelo": ms_modelo,
+            "ms_modelo": salida["ms_modelo"],
             "ms_total": int((time.monotonic() - inicio) * 1000),
-            "herramientas": ["glob", "grep", "read"],
+            "herramientas": ["grep", "read"],
         }
 
 
@@ -287,22 +308,25 @@ class ExploradorDirecto:
 
 def ejecutar_mcp(cliente: ClienteMCP, pregunta: str) -> dict:
     inicio = time.monotonic()
-    fragmentos = cliente.llamar(
+    datos = cliente.llamar(
         "buscar_documentos", {"consulta": pregunta, "limite": LIMITE_MCP}
     )
     ms_busqueda = int((time.monotonic() - inicio) * 1000)
-    contexto = "\n\n".join(_bloque_fragmento(f) for f in fragmentos)
+    fragmentos = [_fragmento_desde_mcp(f) for f in datos]
     ms_recuperacion = int((time.monotonic() - inicio) * 1000)
-    respuesta, ms_modelo = responder_modelo(contexto, pregunta)
+    salida = responder(fragmentos, pregunta)
     return {
-        "respuesta": respuesta,
-        "documentos": [f["id"] for f in fragmentos],
-        "secciones": [f["seccion"] for f in fragmentos],
+        "respuesta": salida["respuesta"],
+        "fuentes": salida.get("fuentes", []),
+        "negativa": salida.get("negativa", False),
+        "documentos": [f["id"] for f in datos],
+        "secciones": [f["seccion"] for f in datos],
         "fragmentos": len(fragmentos),
-        "contexto_documentos": len(contexto),
+        "contexto_documentos": salida["contexto_documentos"],
+        "contexto_total": salida["contexto_total"],
         "ms_busqueda": ms_busqueda,
         "ms_recuperacion": ms_recuperacion,
-        "ms_modelo": ms_modelo,
+        "ms_modelo": salida["ms_modelo"],
         "ms_total": int((time.monotonic() - inicio) * 1000),
         "herramientas": ["buscar_documentos"],
     }
@@ -339,21 +363,25 @@ def correr(ids: set[str] | None = None) -> dict:
 
             print("  Modo A (archivos directos)…", flush=True)
             modo_a = explorador.ejecutar(pregunta)
-            correcta_a, detalle_a = evaluar_respuesta(qid, modo_a["respuesta"])
+            correcta_a, detalle_a = evaluar_respuesta(
+                qid, modo_a["respuesta"], modo_a.get("fuentes")
+            )
             modo_a["correcta"] = correcta_a
             modo_a["detalle"] = detalle_a
 
             print("  Modo B (buscador MCP)…", flush=True)
             modo_b = ejecutar_mcp(cliente, pregunta)
-            correcta_b, detalle_b = evaluar_respuesta(qid, modo_b["respuesta"])
+            correcta_b, detalle_b = evaluar_respuesta(
+                qid, modo_b["respuesta"], modo_b.get("fuentes")
+            )
             modo_b["correcta"] = correcta_b
             modo_b["detalle"] = detalle_b
 
             if correcta_a != correcta_b:
                 ganador = "mcp" if correcta_b else "directo"
-            elif modo_a["contexto_documentos"] == modo_b["contexto_documentos"]:
+            elif modo_a["contexto_total"] == modo_b["contexto_total"]:
                 ganador = "empate"
-            elif modo_b["contexto_documentos"] < modo_a["contexto_documentos"]:
+            elif modo_b["contexto_total"] < modo_a["contexto_total"]:
                 ganador = "mcp"
             else:
                 ganador = "directo"
@@ -370,10 +398,10 @@ def correr(ids: set[str] | None = None) -> dict:
                 }
             )
             print(
-                f"  A: {'OK' if correcta_a else 'FALLA'} {modo_a['contexto_documentos']:,} car · "
-                f"{modo_a['ms_total']/1000:.1f} s | "
-                f"B: {'OK' if correcta_b else 'FALLA'} {modo_b['contexto_documentos']:,} car · "
-                f"{modo_b['ms_total']/1000:.1f} s",
+                f"  A: {'OK' if correcta_a else 'FALLA'} {modo_a['contexto_total']:,} car total "
+                f"({modo_a['contexto_documentos']:,} docs) · {modo_a['ms_total']/1000:.1f} s | "
+                f"B: {'OK' if correcta_b else 'FALLA'} {modo_b['contexto_total']:,} car total "
+                f"({modo_b['contexto_documentos']:,} docs) · {modo_b['ms_total']/1000:.1f} s",
                 flush=True,
             )
             _guardar_json(resultados, inicio_total, indice, incompleto=True)
@@ -387,11 +415,16 @@ def _consolidar(resultados: list[dict], inicio_total: float, indice: Indice) -> 
     total = len(resultados)
     aciertos_a = sum(1 for r in resultados if r["modo_a"]["correcta"])
     aciertos_b = sum(1 for r in resultados if r["modo_b"]["correcta"])
-    contexto_a = _promedio(r["modo_a"]["contexto_documentos"] for r in resultados)
-    contexto_b = _promedio(r["modo_b"]["contexto_documentos"] for r in resultados)
+    contexto_doc_a = _promedio(r["modo_a"]["contexto_documentos"] for r in resultados)
+    contexto_doc_b = _promedio(r["modo_b"]["contexto_documentos"] for r in resultados)
+    contexto_a = _promedio(r["modo_a"]["contexto_total"] for r in resultados)
+    contexto_b = _promedio(r["modo_b"]["contexto_total"] for r in resultados)
     latencia_a = _promedio(r["modo_a"]["ms_total"] for r in resultados)
     latencia_b = _promedio(r["modo_b"]["ms_total"] for r in resultados)
-    ahorro = ((contexto_a - contexto_b) / contexto_a * 100) if contexto_a else 0.0
+    ahorro_doc = (
+        ((contexto_doc_a - contexto_doc_b) / contexto_doc_a * 100) if contexto_doc_a else 0.0
+    )
+    ahorro_total = ((contexto_a - contexto_b) / contexto_a * 100) if contexto_a else 0.0
     delta_latencia = ((latencia_b - latencia_a) / latencia_a * 100) if latencia_a else 0.0
 
     return {
@@ -403,24 +436,50 @@ def _consolidar(resultados: list[dict], inicio_total: float, indice: Indice) -> 
         "duracion_s": round(time.monotonic() - inicio_total, 1),
         "limite_mcp": LIMITE_MCP,
         "tope_contexto_directo": TOPE_CONTEXTO_DIRECTO,
+        "max_docs_directo": MAX_DOCS_DIRECTO,
+        "prompt_sistema_caracteres": len(SISTEMA),
         "total": total,
+        "codigo": _huellas(),
         "resumen": {
             "total": total,
             "aciertos_a": aciertos_a,
             "aciertos_b": aciertos_b,
             "porcentaje_a": round(100 * aciertos_a / total, 1) if total else 0,
             "porcentaje_b": round(100 * aciertos_b / total, 1) if total else 0,
+            "contexto_documental_promedio_a": round(contexto_doc_a),
+            "contexto_documental_promedio_b": round(contexto_doc_b),
             "contexto_promedio_a": round(contexto_a),
             "contexto_promedio_b": round(contexto_b),
-            "ahorro_contexto_pct": round(ahorro, 1),
+            "ahorro_contexto_documental_pct": round(ahorro_doc, 1),
+            "ahorro_contexto_pct": round(ahorro_total, 1),
             "latencia_promedio_a_ms": round(latencia_a),
             "latencia_promedio_b_ms": round(latencia_b),
             "delta_latencia_pct": round(delta_latencia, 1),
-            "tokens_estimados_a": round((contexto_a + len(SISTEMA)) / 4),
-            "tokens_estimados_b": round((contexto_b + len(SISTEMA)) / 4),
+            "tokens_estimados_a": round(contexto_a / 4),
+            "tokens_estimados_b": round(contexto_b / 4),
         },
         "resultados": resultados,
     }
+
+
+def _huellas() -> dict:
+    """Hash corto de los archivos que determinan el resultado."""
+    rutas = {
+        "opencode": os.path.join(RAIZ, "opencode.json"),
+        "servidor_mcp": os.path.join(ASISTENTE, "servidor_mcp.py"),
+        "busqueda": os.path.join(ASISTENTE, "busqueda.py"),
+        "evaluar": os.path.join(ASISTENTE, "evaluar.py"),
+        "llm": os.path.join(ASISTENTE, "llm.py"),
+        "comparador": os.path.abspath(__file__),
+    }
+    huellas = {}
+    for nombre, ruta in rutas.items():
+        try:
+            with open(ruta, "rb") as archivo:
+                huellas[nombre] = hashlib.sha256(archivo.read()).hexdigest()[:12]
+        except OSError:
+            huellas[nombre] = "no-disponible"
+    return huellas
 
 
 def _guardar_json(resultados: list[dict], inicio_total: float, indice: Indice, incompleto: bool) -> None:
@@ -447,26 +506,54 @@ def _segundos(ms: int | float) -> str:
     return f"{ms / 1000:.1f} s"
 
 
+def _estado_condicion() -> tuple[str, str]:
+    """Lee el resultado de las pruebas de la condición de TI, si existen."""
+    try:
+        with open(CONDICION, "r", encoding="utf-8") as archivo:
+            datos = json.load(archivo)
+    except (OSError, json.JSONDecodeError):
+        return (
+            "pendiente",
+            "Pruebas de condición pendientes: ejecutar "
+            "<code>python3 scripts/probar_condicion_ti.py</code>.",
+        )
+    if datos.get("aprobado"):
+        return (
+            "ok",
+            f"Pruebas ejecutadas: {datos.get('aprobados', 0)}/{datos.get('total', 0)} "
+            "aprobadas. Ninguna herramienta ajena al buscador se completó.",
+        )
+    return (
+        "falla",
+        f"Pruebas ejecutadas: {datos.get('aprobados', 0)}/{datos.get('total', 0)} "
+        "aprobadas. Revisar <code>salidas/10-condicion-ti.json</code>.",
+    )
+
+
 def _recomendacion(resumen: dict) -> tuple[str, str]:
     ahorro = resumen["ahorro_contexto_pct"]
+    ahorro_doc = resumen["ahorro_contexto_documental_pct"]
     base = (
         f"Adoptar el buscador MCP como única vía de acceso del agente a "
-        f"<code>documentos/</code>. Reduce el contexto documental en "
-        f"{ahorro:.0f} % y mantiene {resumen['aciertos_b']} de "
-        f"{resumen['total']} respuestas correctas."
+        f"<code>documentos/</code>. Reduce el contexto total enviado al modelo "
+        f"(documentos + sistema + pregunta) en {ahorro:.0f} % —el contexto "
+        f"documental baja {ahorro_doc:.0f} %— y mantiene "
+        f"{resumen['aciertos_b']} de {resumen['total']} respuestas correctas."
     )
-    if resumen["porcentaje_b"] + 6 < resumen["porcentaje_a"]:
+    if resumen["porcentaje_b"] < resumen["porcentaje_a"]:
         base = (
             "Mantener el acceso directo mientras se corrige la recuperación del buscador MCP: "
             f"en esta corrida el modo directo acertó {resumen['porcentaje_a']:.0f} % y el MCP "
-            f"{resumen['porcentaje_b']:.0f} %, aunque el MCP usó {ahorro:.0f} % menos contexto."
+            f"{resumen['porcentaje_b']:.0f} %, aunque el MCP usó {ahorro:.0f} % menos contexto total."
         )
     detalle = (
-        "El ahorro de contexto es la diferencia decisiva: el modo directo vuelca archivos "
+        "El ahorro de contexto es la diferencia decisiva: el modo directo abre archivos "
         "completos y deja menos espacio para el razonamiento; el buscador entrega solo los "
         "fragmentos pertinentes, con documento y sección, y permite auditar qué ve el modelo. "
-        "La condición de TI se cumple porque el agente MCP no puede abrir, listar ni buscar "
-        "dentro de <code>documentos/</code>: solo recibe lo que devuelve el servidor."
+        "La condición de TI se cumple con una lista blanca: el agente MCP solo tiene las "
+        "herramientas <code>buscar_documentos</code> y <code>leer_fragmento</code>; no puede "
+        "usar <code>read</code>, <code>glob</code>, <code>grep</code>, <code>shell</code>, "
+        "<code>subagent</code>, <code>webfetch</code> ni <code>websearch</code>."
     )
     return base, detalle
 
@@ -476,6 +563,7 @@ def generar_html(datos: dict) -> str:
     recomendacion, justificacion = _recomendacion(resumen)
     total = datos["total"]
     ahorro = resumen["ahorro_contexto_pct"]
+    ahorro_doc = resumen["ahorro_contexto_documental_pct"]
     delta = resumen["delta_latencia_pct"]
     delta_txt = (
         f"{abs(delta):.0f} % más rápida" if delta < 0 else f"{abs(delta):.0f} % más lenta"
@@ -484,6 +572,12 @@ def generar_html(datos: dict) -> str:
     color_precision = (
         "verde" if resumen["porcentaje_b"] >= 90
         else ("ambar" if resumen["porcentaje_b"] >= 70 else "rojo")
+    )
+    estado_cond, texto_cond = _estado_condicion()
+    sello = (
+        "Condición de TI verificada: el agente MCP solo puede usar las dos herramientas del buscador"
+        if estado_cond == "ok"
+        else "Condición de TI configurada; pruebas del agente pendientes"
     )
 
     filas = []
@@ -504,12 +598,14 @@ def generar_html(datos: dict) -> str:
             f'<td class="id">{_e(r["id"])}</td>'
             f'<td class="pregunta">{_e(r["pregunta"])}</td>'
             f'<td><span class="dato">{_segundos(a["ms_total"])}</span>'
-            f'<span class="sub">{_num(a["contexto_documentos"])} car</span></td>'
+            f'<span class="sub">{_num(a["contexto_total"])} car total · '
+            f'{_num(a["contexto_documentos"])} de documentos</span></td>'
             f'<td><span class="pastilla {estado_a}">{"Correcta" if a["correcta"] else "Incorrecta"}</span>'
             f'<details><summary>Ver respuesta</summary><p>{_e(a["respuesta"])}</p>'
             f'<p class="ref">Documentos: {_e(", ".join(a["documentos"]))}</p></details></td>'
             f'<td><span class="dato">{_segundos(b["ms_total"])}</span>'
-            f'<span class="sub">{_num(b["contexto_documentos"])} car</span></td>'
+            f'<span class="sub">{_num(b["contexto_total"])} car total · '
+            f'{_num(b["contexto_documentos"])} de documentos</span></td>'
             f'<td><span class="pastilla {estado_b}">{"Correcta" if b["correcta"] else "Incorrecta"}</span>'
             f'<details><summary>Ver respuesta</summary><p>{_e(b["respuesta"])}</p>'
             f'<p class="ref">Fragmentos: {_e(" · ".join(b["documentos"]))}</p></details></td>'
@@ -518,7 +614,7 @@ def generar_html(datos: dict) -> str:
         )
 
     metodos = [
-        ("Modo A · Archivos directos", f"El agente busca con <code>glob</code>/<code>grep</code> y abre hasta {MAX_DOCS_DIRECTO} archivos completos de <code>documentos/</code>.", "A"),
+        ("Modo A · Archivos directos", f"El agente simula <code>grep</code> por el término más específico y abre hasta {MAX_DOCS_DIRECTO} archivos completos de <code>documentos/</code>.", "A"),
         ("Modo B · Buscador MCP", f"El agente llama <code>buscar_documentos</code> y recibe los {datos['limite_mcp']} fragmentos más pertinentes, con cita de documento y sección. No abre archivos.", "B"),
     ]
     tarjetas_metodo = "".join(
@@ -531,6 +627,7 @@ def generar_html(datos: dict) -> str:
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src 'none'; script-src 'none'; base-uri 'none'; form-action 'none'">
 <title>Buscador para el agente · Comparación para TI</title>
 <style>
   :root {{
@@ -619,6 +716,10 @@ def generar_html(datos: dict) -> str:
   .panel ul {{ margin:8px 0 0 18px; padding:0; font-size:12.5px; color:var(--suave); }}
   .panel li {{ margin:3px 0; }}
   .panel code {{ font-family:var(--mono); font-size:11.5px; background:#eef2f5; padding:1px 4px; border-radius:3px; }}
+  .condicion-estado {{ margin:9px 0 0; padding:8px 10px; border-radius:7px; font-size:12px; font-weight:650; }}
+  .condicion-estado.ok {{ background:var(--verde-claro); color:var(--verde); }}
+  .condicion-estado.falla {{ background:var(--rojo-claro); color:var(--rojo); }}
+  .condicion-estado.pendiente {{ background:var(--ambar-claro); color:var(--ambar); }}
   pre {{ margin:10px 0 0; background:#0f2233; color:#d6e4ef; border-radius:8px; padding:12px 14px;
     font-family:var(--mono); font-size:10.8px; line-height:1.5; overflow-x:auto; }}
 
@@ -661,14 +762,14 @@ def generar_html(datos: dict) -> str:
     <p class="etiqueta">Recomendación para TI</p>
     <h2>{recomendacion}</h2>
     <p>{justificacion}</p>
-    <span class="sello">Condición de TI verificada: el agente MCP no abre archivos de documentos/</span>
+    <span class="sello">{sello}</span>
   </section>
 
   <div class="metricas">
     <div class="metrica {color_ahorro}">
-      <span class="rotulo">Ahorro de contexto</span>
+      <span class="rotulo">Ahorro de contexto total</span>
       <strong>{ahorro:.0f} %</strong>
-      <small>{_num(resumen["contexto_promedio_a"])} → {_num(resumen["contexto_promedio_b"])} caracteres por pregunta</small>
+      <small>documental {ahorro_doc:.0f} % · {_num(resumen["contexto_promedio_a"])} → {_num(resumen["contexto_promedio_b"])} caracteres por pregunta</small>
     </div>
     <div class="metrica {color_precision}">
       <span class="rotulo">Acierto con MCP</span>
@@ -683,7 +784,7 @@ def generar_html(datos: dict) -> str:
     <div class="metrica">
       <span class="rotulo">Contexto estimado</span>
       <strong>{_num(resumen["tokens_estimados_b"])}</strong>
-      <small>tokens con MCP vs {_num(resumen["tokens_estimados_a"])} en directo</small>
+      <small>tokens totales con MCP vs {_num(resumen["tokens_estimados_a"])} en directo</small>
     </div>
   </div>
 
@@ -717,24 +818,26 @@ def generar_html(datos: dict) -> str:
     <div class="panel">
       <h3>Qué ve el agente en cada modo</h3>
       <ul>
-        <li><strong>Modo A:</strong> puede listar, buscar y abrir cualquier archivo de <code>documentos/</code>. El contexto depende de cuántos archivos abra.</li>
+        <li><strong>Modo A:</strong> simula <code>grep</code> por el término más específico y abre hasta {datos["max_docs_directo"]} archivos completos de <code>documentos/</code>.</li>
         <li><strong>Modo B:</strong> solo recibe los fragmentos que devuelve <code>buscar_documentos</code> y las secciones que pida con <code>leer_fragmento</code>.</li>
-        <li>En ambos modos se usó el mismo modelo local, el mismo prompt de sistema y los mismos criterios de corrección de Legal.</li>
+        <li>En ambos modos se usó el mismo modelo local, el mismo prompt de sistema, la misma validación de citas y los mismos criterios de corrección de Legal.</li>
       </ul>
     </div>
     <div class="panel">
       <h3>Configuración que hace cumplir la condición</h3>
-      <p>El agente <code>agente-mcp</code> tiene denegado <code>read</code>, <code>glob</code> y <code>grep</code> sobre <code>documentos/**</code>, además de <code>shell</code>. El servidor está registrado en <code>opencode.json</code>.</p>
+      <p>El agente <code>agente-mcp</code> tiene una lista blanca: solo las herramientas <code>buscador_buscar_documentos</code> y <code>buscador_leer_fragmento</code>. Todo lo demás está denegado, incluidos <code>read</code>, <code>glob</code>, <code>grep</code>, <code>shell</code>, <code>subagent</code>, <code>webfetch</code> y <code>websearch</code>. El servidor está registrado en <code>opencode.json</code>.</p>
+      <p class="condicion-estado {estado_cond}">{texto_cond}</p>
       <pre>{{
   "mcp": {{ "servers": {{ "buscador": {{
     "type": "local",
-    "command": ["python3", "asistente/servidor_mcp.py"]
+    "command": ["python3", "asistente/servidor_mcp.py"],
+    "cwd": ".",
+    "codemode": false
   }}}}}},
   "agents": {{ "agente-mcp": {{ "permissions": [
-    {{ "action": "read", "resource": "documentos/**", "effect": "deny" }},
-    {{ "action": "glob", "resource": "documentos/**", "effect": "deny" }},
-    {{ "action": "grep", "resource": "documentos/**", "effect": "deny" }},
-    {{ "action": "shell", "resource": "*", "effect": "deny" }}
+    {{ "action": "*", "resource": "*", "effect": "deny" }},
+    {{ "action": "buscador_buscar_documentos", "resource": "*", "effect": "allow" }},
+    {{ "action": "buscador_leer_fragmento", "resource": "*", "effect": "allow" }}
   ] }}}}
 }}</pre>
     </div>
@@ -742,8 +845,8 @@ def generar_html(datos: dict) -> str:
 
   <h2 class="seccion">Lectura de los números</h2>
   <div class="panel">
-    <p><strong>Contexto:</strong> caracteres de documentos enviados al modelo en cada pregunta; no incluye el prompt de sistema, que es idéntico en ambos modos. La estimación de tokens usa 4 caracteres por token.
-    <strong>Tiempo:</strong> recuperación más generación, medido de punta a punta en el Spark. <strong>Acierto:</strong> verificación automática de los hechos clave que Legal exige para cada pregunta; las respuestas completas quedan a la vista en la tabla. <strong>Ganador:</strong> se decide primero por acierto y, si ambos aciertan, por menor contexto; el tiempo se informa por separado.</p>
+    <p><strong>Contexto total:</strong> caracteres del mensaje completo que recibe el modelo en cada pregunta: prompt de sistema, documentos, pregunta y delimitadores. <strong>Contexto documental:</strong> solo los documentos; se informa aparte porque es la parte que cambia entre modos. La estimación de tokens usa 4 caracteres por token.
+    <strong>Tiempo:</strong> recuperación, redacción y validación de citas, medido de punta a punta en el Spark. <strong>Acierto:</strong> verificación automática de los hechos clave que Legal exige para cada pregunta, con la misma validación de citas del asistente; las respuestas completas quedan a la vista en la tabla y Legal debe revisarlas. <strong>Ganador:</strong> se decide primero por acierto y, si ambos aciertan, por menor contexto total; el tiempo se informa por separado.</p>
   </div>
 
   <footer class="pie">
@@ -778,7 +881,9 @@ def main() -> None:
     print(
         f"\nResultado: MCP {resumen['aciertos_b']}/{datos['total']} "
         f"({resumen['porcentaje_b']} %) vs directo {resumen['aciertos_a']}/{datos['total']} "
-        f"({resumen['porcentaje_a']} %). Ahorro de contexto: {resumen['ahorro_contexto_pct']} %."
+        f"({resumen['porcentaje_a']} %). Ahorro de contexto total: "
+        f"{resumen['ahorro_contexto_pct']} % (documental "
+        f"{resumen['ahorro_contexto_documental_pct']} %)."
     )
     print(f"HTML: {html_salida}\nJSON: {json_salida}")
 

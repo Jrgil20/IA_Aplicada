@@ -68,12 +68,65 @@ _CONTROL_TOKENS_RE = re.compile(
     re.IGNORECASE,
 )
 
+_TAGS_PROMPT_RE = re.compile(
+    r"</?(?:user_query|untrusted_document_context|system|assistant)>",
+    re.IGNORECASE,
+)
+
+# Patrones de instrucciones de rol/inyección directa. No es una defensa
+# completa: es una capa que corta los intentos más comunes y deja evidencia.
+_PATRONES_INYECCION = re.compile(
+    r"(?:"
+    r"ignora(?:r)?\s+(?:las|la|todas)\s+instrucciones"
+    r"|a\s+partir\s+de\s+ahora\s+(?:respondes|act[uú]as|eres|solo)"
+    r"|responde\s+solo"
+    r"|repite\s+(?:textual|todo)"
+    r"|(?:system|prompt)\s+prompt"
+    r"|jailbreak"
+    r"|act[uú]a\s+como"
+    r"|instrucci[oó]n\s+del\s+sistema"
+    r"|</?(?:user_query|untrusted_document_context|system|assistant)>"
+    r")",
+    re.IGNORECASE,
+)
+
+_MARCAS_FUGA_PROMPT = (
+    "eres el asistente de compras",
+    "reglas obligatorias",
+    "tu única fuente de verdad",
+    "fragmentos documentales:",
+    "<untrusted_document_context>",
+    "<user_query>",
+    "sistema comprometido",
+)
+
+NEGATIVA_FIJA = (
+    "No está en los documentos de compras. No encontré respaldo documental "
+    "suficiente para responder con una fuente verificable."
+)
+
 
 def sanitizar_texto(texto: str) -> str:
-    """Elimina tokens de control que puedan manipular el motor de inferencia."""
+    """Elimina tokens de control y etiquetas de delimitación del prompt."""
     if not texto:
         return ""
-    return _CONTROL_TOKENS_RE.sub("", str(texto)).strip()
+    limpio = _CONTROL_TOKENS_RE.sub("", str(texto))
+    limpio = _TAGS_PROMPT_RE.sub(" ", limpio)
+    return limpio.strip()
+
+
+def intento_de_inyeccion(texto: str) -> bool:
+    """Detecta instrucciones de rol o intentos de cerrar los delimitadores."""
+    return bool(_PATRONES_INYECCION.search(texto or ""))
+
+
+def _parece_fuga_prompt(texto: str) -> bool:
+    normalizado = (texto or "").lower()
+    return any(marca in normalizado for marca in _MARCAS_FUGA_PROMPT)
+
+
+def _negativa_fija() -> dict:
+    return {"respuesta": NEGATIVA_FIJA, "fuentes": [], "negativa": True}
 
 
 def _bloque(fragmento: Fragmento, numero: int) -> str:
@@ -138,6 +191,10 @@ def _limpiar(texto: str) -> str:
     texto = texto.strip()
     texto = re.sub(r"^(respuesta|answer)\s*:\s*", "", texto, flags=re.I)
     texto = re.sub(r"[ \t]+", " ", texto)
+    # Líneas que son solo una marca de inyección no forman parte de la respuesta.
+    marcas = {"JA", "SISTEMA COMPROMETIDO", "TODO EN ORDEN"}
+    lineas = [linea for linea in texto.splitlines() if linea.strip().upper() not in marcas]
+    texto = "\n".join(lineas)
     texto = re.sub(r"\n{3,}", "\n\n", texto)
     return texto.strip()
 
@@ -164,7 +221,11 @@ def _partir_cita(interior: str, fragmentos: list[Fragmento]) -> tuple[str, str]:
 
 
 _PATRON_CITA = re.compile(
-    r"\[\s*(?:DOC\s*:\s*([^\]]+)|FRAGMENTO\s+(\d+)(?:\s*[·|]\s*([^\]]*))?)\s*\]",
+    r"\[\s*(?:"
+    r"DOC\s*:\s*([^\]]+)"
+    r"|FRAGMENTO\s+(\d+)(?:\s*[·|]\s*([^\]]*))?"
+    r"|([A-Za-z0-9][^\]]*·[^\]]+)"
+    r")\s*\]",
     re.I,
 )
 
@@ -172,6 +233,9 @@ _PATRON_CITA = re.compile(
 def _resolver_cita(coincidencia: re.Match, fragmentos: list[Fragmento]) -> Fragmento | None:
     if coincidencia.group(1) is not None:
         doc_id, seccion = _partir_cita(coincidencia.group(1), fragmentos)
+        return _buscar_fragmento(doc_id, seccion, fragmentos)
+    if coincidencia.group(4) is not None:
+        doc_id, seccion = _partir_cita(coincidencia.group(4), fragmentos)
         return _buscar_fragmento(doc_id, seccion, fragmentos)
     try:
         numero = int(coincidencia.group(2))
@@ -258,12 +322,29 @@ def _variantes_numero(numero: str) -> set[str]:
     return variantes
 
 
+_EMAIL_RE = re.compile(r"[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}")
+_NEGACION_ORACION_RE = re.compile(r"\b(no|sin|nunca|ning[uú]n[oa]?|ni)\b", re.IGNORECASE)
+
+
+def _oraciones(texto: str) -> list[str]:
+    return [o.strip() for o in re.split(r"(?<=[.!?])\s+|\n+", texto) if o.strip()]
+
+
+def _es_oracion_negativa(oracion: str) -> bool:
+    return bool(_NEGACION_ORACION_RE.search(oracion))
+
+
 def _cifras_sin_respaldo(respuesta: str, fuentes: list[dict], pregunta: str) -> list[str]:
-    """Cifras de la respuesta que no aparecen en las fuentes citadas."""
-    permitidas: set[str] = set()
-    base = [pregunta, "2026", "11", "05"]
+    """Datos (cifras y correos) que no aparecen en las fuentes citadas.
+
+    Las cifras de la pregunta solo se permiten en oraciones negativas: si el
+    usuario pregunta «¿son 99 días?», la respuesta puede repetir 99 para negarlo,
+    pero no puede afirmar un 99 que no esté en la fuente.
+    """
+    permitidas_fuentes: set[str] = {"2026", "11", "05"}
+    base_fuentes: list[str] = []
     for fuente in fuentes:
-        base.extend(
+        base_fuentes.extend(
             [
                 fuente.get("fragmento", ""),
                 fuente.get("titulo", ""),
@@ -272,13 +353,28 @@ def _cifras_sin_respaldo(respuesta: str, fuentes: list[dict], pregunta: str) -> 
                 fuente.get("id", ""),
             ]
         )
-    for texto in base:
+    for texto in base_fuentes:
         for numero in re.findall(r"\d+(?:[.,]\d+)*", texto or ""):
-            permitidas |= _variantes_numero(numero)
+            permitidas_fuentes |= _variantes_numero(numero)
+
+    permitidas_pregunta: set[str] = set()
+    for numero in re.findall(r"\d+(?:[.,]\d+)*", pregunta or ""):
+        permitidas_pregunta |= _variantes_numero(numero)
+
+    texto_fuentes = " ".join(base_fuentes).lower()
     faltantes: list[str] = []
-    for numero in re.findall(r"\d+(?:[.,]\d+)*", respuesta):
-        if not (_variantes_numero(numero) & permitidas):
-            faltantes.append(numero)
+    for oracion in _oraciones(respuesta):
+        negativa = _es_oracion_negativa(oracion)
+        permitidas = permitidas_fuentes | (permitidas_pregunta if negativa else set())
+        for numero in re.findall(r"\d+(?:[.,]\d+)*", oracion):
+            if not (_variantes_numero(numero) & permitidas):
+                faltantes.append(numero)
+        for correo in _EMAIL_RE.findall(oracion):
+            if correo.lower() in texto_fuentes:
+                continue
+            if negativa and correo.lower() in (pregunta or "").lower():
+                continue
+            faltantes.append(correo)
     return faltantes
 
 
@@ -322,12 +418,14 @@ def redactar(pregunta: str, fragmentos: list[Fragmento]) -> dict:
         {"role": "user", "content": mensaje},
     ]
     respuesta = _limpiar(_llamar_modelo(mensajes))
+    if _parece_fuga_prompt(respuesta):
+        return _negativa_fija()
     respuesta = _normalizar_citas(respuesta, fragmentos)
     fuentes = resolver_fuentes(respuesta, fragmentos)
 
-    if not fuentes and not es_negativa(respuesta, fuentes):
-        # Un solo reintento, más estricto, para no entregar una respuesta sin
-        # respaldo documental (condición de Legal).
+    # Un reintento si el modelo no citó nada. Si vuelve a fallar, no se
+    # devuelve su texto: se devuelve una negativa fija y sin fuente.
+    if not fuentes:
         refuerzo = (
             mensaje
             + "\n\nATENCIÓN: la respuesta anterior no citó ningún documento. "
@@ -342,42 +440,45 @@ def redactar(pregunta: str, fragmentos: list[Fragmento]) -> dict:
                 ]
             )
         )
+        if _parece_fuga_prompt(respuesta):
+            return _negativa_fija()
         respuesta = _normalizar_citas(respuesta, fragmentos)
         fuentes = resolver_fuentes(respuesta, fragmentos)
+        if not fuentes:
+            return _negativa_fija()
 
-    # Verificación de cifras: una cifra que no está en la fuente citada es
-    # exactamente lo que Legal no quiere. Se reintenta y, si insiste, se
-    # elimina la frase que la contiene.
-    if fuentes and not es_negativa(respuesta, fuentes):
-        cifras = _cifras_sin_respaldo(respuesta, fuentes, pregunta)
-        if cifras:
-            refuerzo_cifras = (
+    # Verificación de datos: cifras y correos que no están en la fuente citada.
+    # Las cifras de la pregunta solo se aceptan en oraciones negativas.
+    if not es_negativa(respuesta, fuentes):
+        datos = _cifras_sin_respaldo(respuesta, fuentes, pregunta)
+        if datos:
+            refuerzo_datos = (
                 mensaje
-                + "\n\nATENCIÓN: tu respuesta incluyó cifras que no aparecen en las "
-                "fuentes citadas: " + ", ".join(sorted(set(cifras))) + ". Corrige la "
-                "respuesta: elimina esas cifras o cita el fragmento que realmente las "
-                "contiene. No inventes cifras."
+                + "\n\nATENCIÓN: tu respuesta incluyó datos que no aparecen en las "
+                "fuentes citadas: " + ", ".join(sorted(set(datos))) + ". Corrige la "
+                "respuesta: elimina esos datos o cita el fragmento que realmente los "
+                "contiene. No inventes cifras ni correos."
             )
             respuesta = _limpiar(
                 _llamar_modelo(
                     [
                         {"role": "system", "content": SISTEMA},
-                        {"role": "user", "content": refuerzo_cifras},
+                        {"role": "user", "content": refuerzo_datos},
                     ]
                 )
             )
+            if _parece_fuga_prompt(respuesta):
+                return _negativa_fija()
             respuesta = _normalizar_citas(respuesta, fragmentos)
             fuentes = resolver_fuentes(respuesta, fragmentos)
             if fuentes and _cifras_sin_respaldo(respuesta, fuentes, pregunta):
                 respuesta = _quitar_oraciones_sin_respaldo(respuesta, fuentes, pregunta)
+                if _parece_fuga_prompt(respuesta):
+                    return _negativa_fija()
                 fuentes = resolver_fuentes(respuesta, fragmentos)
 
-    if not fuentes and not es_negativa(respuesta, fuentes):
-        respuesta = (
-            "No encontré respaldo documental suficiente para responder con una fuente "
-            "verificable. Reformula la pregunta indicando el proveedor, el documento o "
-            "el tema exacto."
-        )
+    if not fuentes:
+        return _negativa_fija()
 
     return {
         "respuesta": respuesta,

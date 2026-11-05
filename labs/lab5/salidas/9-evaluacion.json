@@ -1,9 +1,9 @@
 {
-  "generado": "05/11/2026 11:56",
+  "generado": "05/11/2026 12:29",
   "modelo": "qwen3-coder (llama-server local)",
   "documentos": 436,
   "fragmentos": 848,
-  "duracion_s": 67.2,
+  "duracion_s": 19.6,
   "total": 12,
   "aciertos": 12,
   "porcentaje": 100.0,
@@ -11,7 +11,7 @@
     {
       "id": "Q01",
       "pregunta": "¿Cuántos días de gracia tiene Suministros Caroní antes de aplicar la penalidad por atraso?",
-      "respuesta": "Suministros Caroní ofrece 5 días calendario de gracia antes de aplicar la penalidad por atraso [DOC: CT-2025-P03 · Cláusula 8 · Penalidad por atraso].",
+      "respuesta": "Suministros Caroní tiene 5 días calendario de gracia antes de aplicar la penalidad por atraso [DOC: CT-2025-P03 · Cláusula 8 · Penalidad por atraso].",
       "fuentes": [
         {
           "id": "CT-2025-P03",
@@ -26,7 +26,7 @@
         }
       ],
       "negativa": false,
-      "ms": 1917,
+      "ms": 714,
       "correcta": true,
       "detalle": "Cumple los hechos clave.",
       "esperada": "5 días calendario de gracia; después corre la penalidad del 0,4 % diario (CT-2025-P03, cláusula 8).",
@@ -77,7 +77,7 @@
     {
       "id": "Q02",
       "pregunta": "¿Cuál es hoy el tope de la penalidad por atraso de Importadora Margarita?",
-      "respuesta": "Hoy, 2026-11-05, el tope de la penalidad por atraso de Importadora Margarita es del 15 % de un pedido atrasado [DOC: AD-2026-P04-01 · Cláusula primera · Nueva penalidad por atraso]. Antes de la adenda, ese tope era del 10 % [DOC: CT-2025-P04 · Cláusula 8 · Penalidad por atraso]. La nueva penalidad aplica a órdenes de compra emitidas desde el 1 de julio de 2026 [DOC: AD-2026-P04-01 · Cláusula segunda · Pedidos a los que se aplica].",
+      "respuesta": "Hoy, 2026-11-05, el tope de la penalidad por atraso para Importadora Margarita es del 15 % del importe del pedido atrasado [DOC: AD-2026-P04-01 · Cláusula primera · Nueva penalidad por atraso]. Esto reemplaza la cláusula 8 original del contrato, que tenía un tope del 10 % [DOC: CT-2025-P04 · Cláusula 8 · Penalidad por atraso]. La nueva penalidad aplica a órdenes de compra emitidas desde el 1 de julio de 2026 [DOC: AD-2026-P04-01 · Cláusula segunda · Pedidos a los que se aplica].",
       "fuentes": [
         {
           "id": "AD-2026-P04-01",
@@ -114,7 +114,7 @@
         }
       ],
       "negativa": false,
-      "ms": 11529,
+      "ms": 2944,
       "correcta": true,
       "detalle": "Cumple los hechos clave.",
       "esperada": "15 % del importe del pedido, para órdenes emitidas desde el 01/07/2026. Antes de la adenda era 10 % (AD-2026-P04-01, cláusula primera).",
@@ -191,7 +191,7 @@
         }
       ],
       "negativa": false,
-      "ms": 4780,
+      "ms": 2424,
       "correcta": true,
       "detalle": "Cumple los hechos clave.",
       "esperada": "Desde USD 3.000 se necesitan al menos tres cotizaciones de proveedores distintos (POL-COM-2026, Cotizaciones).",
@@ -257,7 +257,7 @@
         }
       ],
       "negativa": false,
-      "ms": 3270,
+      "ms": 1498,
       "correcta": true,
       "detalle": "Cumple los hechos clave.",
       "esperada": "45 días calendario desde la recepción de la factura (CT-2025-P05, cláusula 7).",
@@ -323,7 +323,7 @@
         }
       ],
       "negativa": false,
-      "ms": 9443,
+      "ms": 1887,
       "correcta": true,
       "detalle": "Cumple los hechos clave.",
       "esperada": "La retención aduanal es fuerza mayor si no se debe a errores de documentación del proveedor; debe notificarse por escrito dentro de 5 días calendario con la constancia. Si se notifica tarde, se aplica la penalidad por todos los días de atraso (CT-2025-P06, cláusulas 8 y 9).",
@@ -389,7 +389,7 @@
         }
       ],
       "negativa": false,
-      "ms": 2275,
+      "ms": 1232,
       "correcta": true,
       "detalle": "Cumple los hechos clave.",
       "esperada": "La Gerencia General y la Gerencia de Finanzas, en ese orden (PR-COM-03, Quién aprueba el reclamo).",
@@ -440,7 +440,7 @@
     {
       "id": "Q07",
       "pregunta": "¿A qué se comprometió Logística del Ávila en la reunión de septiembre?",
-      "respuesta": "Logística del Ávila se comprometió a cambiar de transportista desde el 1 de octubre a Transportes Guárico [DOC: ACT-2026-09 · P02 · Logística del Ávila], y a entregar las cajas de cartón a las cuatro sedes en un máximo de 5 días calendario desde la orden [DOC: ACT-2026-09 · P02 · Logística del Ávila].",
+      "respuesta": "Logística del Ávila se comprometió a cambiar de transportista desde el 1 de octubre a Transportes Guárico [DOC: ACT-2026-09 · P02 · Logística del Ávila]. También se comprometió a entregar las cajas de cartón a las cuatro sedes en un máximo de 5 días calendario desde la orden [DOC: ACT-2026-09 · P02 · Logística del Ávila].",
       "fuentes": [
         {
           "id": "ACT-2026-09",
@@ -455,7 +455,7 @@
         }
       ],
       "negativa": false,
-      "ms": 9266,
+      "ms": 1628,
       "correcta": true,
       "detalle": "Cumple los hechos clave.",
       "esperada": "Cambiar de transportista a Transportes Guárico desde el 1 de octubre y entregar las cajas de cartón a las cuatro sedes en un máximo de 5 días calendario desde la orden (ACT-2026-09, P02).",
@@ -521,7 +521,7 @@
         }
       ],
       "negativa": false,
-      "ms": 1797,
+      "ms": 700,
       "correcta": true,
       "detalle": "Cumple los hechos clave.",
       "esperada": "No ofrece descuento por pronto pago; el contrato fija el pago a 30 días y no prevé descuento (CT-2025-P06, cláusula 7).",
@@ -587,7 +587,7 @@
         }
       ],
       "negativa": false,
-      "ms": 3749,
+      "ms": 1518,
       "correcta": true,
       "detalle": "Cumple los hechos clave.",
       "esperada": "5 días calendario desde la notificación del reclamo (PR-COM-03, Plazo de respuesta del proveedor).",
@@ -638,7 +638,7 @@
     {
       "id": "Q10",
       "pregunta": "¿A qué correo se envía un reclamo formal a Importadora Margarita?",
-      "respuesta": "Los reclamos formales a Importadora Margarita se envían al correo reclamos@impmargarita.example.org, con copia al representante del proveedor [DOC: CT-2025-P04 · Cláusula 10 · Notificaciones y reclamos]. Esta cláusula sigue vigente tras la adenda AD-2026-P04-01, que no modificó su contenido [DOC: AD-2026-P04-01 · Cláusula tercera · Lo demás no cambia].",
+      "respuesta": "Los reclamos formales a Importadora Margarita se envían al correo reclamos@impmargarita.example.org, con copia al representante del proveedor [DOC: CT-2025-P04 · Cláusula 10 · Notificaciones y reclamos]. Esta cláusula sigue vigente tras la adenda AD-2026-P04-01 [DOC: AD-2026-P04-01 · Cláusula tercera · Lo demás no cambia].",
       "fuentes": [
         {
           "id": "CT-2025-P04",
@@ -664,7 +664,7 @@
         }
       ],
       "negativa": false,
-      "ms": 3776,
+      "ms": 1400,
       "correcta": true,
       "detalle": "Cumple los hechos clave.",
       "esperada": "reclamos@impmargarita.example.org, con copia al representante (CT-2025-P04, cláusula 10).",
@@ -715,7 +715,7 @@
     {
       "id": "Q11",
       "pregunta": "¿Cuánto es la penalidad por día de atraso de Importadora Margarita?",
-      "respuesta": "La penalidad por día de atraso de Importadora Margarita es del 1 % del importe del pedido atrasado, contado desde la fecha comprometida hasta la fecha de entrega o, si el pedido sigue pendiente, hasta la fecha del cálculo [DOC: AD-2026-P04-01 · Cláusula primera · Nueva penalidad por atraso]. Esta nueva penalidad aplica a las órdenes de compra emitidas desde el 1 de julio de 2026 [DOC: AD-2026-P04-01 · Cláusula segunda · Pedidos a los que se aplica]. Antes de esa fecha, la penalidad era del 0,5 % por día de atraso [DOC: CT-2025-P04 · Cláusula 8 · Penalidad por atraso].",
+      "respuesta": "La penalidad por día de atraso de Importadora Margarita es del 1 % del importe del pedido atrasado, contado desde la fecha comprometida hasta la fecha de entrega, si el pedido sigue pendiente, hasta la fecha del cálculo [DOC: AD-2026-P04-01 · Cláusula primera · Nueva penalidad por atraso]. Esta nueva penalidad aplica a las órdenes de compra emitidas desde el 1 de julio de 2026 [DOC: AD-2026-P04-01 · Cláusula segunda · Pedidos a los que se aplica]. Antes de esa fecha, la penalidad era del 0,5 % por día de atraso [DOC: CT-2025-P04 · Cláusula 8 · Penalidad por atraso].",
       "fuentes": [
         {
           "id": "AD-2026-P04-01",
@@ -752,7 +752,7 @@
         }
       ],
       "negativa": false,
-      "ms": 14193,
+      "ms": 2678,
       "correcta": true,
       "detalle": "Cumple los hechos clave.",
       "esperada": "1 % del importe por cada día calendario de atraso, para órdenes emitidas desde el 01/07/2026. Antes era 0,5 % (AD-2026-P04-01, cláusula primera).",
@@ -803,10 +803,10 @@
     {
       "id": "Q12",
       "pregunta": "¿Cuántos empleados tiene Distribuidora Andina?",
-      "respuesta": "No está en los documentos de compras. No se proporciona información sobre el número de empleados de Distribuidora Andina.",
+      "respuesta": "No está en los documentos de compras. No encontré respaldo documental suficiente para responder con una fuente verificable.",
       "fuentes": [],
       "negativa": true,
-      "ms": 1222,
+      "ms": 952,
       "correcta": true,
       "detalle": "Cumple los hechos clave.",
       "esperada": "No está en los documentos: ningún documento de compras indica cuántos empleados tiene Distribuidora Andina.",

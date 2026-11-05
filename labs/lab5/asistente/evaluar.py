@@ -44,6 +44,7 @@ CRITERIOS = {
     "Q05": {
         "patrones": [r"fuerza mayor", r"aduan", r"\b5\b", r"no se|no aplica|no corre|no se cobra"],
         "descripcion": "Debe explicar la fuerza mayor aduanal, el plazo de 5 días y que no se cobra si se notifica bien.",
+        "espera_negativa": True,
     },
     "Q06": {
         "patrones": [r"gerencia general", r"finanzas"],
@@ -56,6 +57,7 @@ CRITERIOS = {
     "Q08": {
         "patrones": [r"no consta|no ofrece|no menciona|no preve|no contempla", r"pronto pago"],
         "descripcion": "Debe responder que no ofrece descuento por pronto pago, no evadir la pregunta.",
+        "espera_negativa": True,
     },
     "Q09": {
         "patrones": [r"\b5\b", r"dia|calendario", r"responder|respuesta|reclamo"],
@@ -73,6 +75,7 @@ CRITERIOS = {
         "patrones": [r"no esta en los documentos|no consta|no se menciona|no se encuentra|no hay informacion"],
         "prohibidos": [r"\b\d+\s+empleados"],
         "descripcion": "Debe decir que el dato no está en los documentos y no inventar una cifra.",
+        "espera_negativa": True,
     },
 }
 
@@ -97,9 +100,26 @@ def normalizar(texto: str) -> str:
     return re.sub(r"\s+", " ", texto).strip()
 
 
-def evaluar_respuesta(qid: str, respuesta: str) -> tuple[bool, str]:
+def evaluar_respuesta(qid: str, respuesta: str, fuentes=None) -> tuple[bool, str]:
     criterio = CRITERIOS[qid]
     texto = normalizar(respuesta)
+
+    # Una respuesta positiva sin fuente no puede considerarse correcta: Legal
+    # exige documento y sección en cada afirmación.
+    if fuentes is not None and not fuentes:
+        marcas_negativas = (
+            "no esta en los documentos",
+            "no consta en los documentos",
+            "no se encuentra en los documentos",
+            "no hay informacion en los documentos",
+        )
+        if not any(marca in texto for marca in marcas_negativas):
+            return False, "Sin fuente documental: la respuesta positiva no cita un documento."
+
+    # Las negaciones no cumplen un criterio que espera un dato positivo.
+    if not criterio.get("espera_negativa") and re.match(r"^(no|sin|nunca|ningun[oa]?)\b", texto):
+        return False, "La respuesta empieza con una negación y el criterio espera un dato positivo."
+
     faltantes = [p for p in criterio["patrones"] if not re.search(p, texto)]
     prohibidos = [p for p in criterio.get("prohibidos", []) if re.search(p, texto)]
     if faltantes:
@@ -121,7 +141,7 @@ def correr() -> dict:
         pregunta = fila["pregunta"].strip()
         print(f"Evaluando {qid}…", flush=True)
         respuesta = asistente.responder(pregunta)
-        correcta, detalle = evaluar_respuesta(qid, respuesta["respuesta"])
+        correcta, detalle = evaluar_respuesta(qid, respuesta["respuesta"], respuesta.get("fuentes"))
         resultados.append(
             {
                 "id": qid,
@@ -227,7 +247,8 @@ def generar_html(datos: dict) -> str:
     porcentaje_txt = f"{porcentaje:g}"
     color = "verde" if porcentaje >= 90 else ("ambar" if porcentaje >= 70 else "rojo")
     resumen = (
-        "Todas las preguntas de Legal quedaron cubiertas con fuente documental."
+        "Las respuestas coinciden con los hechos clave, pero Legal debe revisar "
+        "las fuentes y el texto antes de aprobar."
         if aciertos == total
         else f"{total - aciertos} pregunta(s) requieren revisión antes de la aprobación."
     )
@@ -237,7 +258,8 @@ def generar_html(datos: dict) -> str:
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Evaluación del Asistente de Compras · Legal</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src 'none'; script-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Evaluación preliminar del Asistente de Compras · Legal</title>
 <style>
   :root {{
     --tinta:#12283f; --suave:#4a6076; --azul:#173f63; --azul-claro:#e8f0f6;
@@ -357,13 +379,13 @@ def generar_html(datos: dict) -> str:
   <section class="hero">
     <div>
       <p class="hero-etiqueta">Resultado de la evaluación</p>
-      <h2>{aciertos} de {total} preguntas de prueba respondidas correctamente</h2>
+      <h2>{aciertos} de {total} coincidencias automáticas · revisión humana pendiente</h2>
       <p>{_e(resumen)} Se evaluaron las {total} preguntas de <code>preguntas_de_prueba.csv</code>
          contra los documentos de compras vigentes al 05/11/2026.</p>
     </div>
     <div class="marcador">
       <div style="font-size:42px;font-weight:700;line-height:1;letter-spacing:-.03em;">{porcentaje_txt} %</div>
-      <div class="nota {color}">{"Aprobado en la evaluación automática" if aciertos == total else "Requiere revisión"}</div>
+      <div class="nota {color}">{"Evaluación automática preliminar" if aciertos == total else "Requiere revisión"}</div>
       <div class="barra" aria-hidden="true"><span></span></div>
       <div style="font-size:11.5px;color:var(--suave);margin-top:7px;">{aciertos} aciertos · {total - aciertos} por revisar</div>
     </div>
@@ -403,6 +425,11 @@ def main() -> None:
     html_salida = os.path.join(SALIDAS, "9-evaluacion.html")
     with open(html_salida, "w", encoding="utf-8") as archivo:
         archivo.write(generar_html(datos))
+    for ruta in (json_salida, html_salida):
+        try:
+            os.chmod(ruta, 0o640)
+        except OSError:
+            pass
     print(
         f"\nResultado: {datos['aciertos']}/{datos['total']} "
         f"({datos['porcentaje']} %).\nHTML: {html_salida}\nJSON: {json_salida}"

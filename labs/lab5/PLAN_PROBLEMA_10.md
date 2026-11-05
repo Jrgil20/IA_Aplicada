@@ -72,37 +72,45 @@ El servidor implementa el protocolo MCP por `sys.stdin` / `sys.stdout`:
 
 ## 4. Configuración del Proyecto (`opencode.json`)
 
-Debe incluir el servidor MCP y los permisos para cumplir la condición de TI:
+Debe incluir el servidor MCP y una lista blanca para cumplir la condición de TI. En OpenCode V2 los servidores van bajo `mcp.servers` y los agentes usan `permissions`:
 
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
   "mcp": {
-    "buscador": {
-      "type": "stdio",
-      "command": "python3",
-      "args": ["asistente/servidor_mcp.py"]
+    "servers": {
+      "buscador": {
+        "type": "local",
+        "command": ["python3", "asistente/servidor_mcp.py"],
+        "cwd": ".",
+        "codemode": false
+      }
     }
   },
   "agents": {
     "agente-directo": {
-      "description": "Modo A: Agente que explora archivos directamente sin índice.",
-      "tools": ["read", "glob", "grep"]
+      "description": "Modo A: explora archivos directamente.",
+      "mode": "all",
+      "permissions": [
+        { "action": "read", "resource": "documentos/**", "effect": "allow" },
+        { "action": "glob", "resource": "*", "effect": "allow" },
+        { "action": "grep", "resource": "*", "effect": "allow" }
+      ]
     },
     "agente-mcp": {
-      "description": "Modo B: Agente conectado al buscador MCP. TI prohíbe acceso directo a documentos/.",
-      "tools": [
-        "mcp__buscador__buscar_documentos",
-        "mcp__buscador__leer_fragmento"
-      ],
-      "permission": {
-        "read": "deny",
-        "bash": "deny"
-      }
+      "description": "Modo B: solo ve documentos/ a través del buscador MCP.",
+      "mode": "all",
+      "permissions": [
+        { "action": "*", "resource": "*", "effect": "deny" },
+        { "action": "buscador_buscar_documentos", "resource": "*", "effect": "allow" },
+        { "action": "buscador_leer_fragmento", "resource": "*", "effect": "allow" }
+      ]
     }
   }
 }
 ```
+
+No basta con denegar `grep` o `glob` usando `documentos/**`: en OpenCode V2 el recurso de `grep` es el patrón regex y el de `glob` es el patrón solicitado, no la ruta. Por eso la condición se implementa con una lista blanca de herramientas.
 
 ---
 
@@ -117,37 +125,40 @@ Debe incluir el servidor MCP y los permisos para cumplir la condición de TI:
   ```
 
 ### Paso 2: Actualizar `opencode.json`
-- Incorporar la entrada `mcp.buscador` apuntando a `asistente/servidor_mcp.py`.
-- Definir las políticas de restricción de lectura directa para validar la condición de TI.
+- Incorporar la entrada `mcp.servers.buscador` apuntando a `asistente/servidor_mcp.py`.
+- Definir `agente-mcp` con lista blanca: `*` denegado y solo las dos herramientas del buscador permitidas.
 
 ### Paso 3: Crear el Benchmark Comparativo (`scripts/comparar_busqueda.py`)
 - Leer `preguntas_de_prueba.csv`.
 - Para cada una de las 12 preguntas:
   - **Ejecución Modo A (Directo):**
-    - Simula el agente abriendo y explorando archivos directamente (o escaneo de directorios con `grep`).
-    - Pasa los documentos completos de los proveedores involucrados al modelo (`http://127.0.0.1:8080/v1`).
-    - Mide: tiempo de respuesta, volumen de caracteres del prompt (contexto consumido), acierto contra criterio legal.
+    - Simula `grep` por el término más específico y abre hasta 6 archivos completos.
+    - Pasa esos documentos al modelo con el mismo pipeline endurecido del asistente.
+    - Mide: tiempo, contexto documental, contexto total (sistema + documentos + pregunta) y acierto contra criterio legal.
   - **Ejecución Modo B (Buscador MCP):**
     - Llama al servidor MCP (`buscar_documentos`), obtiene los 5 fragmentos más pertinentes.
     - Envía solo esos fragmentos al modelo dentro de `<untrusted_document_context>`.
-    - Mide: tiempo de respuesta, volumen de caracteres del prompt, acierto contra criterio legal.
-- Generar `salidas/10-comparacion.json`.
+    - Mide: tiempo, contexto documental, contexto total y acierto contra criterio legal.
+- En ambos modos se valida que la respuesta cite una fuente realmente entregada.
+- Generar `salidas/10-comparacion.json` con los hashes de los archivos que determinan el resultado.
 
 ### Paso 4: Generar `salidas/10-comparacion.html`
 - Renderizar un informe HTML autocontenido (con estilos CSS incrustados, sin CDNs):
   1. **Bloque de Recomendación de TI:**
      - Síntesis clara: *"Recomendamos adoptar el Servidor MCP de Búsqueda."*
-     - Justificación: Reducción drástica del 80%+ en consumo de ventana de contexto, menor latencia y eliminación de alucinaciones por desbordamiento de contexto.
+     - Justificación: reducción del contexto total y documental, menor latencia y menor riesgo de desbordamiento; no prometer eliminación de alucinaciones.
   2. **Tarjetas Métricas:**
-     - Contexto promedio consumido: Modo A vs Modo B.
+     - Contexto total y documental promedio: Modo A vs Modo B.
      - Tiempo promedio por consulta: Modo A vs Modo B.
      - Precisión: % de respuestas correctas.
   3. **Tabla de Casos:**
      - Columnas: ID, Pregunta, Modo Directo (Tiempo, Contexto, Respuesta), Modo MCP (Tiempo, Contexto, Respuesta), Ganador.
+  4. **Estado de la condición de TI:** leer `salidas/10-condicion-ti.json` y mostrar si las pruebas del agente se ejecutaron.
 
 ### Paso 5: Validación y Cierre
 - Ejecutar:
   ```bash
+  python3 scripts/probar_condicion_ti.py
   python3 scripts/comparar_busqueda.py
   ```
 - Verificar que `salidas/10-comparacion.html` se visualice correctamente en cualquier navegador.
@@ -157,7 +168,8 @@ Debe incluir el servidor MCP y los permisos para cumplir la condición de TI:
 
 ## 6. Criterios de Éxito y Aceptación
 - [ ] `servidor_mcp.py` responde correctamente a `tools/list` y `tools/call` vía `stdio`.
-- [ ] `opencode.json` tiene el servidor registrado y las restricciones configuradas.
+- [ ] `opencode.json` tiene el servidor registrado y la lista blanca configurada.
 - [ ] Las 12 preguntas fueron ejecutadas y medidas en ambos modos.
 - [ ] `salidas/10-comparacion.html` existe, es responsive, no carga recursos externos y tiene la recomendación para TI arriba.
+- [ ] `salidas/10-condicion-ti.json` demuestra que `agente-mcp` no completó ninguna herramienta ajena al buscador.
 - [ ] No se tocó ni modificó ningún archivo dentro de `documentos/`.
