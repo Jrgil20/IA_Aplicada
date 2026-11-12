@@ -33,3 +33,4 @@ Guía de adaptación eficiente de parámetros para modelos de lenguaje.
 
 - [Comandos Útiles](./comandos-utiles.md) — Cheat sheet de comandos para terminal, hardware, llama.cpp y GGUF.
 - [Especificaciones de Entorno](./entorno.md) — Comparativa entre la estación DGX Spark y el entorno edge de despliegue.
+- [SLMs Locales vs. LLMs en la Nube](./local-slm-vs-cloud-llm.md) — Registro de decisión arquitectónica, ROI económico y patrón híbrido.
