@@ -1,0 +1,10 @@
+{
+  "personaje": {
+    "file_name": "personaje.json",
+    "columns": {
+      "prompt": "instruction",
+      "query": "input",
+      "response": "output"
+    }
+  }
+}
