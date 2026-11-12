@@ -1,0 +1,810 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bazaar Broker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #0a0a12;
+            font-family: 'Courier New', monospace;
+            color: #00ff00;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        #gameContainer {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            border: 2px solid #00ff00;
+            background: #001122;
+            overflow: hidden;
+        }
+        
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #uiOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        #scoreDisplay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+            text-shadow: 0 0 5px #00ff00;
+        }
+        
+        #creditsDisplay {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            text-shadow: 0 0 5px #00ff00;
+        }
+        
+        #livesDisplay {
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            font-size: 20px;
+            text-shadow: 0 0 5px #00ff00;
+        }
+        
+        #gameTitle {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            text-align: center;
+            font-size: 36px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px #00ff00;
+            animation: pulse 1.5s infinite;
+        }
+        
+        #startScreen, #gameOverScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(10, 10, 20, 0.9);
+            z-index: 20;
+        }
+        
+        #gameOverScreen {
+            display: none;
+        }
+        
+        h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px #00ff00;
+        }
+        
+        p {
+            font-size: 20px;
+            margin: 10px 0;
+            text-align: center;
+            max-width: 80%;
+            line-height: 1.6;
+        }
+        
+        .highlight {
+            color: #ff00ff;
+            text-shadow: 0 0 5px #ff00ff;
+        }
+        
+        button {
+            background: transparent;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            padding: 12px 30px;
+            font-size: 20px;
+            font-family: 'Courier New', monospace;
+            margin-top: 30px;
+            cursor: pointer;
+            pointer-events: auto;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        button:hover {
+            background: rgba(0, 255, 0, 0.2);
+            box-shadow: 0 0 15px #00ff00;
+        }
+        
+        .scanline {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                to bottom,
+                transparent 0px,
+                transparent 1px,
+                rgba(0, 255, 0, 0.05) 1px,
+                rgba(0, 255, 0, 0.05) 2px
+            );
+            pointer-events: none;
+            z-index: 5;
+        }
+        
+        .glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            box-shadow: inset 0 0 30px rgba(0, 255, 0, 0.3);
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+        
+        @keyframes flicker {
+            0% { opacity: 0.8; }
+            20% { opacity: 0.9; }
+            40% { opacity: 0.7; }
+            60% { opacity: 0.9; }
+            80% { opacity: 0.8; }
+            100% { opacity: 0.9; }
+        }
+        
+        .flicker {
+            animation: flicker 0.5s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div class="glow"></div>
+        <div class="scanline"></div>
+        <canvas id="gameCanvas"></canvas>
+        <div id="uiOverlay">
+            <div id="gameTitle">Bazaar Broker</div>
+            <div id="scoreDisplay">SCORE: 0</div>
+            <div id="creditsDisplay">CREDITS: 100</div>
+            <div id="livesDisplay">LIVES: 3</div>
+        </div>
+        <div id="startScreen">
+            <h1>Bazaar Broker</h1>
+            <p>Under high customer rush in the <span class="highlight">cyber-bazaar</span></p>
+            <p>Manage your inventory and fulfill orders before customers rage quit!</p>
+            <p>Drag & drop parts to customer bays or click to select</p>
+            <p>Complete orders quickly for bonus multipliers!</p>
+            <button id="startButton">START BROKERAGE</button>
+        </div>
+        <div id="gameOverScreen">
+            <h1>ORDER FAILED</h1>
+            <p>Customers have left in frustration</p>
+            <p>Final Score: <span id="finalScore">0</span></p>
+            <button id="restartButton">TRY AGAIN</button>
+        </div>
+    </div>
+
+    <script>
+        // Game constants
+        const GRID_WIDTH = 5;
+        const GRID_HEIGHT = 4;
+        const CELL_SIZE = 80;
+        const INVENTORY_WIDTH = GRID_WIDTH * CELL_SIZE;
+        const INVENTORY_HEIGHT = GRID_HEIGHT * CELL_SIZE;
+        const CUSTOMER_COUNT = 3;
+        const MAX_LIVES = 3;
+        const INITIAL_CREDITS = 100;
+        const ORDER_TIMEOUT = 10000; // 10 seconds
+        const MAX_PARTS_PER_ORDER = 3;
+        const PART_TYPES = [
+            { name: "Capacitor", color: "#FF5555", value: 20 },
+            { name: "Heat Sink", color: "#55FF55", value: 25 },
+            { name: "SATA Cable", color: "#5555FF", value: 30 },
+            { name: "Flash Memory", color: "#FFFF55", value: 35 },
+            { name: "Coolant", color: "#FF55FF", value: 40 },
+            { name: "Quantum Chip", color: "#55FFFF", value: 50 },
+            { name: "Processor", color: "#FFAA00", value: 60 },
+            { name: "Motherboard", color: "#AA00FF", value: 70 }
+        ];
+        const CUSTOMER_COLORS = ["#FF5555", "#55FF55", "#5555FF", "#FFFF55", "#FF55FF", "#55FFFF"];
+
+        // Game state
+        let gameState = "START"; // START, PLAYING, GAMEOVER
+        let score = 0;
+        let credits = INITIAL_CREDITS;
+        let lives = MAX_LIVES;
+        let multiplier = 1;
+        let multiplierTimer = 0;
+        let lastTime = 0;
+        let canvas, ctx;
+        let inventory = [];
+        let customers = [];
+        let activeCustomer = null;
+        let selectedPart = null;
+        let dragPart = null;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
+        let particles = [];
+        let audioContext;
+        let sounds = {};
+        let customerSpawnTimer = 0;
+        let customerSpawnInterval = 3000; // 3 seconds
+
+        // Initialize game
+        function init() {
+            canvas = document.getElementById('gameCanvas');
+            ctx = canvas.getContext('2d');
+            canvas.width = 800;
+            canvas.height = 600;
+            
+            // Create inventory grid
+            createInventory();
+            
+            // Setup event listeners
+            document.getElementById('startButton').addEventListener('click', startGame);
+            document.getElementById('restartButton').addEventListener('click', startGame);
+            document.addEventListener('mousedown', handleMouseDown);
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+            document.addEventListener('touchstart', handleTouchStart, { passive: false });
+            document.addEventListener('touchmove', handleTouchMove, { passive: false });
+            document.addEventListener('touchend', handleTouchEnd);
+            
+            // Initialize audio on first interaction
+            document.body.addEventListener('click', initAudio, { once: true });
+            
+            // Draw initial screen
+            draw();
+        }
+
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                createSounds();
+            }
+        }
+
+        function createSounds() {
+            // Laser sound
+            sounds.laser = function() {
+                if (!audioContext) return;
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.type = 'square';
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+            };
+            
+            // Explosion sound
+            sounds.explosion = function() {
+                if (!audioContext) return;
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(50, audioContext.currentTime + 0.5);
+                gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+            };
+            
+            // Click sound
+            sounds.click = function() {
+                if (!audioContext) return;
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.type = 'square';
+                oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+            };
+            
+            // Game over sound
+            sounds.gameOver = function() {
+                if (!audioContext) return;
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(100, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(50, audioContext.currentTime + 1);
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 1);
+            };
+        }
+
+        function createInventory() {
+            inventory = [];
+            for (let y = 0; y < GRID_HEIGHT; y++) {
+                for (let x = 0; x < GRID_WIDTH; x++) {
+                    inventory.push({
+                        x: x * CELL_SIZE + 100,
+                        y: y * CELL_SIZE + 150,
+                        width: CELL_SIZE,
+                        height: CELL_SIZE,
+                        part: null,
+                        occupied: false
+                    });
+                }
+            }
+        }
+
+        function startGame() {
+            gameState = "PLAYING";
+            score = 0;
+            credits = INITIAL_CREDITS;
+            lives = MAX_LIVES;
+            multiplier = 1;
+            customers = [];
+            particles = [];
+            selectedPart = null;
+            activeCustomer = null;
+            customerSpawnTimer = 0;
+            
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('gameOverScreen').style.display = 'none';
+            
+            // Create initial customers
+            for (let i = 0; i < CUSTOMER_COUNT; i++) {
+                createCustomer();
+            }
+            
+            // Play start sound
+            if (sounds.click) sounds.click();
+            
+            // Start game loop
+            lastTime = performance.now();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function createCustomer() {
+            const customer = {
+                id: Date.now() + Math.random(),
+                x: 600,
+                y: 150 + Math.random() * 300,
+                width: 150,
+                height: 80,
+                order: generateOrder(),
+                progress: 100,
+                timeout: ORDER_TIMEOUT,
+                satisfied: false,
+                color: CUSTOMER_COLORS[Math.floor(Math.random() * CUSTOMER_COLORS.length)],
+                timer: 0
+            };
+            customers.push(customer);
+        }
+
+        function generateOrder() {
+            const order = {
+                parts: [],
+                totalValue: 0
+            };
+            
+            const partCount = 2 + Math.floor(Math.random() * 2); // 2-3 parts
+            const usedParts = new Set();
+            
+            for (let i = 0; i < partCount; i++) {
+                let partIndex;
+                do {
+                    partIndex = Math.floor(Math.random() * PART_TYPES.length);
+                } while (usedParts.has(partIndex));
+                
+                usedParts.add(partIndex);
+                const part = PART_TYPES[partIndex];
+                order.parts.push(part);
+                order.totalValue += part.value;
+            }
+            
+            return order;
+        }
+
+        function gameLoop(timestamp) {
+            const deltaTime = timestamp - lastTime;
+            lastTime = timestamp;
+            
+            if (gameState === "PLAYING") {
+                update(deltaTime);
+                draw();
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        function update(deltaTime) {
+            // Update customer timers
+            customers.forEach(customer => {
+                customer.timeout -= deltaTime;
+                if (customer.timeout <= 0) {
+                    // Customer rage quits
+                    if (!customer.satisfied) {
+                        lives--;
+                        if (lives <= 0) {
+                            gameOver();
+                        }
+                        sounds.explosion();
+                    }
+                    // Remove customer
+                    customers = customers.filter(c => c.id !== customer.id);
+                    createCustomer();
+                }
+            });
+            
+            // Spawn new customers
+            customerSpawnTimer += deltaTime;
+            if (customerSpawnTimer > customerSpawnInterval) {
+                createCustomer();
+                customerSpawnTimer = 0;
+            }
+            
+            // Update particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update(deltaTime);
+                if (particles[i].life <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+            
+            // Update multiplier
+            if (multiplierTimer > 0) {
+                multiplierTimer -= deltaTime;
+                if (multiplierTimer <= 0) {
+                    multiplier = 1;
+                }
+            }
+            
+            // Update UI
+            document.getElementById('scoreDisplay').textContent = `SCORE: ${score}`;
+            document.getElementById('creditsDisplay').textContent = `CREDITS: ${credits}`;
+            document.getElementById('livesDisplay').textContent = `LIVES: ${lives}`;
+        }
+
+        function draw() {
+            // Clear canvas
+            ctx.fillStyle = '#001122';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw grid background
+            ctx.fillStyle = '#002233';
+            ctx.fillRect(100, 150, INVENTORY_WIDTH, INVENTORY_HEIGHT);
+            
+            // Draw grid lines
+            ctx.strokeStyle = '#004466';
+            ctx.lineWidth = 1;
+            for (let x = 0; x <= GRID_WIDTH; x++) {
+                ctx.beginPath();
+                ctx.moveTo(100 + x * CELL_SIZE, 150);
+                ctx.lineTo(100 + x * CELL_SIZE, 150 + INVENTORY_HEIGHT);
+                ctx.stroke();
+            }
+            for (let y = 0; y <= GRID_HEIGHT; y++) {
+                ctx.beginPath();
+                ctx.moveTo(100, 150 + y * CELL_SIZE);
+                ctx.lineTo(100 + INVENTORY_WIDTH, 150 + y * CELL_SIZE);
+                ctx.stroke();
+            }
+            
+            // Draw inventory parts
+            inventory.forEach(cell => {
+                if (cell.part) {
+                    ctx.fillStyle = cell.part.color;
+                    ctx.fillRect(cell.x + 5, cell.y + 5, cell.width - 10, cell.height - 10);
+                    
+                    // Draw part name
+                    ctx.fillStyle = '#000000';
+                    ctx.font = '12px "Courier New", monospace';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(cell.part.name, cell.x + cell.width/2, cell.y + cell.height/2 + 4);
+                }
+            });
+            
+            // Draw customers
+            customers.forEach(customer => {
+                // Draw customer body
+                ctx.fillStyle = customer.color;
+                ctx.fillRect(customer.x, customer.y, customer.width, customer.height);
+                
+                // Draw customer face
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(customer.x + 10, customer.y + 10, 20, 20);
+                ctx.fillRect(customer.x + customer.width - 30, customer.y + 10, 20, 20);
+                
+                // Draw customer mouth
+                ctx.beginPath();
+                ctx.arc(customer.x + customer.width/2, customer.y + 50, 10, 0, Math.PI);
+                ctx.stroke();
+                
+                // Draw order text
+                ctx.fillStyle = '#FFFFFF';
+                ctx.font = '14px "Courier New", monospace';
+                ctx.textAlign = 'left';
+                let y = customer.y + 25;
+                customer.order.parts.forEach(part => {
+                    ctx.fillText(part.name, customer.x + 10, y);
+                    y += 20;
+                });
+                
+                // Draw progress bar
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(customer.x, customer.y + customer.height, customer.width, 5);
+                ctx.fillStyle = '#00FF00';
+                ctx.fillRect(customer.x, customer.y + customer.height, customer.width * (customer.timeout / ORDER_TIMEOUT), 5);
+                
+                // Draw timer
+                ctx.fillStyle = '#FFFFFF';
+                ctx.font = '12px "Courier New", monospace';
+                ctx.textAlign = 'right';
+                const seconds = Math.ceil(customer.timeout / 1000);
+                ctx.fillText(`${seconds}s`, customer.x + customer.width - 10, customer.y + customer.height + 15);
+            });
+            
+            // Draw particles
+            particles.forEach(particle => {
+                particle.draw(ctx);
+            });
+            
+            // Draw selection indicator
+            if (selectedPart) {
+                const cell = inventory.find(c => c.part === selectedPart);
+                if (cell) {
+                    ctx.strokeStyle = '#FFFF00';
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(cell.x - 2, cell.y - 2, cell.width + 4, cell.height + 4);
+                }
+            }
+            
+            // Draw drag part
+            if (dragPart) {
+                ctx.fillStyle = dragPart.color;
+                ctx.fillRect(dragPart.x, dragPart.y, CELL_SIZE - 10, CELL_SIZE - 10);
+                
+                // Draw part name
+                ctx.fillStyle = '#000000';
+                ctx.font = '12px "Courier New", monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText(dragPart.name, dragPart.x + (CELL_SIZE - 10)/2, dragPart.y + (CELL_SIZE - 10)/2 + 4);
+            }
+        }
+
+        function handleMouseDown(e) {
+            if (gameState !== "PLAYING") return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // Check if clicking on inventory part
+            for (const cell of inventory) {
+                if (x >= cell.x && x <= cell.x + cell.width &&
+                    y >= cell.y && y <= cell.y + cell.height) {
+                    if (cell.part) {
+                        selectedPart = cell.part;
+                        dragPart = { ...cell.part, x: x - CELL_SIZE/2, y: y - CELL_SIZE/2 };
+                        dragOffsetX = x - cell.x;
+                        dragOffsetY = y - cell.y;
+                        return;
+}
+        }
+        
+        // Check if clicking on a customer
+        for (const customer of customers) {
+            if (x >= customer.x && x <= customer.x + customer.width &&
+                y >= customer.y && y <= customer.y + customer.height) {
+                if (selectedPart) {
+                    // Check if customer needs this part
+                    const partNeeded = customer.order.parts.find(p => p.name === selectedPart.name);
+                    if (partNeeded) {
+                        // Remove part from inventory
+                        const cellIndex = inventory.findIndex(c => c.part === selectedPart);
+                        if (cellIndex !== -1) {
+                            inventory[cellIndex].part = null;
+                        }
+                        
+                        // Add part to customer
+                        customer.parts.push(selectedPart);
+                        
+                        // Create particles
+                        createParticles(customer.x + customer.width/2, customer.y + customer.height/2, selectedPart.color);
+                        
+                        // Check if customer is satisfied
+                        if (customer.parts.length === customer.order.parts.length) {
+                            // Customer satisfied
+                            customer.satisfied = true;
+                            score += 100;
+                            
+                            // Create particles for satisfaction
+                            createParticles(customer.x + customer.width/2, customer.y + customer.height/2, '#00FF00');
+                            
+                            // Remove customer after delay
+                            setTimeout(() => {
+                                customers = customers.filter(c => c !== customer);
+                            }, 2000);
+                        }
+                        
+                        selectedPart = null;
+                        dragPart = null;
+                    }
+                }
+                return;
+            }
+        }
+    }
+
+    function handleMouseMove(e) {
+        if (gameState !== "PLAYING") return;
+        
+        if (dragPart) {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            dragPart.x = x - dragOffsetX;
+            dragPart.y = y - dragOffsetY;
+        }
+    }
+
+    function handleMouseUp() {
+        if (gameState !== "PLAYING") return;
+        
+        if (dragPart) {
+            // Check if dropped on valid inventory slot
+            for (const cell of inventory) {
+                if (dragPart.x >= cell.x && dragPart.x <= cell.x + cell.width &&
+                    dragPart.y >= cell.y && dragPart.y <= cell.y + cell.height) {
+                    // Place part in inventory
+                    if (!cell.part) {
+                        cell.part = dragPart;
+                    }
+                    break;
+                }
+            }
+            
+            dragPart = null;
+        }
+    }
+
+    function createParticles(x, y, color) {
+        for (let i = 0; i < 10; i++) {
+            particles.push({
+                x: x,
+                y: y,
+                size: Math.random() * 5 + 2,
+                speedX: Math.random() * 6 - 3,
+                speedY: Math.random() * 6 - 3,
+                color: color,
+                life: 30
+            });
+        }
+    }
+
+    function updateParticles() {
+        for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
+            p.x += p.speedX;
+            p.y += p.speedY;
+            p.life--;
+            
+            if (p.life <= 0) {
+                particles.splice(i, 1);
+            }
+        }
+    }
+
+    function spawnCustomer() {
+        const customer = {
+            x: Math.random() * 400 + 100,
+            y: 50,
+            width: 80,
+            height: 80,
+            color: '#FF0000',
+            order: {
+                parts: []
+            },
+            parts: [],
+            timeout: ORDER_TIMEOUT,
+            satisfied: false
+        };
+        
+        // Generate random order
+        const partCount = Math.floor(Math.random() * 3) + 1;
+        for (let i = 0; i < partCount; i++) {
+            const part = parts[Math.floor(Math.random() * parts.length)];
+            customer.order.parts.push(part);
+        }
+        
+        customers.push(customer);
+    }
+
+    function updateCustomers() {
+        for (let i = customers.length - 1; i >= 0; i--) {
+            const customer = customers[i];
+            customer.timeout -= 1000/60; // Update based on game speed
+            
+            if (customer.timeout <= 0) {
+                // Customer left
+                customers.splice(i, 1);
+                score -= 50;
+            }
+        }
+    }
+
+    function update() {
+        if (gameState !== "PLAYING") return;
+        
+        updateParticles();
+        updateCustomers();
+        
+        // Spawn new customers
+        if (Math.random() < 0.02) {
+            spawnCustomer();
+        }
+    }
+
+    function gameLoop() {
+        update();
+        draw();
+        requestAnimationFrame(gameLoop);
+    }
+
+    // Event listeners
+    canvas.addEventListener('mousedown', handleMouseDown);
+    canvas.addEventListener('mousemove', handleMouseMove);
+    canvas.addEventListener('mouseup', handleMouseUp);
+    canvas.addEventListener('mouseleave', handleMouseUp);
+
+    // Start the game
+    gameLoop();
+</script>
+</body>
+</html>

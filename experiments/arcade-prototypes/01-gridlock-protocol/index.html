@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gridlock Protocol</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            color: #0f0;
+            text-shadow: 0 0 5px #0f0;
+        }
+        canvas {
+            background: #001111;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            border: 1px solid #0f0;
+            image-rendering: pixelated;
+        }
+        #game-container {
+            position: relative;
+        }
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 10;
+        }
+        #score, #lives {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        #instructions {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            font-size: 14px;
+            color: #0a0;
+            text-shadow: 0 0 3px #0a0;
+        }
+        #game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            font-size: 24px;
+            display: none;
+        }
+        #restart-btn {
+            background: #002200;
+            color: #0f0;
+            border: 1px solid #0f0;
+            padding: 10px 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 20px;
+            outline: none;
+        }
+        #restart-btn:hover {
+            background: #004400;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div id="ui">
+            <div id="score">SCORE: 0</div>
+            <div id="lives">LIVES: 3</div>
+        </div>
+        <div id="instructions">
+            Click nodes to toggle routing gates<br>
+            Prevent collisions and buffer overflows
+        </div>
+        <div id="game-over">
+            <div>GRIDLOCK DETECTED</div>
+            <div id="final-score">SCORE: 0</div>
+            <button id="restart-btn">RESTART</button>
+        </div>
+    </div>
+
+    <script>
+        // Game constants
+        const CANVAS_WIDTH = 800;
+        const CANVAS_HEIGHT = 600;
+        const GRID_SIZE = 40;
+        const NODE_SIZE = 20;
+        const NODE_RADIUS = 10;
+        const PACKET_SIZE = 8;
+        const MAX_PACKETS_PER_NODE = 3;
+        const MAX_LIVES = 3;
+        const SPAWN_RATE = 0.02; // Packets per frame
+        const COLLISION_DAMAGE = 1;
+        const OVERFLOW_DAMAGE = 1;
+        const NODE_COOLDOWN = 60; // frames
+        const MAX_PACKET_SPEED = 3;
+        const MIN_PACKET_SPEED = 1;
+
+        // Game state
+        let gameState = 'START'; // START, PLAYING, GAMEOVER
+        let score = 0;
+        let lives = MAX_LIVES;
+        let frameCount = 0;
+        let lastTime = 0;
+
+        // Audio context
+        let audioContext;
+        let isAudioInitialized = false;
+
+        // Canvas setup
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const livesElement = document.getElementById('lives');
+        const gameOverElement = document.getElementById('game-over');
+        const finalScoreElement = document.getElementById('final-score');
+        const restartButton = document.getElementById('restart-btn');
+
+        // Grid and nodes
+        const grid = [];
+        const nodes = [];
+        const packets = [];
+        const connections = [];
+
+        // Node class
+        class Node {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.radius = NODE_RADIUS;
+                this.color = '#00aaff';
+                this.gateState = 'green'; // 'red' or 'green'
+                this.cooldown = 0;
+                this.buffer = [];
+                this.maxBuffer = MAX_PACKETS_PER_NODE;
+                this.overheated = false;
+                this.overheatTimer = 0;
+                this.pulse = 0;
+            }
+
+            update() {
+                if (this.cooldown > 0) {
+                    this.cooldown--;
+                }
+                if (this.overheated) {
+                    this.overheatTimer--;
+                    if (this.overheatTimer <= 0) {
+                        this.overheated = false;
+                        this.color = '#00aaff';
+                    }
+                }
+                this.pulse = (this.pulse + 0.1) % (Math.PI * 2);
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                
+                // Draw node glow
+                const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, this.radius * 2);
+                gradient.addColorStop(0, this.overheated ? '#ff0000' : this.gateState === 'green' ? '#00ff00' : '#ff0000');
+                gradient.addColorStop(1, 'transparent');
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(0, 0, this.radius * 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw node
+                ctx.fillStyle = this.overheated ? '#ff0000' : this.gateState === 'green' ? '#00ff00' : '#ff0000';
+                ctx.beginPath();
+                ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw pulse effect
+                if (!this.overheated) {
+                    const pulseRadius = this.radius + Math.sin(this.pulse) * 2;
+                    ctx.strokeStyle = this.gateState === 'green' ? '#00ff00' : '#ff0000';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, pulseRadius, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+                
+                ctx.restore();
+            }
+
+            toggleGate() {
+                if (this.cooldown <= 0) {
+                    this.gateState = this.gateState === 'green' ? 'red' : 'green';
+                    this.cooldown = NODE_COOLDOWN;
+                    playSound('click');
+                }
+            }
+
+            addPacket(packet) {
+                if (this.buffer.length < this.maxBuffer) {
+                    this.buffer.push(packet);
+                    return true;
+                } else {
+                    this.overheat();
+                    return false;
+                }
+            }
+
+            overheat() {
+                this.overheated = true;
+                this.overheatTimer = 120;
+                this.color = '#ff0000';
+                playSound('overheat');
+                lives--;
+                updateUI();
+                if (lives <= 0) {
+                    gameOver();
+                }
+            }
+        }
+
+        // Packet class
+        class Packet {
+            constructor(x, y, targetX, targetY, color, priority) {
+                this.x = x;
+                this.y = y;
+                this.targetX = targetX;
+                this.targetY = targetY;
+                this.color = color;
+                this.priority = priority;
+                this.speed = MIN_PACKET_SPEED + Math.random() * (MAX_PACKET_SPEED - MIN_PACKET_SPEED);
+                this.size = PACKET_SIZE;
+                this.trail = [];
+                this.maxTrailLength = 10;
+                this.delivered = false;
+                this.inNode = false;
+            }
+
+            update() {
+                // Move towards target
+                const dx = this.targetX - this.x;
+                const dy = this.targetY - this.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < 1) {
+                    this.delivered = true;
+                    return;
+                }
+                
+                const speed = this.speed;
+                this.x += (dx / distance) * speed;
+                this.y += (dy / distance) * speed;
+                
+                // Add to trail
+                this.trail.push({x: this.x, y: this.y});
+                if (this.trail.length > this.maxTrailLength) {
+                    this.trail.shift();
+                }
+            }
+
+            draw() {
+                // Draw trail
+                for (let i = 0; i < this.trail.length; i++) {
+                    const point = this.trail[i];
+                    const alpha = i / this.trail.length * 0.5;
+                    ctx.fillStyle = this.color + Math.floor(alpha * 255).toString(16).padStart(2, '0');
+                    ctx.beginPath();
+                    ctx.arc(point.x, point.y, this.size * (i / this.trail.length), 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                
+                // Draw packet
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw glow
+                const gradient = ctx.createRadialGradient(
+                    this.x, this.y, 0,
+                    this.x, this.y, this.size * 2
+                );
+                gradient.addColorStop(0, this.color);
+                gradient.addColorStop(1, 'transparent');
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size * 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Initialize grid
+        function initGrid() {
+            const gridWidth = Math.ceil(CANVAS_WIDTH / GRID_SIZE);
+            const gridHeight = Math.ceil(CANVAS_HEIGHT / GRID_SIZE);
+            
+            for (let y = 0; y < gridHeight; y++) {
+                grid[y] = [];
+                for (let x = 0; x < gridWidth; x++) {
+                    grid[y][x] = null;
+                }
+            }
+            
+            // Create nodes at grid intersections
+            for (let y = 0; y < gridHeight; y += 2) {
+                for (let x = 0; x < gridWidth; x += 2) {
+                    const nodeX = x * GRID_SIZE + GRID_SIZE / 2;
+                    const nodeY = y * GRID_SIZE + GRID_SIZE / 2;
+                    const node = new Node(nodeX, nodeY);
+                    nodes.push(node);
+                    grid[y][x] = node;
+                }
+            }
+            
+            // Create connections between adjacent nodes
+            for (let i = 0; i < nodes.length; i++) {
+                const node = nodes[i];
+                const connections = [];
+                
+                // Check adjacent nodes
+                const directions = [
+                    {dx: 0, dy: -2}, // up
+                    {dx: 2, dy: 0},  // right
+                    {dx: 0, dy: 2},  // down
+                    {dx: -2, dy: 0}  // left
+                ];
+                
+                for (const dir of directions) {
+                    const nx = (node.x - GRID_SIZE / 2) / GRID_SIZE + dir.dx;
+                    const ny = (node.y - GRID_SIZE / 2) / GRID_SIZE + dir.dy;
+                    
+                    if (nx >= 0 && nx < gridWidth && ny >= 0 && ny < gridHeight) {
+                        const adjacentNode = grid[ny][nx];
+                        if (adjacentNode) {
+                            connections.push(adjacentNode);
+                        }
+                    }
+                }
+                
+                node.connections = connections;
+            }
+        }
+
+        // Spawn packet
+        function spawnPacket() {
+            // Spawn from edges
+            const side = Math.floor(Math.random() * 4);
+            let x, y, targetX, targetY;
+            
+            switch (side) {
+                case 0: // top
+                    x = Math.random() * CANVAS_WIDTH;
+                    y = -10;
+                    targetX = Math.random() * CANVAS_WIDTH;
+                    targetY = CANVAS_HEIGHT + 10;
+                    break;
+                case 1: // right
+                    x = CANVAS_WIDTH + 10;
+                    y = Math.random() * CANVAS_HEIGHT;
+                    targetX = -10;
+                    targetY = Math.random() * CANVAS_HEIGHT;
+                    break;
+                case 2: // bottom
+                    x = Math.random() * CANVAS_WIDTH;
+                    y = CANVAS_HEIGHT + 10;
+                    targetX = Math.random() * CANVAS_WIDTH;
+                    targetY = -10;
+                    break;
+                case 3: // left
+                    x = -10;
+                    y = Math.random() * CANVAS_HEIGHT;
+                    targetX = CANVAS_WIDTH + 10;
+                    targetY = Math.random() * CANVAS_HEIGHT;
+                    break;
+            }
+            
+            // Random color and priority
+            const colors = ['#00ff00', '#00aaff', '#ff00ff', '#ffff00', '#ff0000'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            const priority = Math.floor(Math.random() * 3) + 1;
+            
+            const packet = new Packet(x, y, targetX, targetY, color, priority);
+            packets.push(packet);
+        }
+
+        // Check collisions
+        function checkCollisions() {
+            for (let i = 0; i < packets.length; i++) {
+                const p1 = packets[i];
+                if (p1.delivered) continue;
+                
+                for (let j = i + 1; j < packets.length; j++) {
+                    const p2 = packets[j];
+                    if (p2.delivered) continue;
+                    
+                    const dx = p1.x - p2.x;
+                    const dy = p1.y - p2.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < p1.size + p2.size) {
+                        // Collision detected
+                        playSound('collision');
+                        explode(p1.x, p1.y);
+                        packets.splice(i, 1);
+                        packets.splice(j - 1, 1);
+                        i--;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Create explosion effect
+        function explode(x, y) {
+            // Simple particle explosion
+            for (let i = 0; i < 15; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 1 + Math.random() * 3;
+                const size = 2 + Math.random() * 3;
+                const color = `hsl(${Math.random() * 60}, 100%, 50%)`;
+                
+                // Create particle effect
+                const particle = {
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    size: size,
+                    color: color,
+                    life: 30
+                };
+                
+                // Add to particles array (simplified for this demo)
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Update UI
+        function updateUI() {
+            scoreElement.textContent = `SCORE: ${score}`;
+            livesElement.textContent = `LIVES: ${lives}`;
+        }
+
+        // Game over
+        function gameOver() {
+            gameState = 'GAMEOVER';
+            finalScoreElement.textContent = `SCORE: ${score}`;
+            gameOverElement.style.display = 'block';
+            playSound('gameover');
+        }
+
+        // Restart game
+        function restartGame() {
+            gameState = 'PLAYING';
+            score = 0;
+            lives = MAX_LIVES;
+            frameCount = 0;
+            packets.length = 0;
+            nodes.forEach(node => {
+                node.buffer = [];
+                node.overheated = false;
+                node.overheatTimer = 0;
+            });
+            gameOverElement.style.display = 'none';
+            updateUI();
+        }
+
+        // Audio functions
+        function playSound(type) {
+            if (!isAudioInitialized) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            switch (type) {
+                case 'click':
+                    oscillator.type = 'square';
+                    oscillator.frequency.value = 523.25; // C5
+                    gainNode.gain.value = 0.1;
+                    break;
+                case 'collision':
+                    oscillator.type = 'sawtooth';
+                    oscillator.frequency.value = 261.63; // C4
+                    gainNode.gain.value = 0.2;
+                    break;
+                case 'overheat':
+                    oscillator.type = 'sine';
+                    oscillator.frequency.value = 130.81; // C3
+                    gainNode.gain.value = 0.3;
+                    break;
+                case 'gameover':
+                    oscillator.type = 'square';
+                    oscillator.frequency.value = 110; // A2
+                    gainNode.gain.value = 0.3;
+                    break;
+            }
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 0.1);
+        }
+
+        // Initialize audio on first interaction
+        function initAudio() {
+            if (isAudioInitialized) return;
+            
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            isAudioInitialized = true;
+        }
+
+        // Game loop
+        function gameLoop(timestamp) {
+            const deltaTime = timestamp - lastTime;
+            lastTime = timestamp;
+            
+            // Clear canvas with scanlines effect
+            ctx.fillStyle = '#001111';
+            ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            
+            // Draw scanlines
+            ctx.fillStyle = 'rgba(0, 30, 30, 0.1)';
+            for (let y = 0; y < CANVAS_HEIGHT; y += 2) {
+                ctx.fillRect(0, y, CANVAS_WIDTH, 1);
+            }
+            
+            if (gameState === 'PLAYING') {
+                // Update game state
+                frameCount++;
+                
+                // Spawn packets
+                if (Math.random() < SPAWN_RATE) {
+                    spawnPacket();
+                }
+                
+                // Update nodes
+                nodes.forEach(node => node.update());
+                
+                // Update packets
+                for (let i = packets.length - 1; i >= 0; i--) {
+                    const packet = packets[i];
+                    packet.update();
+                    
+                    // Check if packet reached destination
+                    if (packet.delivered) {
+                        score += 10 * packet.priority;
+                        packets.splice(i, 1);
+                        updateUI();
+                    }
+                }
+                
+                // Check collisions
+                checkCollisions();
+                
+                // Draw grid
+                ctx.strokeStyle = '#003333';
+                ctx.lineWidth = 1;
+                for (let x = 0; x <= CANVAS_WIDTH; x += GRID_SIZE) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, CANVAS_HEIGHT);
+                    ctx.stroke();
+                }
+                for (let y = 0; y <= CANVAS_HEIGHT; y += GRID_SIZE) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(CANVAS_WIDTH, y);
+                    ctx.stroke();
+                }
+                
+                // Draw nodes
+                nodes.forEach(node => node.draw());
+                
+                // Draw packets
+                packets.forEach(packet => packet.draw());
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Event listeners
+        canvas.addEventListener('click', (e) => {
+            if (gameState !== 'PLAYING') return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // Find nearest node
+            let nearestNode = null;
+            let minDistance = Infinity;
+            
+            nodes.forEach(node => {
+                const dx = node.x - x;
+                const dy = node.y - y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < minDistance && distance < NODE_RADIUS * 2) {
+                    minDistance = distance;
+                    nearestNode = node;
+                }
+            });
+            
+            if (nearestNode) {
+                nearestNode.toggleGate();
+            }
+        });
+
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (gameState !== 'PLAYING') return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = e.touches[0].clientX - rect.left;
+            const y = e.touches[0].clientY - rect.top;
+            
+            // Find nearest node
+            let nearestNode = null;
+            let minDistance = Infinity;
+            
+            nodes.forEach(node => {
+                const dx = node.x - x;
+                const dy = node.y - y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < minDistance && distance < NODE_RADIUS * 2) {
+                    minDistance = distance;
+                    nearestNode = node;
+                }
+            });
+            
+            if (nearestNode) {
+                nearestNode.toggleGate();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                if (gameState === 'START' || gameState === 'GAMEOVER') {
+                    restartGame();
+                }
+            }
+        });
+
+        restartButton.addEventListener('click', restartGame);
+
+        // Initialize game
+        function init() {
+            initGrid();
+            updateUI();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Start game on first interaction
+        document.addEventListener('click', () => {
+            if (!isAudioInitialized) {
+                initAudio();
+                init();
+            }
+        });
+
+        document.addEventListener('touchstart', () => {
+            if (!isAudioInitialized) {
+                initAudio();
+                init();
+            }
+        }, { once: true });
+    </script>
+</body>
+</html>

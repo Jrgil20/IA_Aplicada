@@ -1,0 +1,754 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shattered Vector</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000;
+            overflow: hidden;
+            font-family: 'Courier New', monospace;
+            color: #0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            perspective: 1000px;
+        }
+        
+        #gameContainer {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            border: 1px solid #0f0;
+            overflow: hidden;
+        }
+        
+        canvas {
+            background: #000;
+            display: block;
+        }
+        
+        #ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+        }
+        
+        #score, #lives, #polarity {
+            font-size: 18px;
+            text-shadow: 0 0 5px #0f0;
+        }
+        
+        #startScreen, #gameOverScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10;
+            text-align: center;
+        }
+        
+        #gameOverScreen {
+            display: none;
+        }
+        
+        h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #0f0;
+            letter-spacing: 3px;
+        }
+        
+        p {
+            font-size: 18px;
+            margin: 10px 0;
+            max-width: 80%;
+            line-height: 1.6;
+        }
+        
+        .highlight {
+            color: #0f0;
+            text-shadow: 0 0 5px #0f0;
+        }
+        
+        button {
+            background: transparent;
+            color: #0f0;
+            border: 1px solid #0f0;
+            padding: 10px 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            margin-top: 20px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            outline: none;
+        }
+        
+        button:hover {
+            background: rgba(0, 255, 0, 0.2);
+            box-shadow: 0 0 10px #0f0;
+        }
+        
+        .scanline {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                to bottom,
+                rgba(0, 0, 0, 0.1) 0px,
+                rgba(0, 0, 0, 0.1) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+            pointer-events: none;
+            z-index: 5;
+        }
+        
+        .glow {
+            filter: drop-shadow(0 0 5px #0f0);
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div class="scanline"></div>
+        <div id="ui">
+            <div id="score">SCORE: 0</div>
+            <div id="lives">LIVES: 3</div>
+            <div id="polarity">POLARITY: ATTRACT</div>
+        </div>
+        <div id="startScreen">
+            <h1>SHATTERED VECTOR</h1>
+            <p>Escape the gravitational well of the central singularity</p>
+            <p>WASD to maneuver • Mouse to aim • SPACE to toggle polarity</p>
+            <p>Repel enemies to avoid collisions • Attract to control trajectories</p>
+            <button id="startButton">START MISSION</button>
+        </div>
+        <div id="gameOverScreen">
+            <h1>MISSION FAILED</h1>
+            <p>Final Score: <span id="finalScore" class="highlight">0</span></p>
+            <p>Core destruction imminent</p>
+            <button id="restartButton">TRY AGAIN</button>
+        </div>
+    </div>
+
+    <script>
+        // Game constants
+        const CANVAS_WIDTH = 800;
+        const CANVAS_HEIGHT = 600;
+        const PLAYER_SIZE = 15;
+        const PLAYER_SPEED = 5;
+        const PLAYER_ROTATION_SPEED = 0.08;
+        const BULLET_SPEED = 10;
+        const GRAVITY_CONSTANT = 0.2;
+        const ENEMY_SPAWN_RATE = 60; // frames
+        const MAX_ENEMIES = 20;
+        const PARTICLE_COUNT = 100;
+        const CORE_RADIUS = 50;
+        const CORE_DESTRUCTION_RADIUS = 150;
+        
+        // Game state
+        const GameState = {
+            START: 0,
+            PLAYING: 1,
+            GAMEOVER: 2
+        };
+        
+        // Polarity states
+        const Polarity = {
+            ATTRACT: 0,
+            REPEL: 1
+        };
+        
+        // Game variables
+        let gameState = GameState.START;
+        let score = 0;
+        let lives = 3;
+        let polarity = Polarity.ATTRACT;
+        let player = {
+            x: CANVAS_WIDTH / 2,
+            y: CANVAS_HEIGHT / 2,
+            vx: 0,
+            vy: 0,
+            angle: 0,
+            size: PLAYER_SIZE
+        };
+        
+        let bullets = [];
+        let enemies = [];
+        let particles = [];
+        let core = {
+            x: CANVAS_WIDTH / 2,
+            y: CANVAS_HEIGHT / 2,
+            radius: CORE_RADIUS,
+            health: 100
+        };
+        
+        let keys = {};
+        let mouseX = 0;
+        let mouseY = 0;
+        let frameCount = 0;
+        let lastTime = 0;
+        let audioContext;
+        let isAudioInitialized = false;
+        
+        // Canvas setup
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const startScreen = document.getElementById('startScreen');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const scoreElement = document.getElementById('score');
+        const livesElement = document.getElementById('lives');
+        const polarityElement = document.getElementById('polarity');
+        const finalScoreElement = document.getElementById('finalScore');
+        const startButton = document.getElementById('startButton');
+        const restartButton = document.getElementById('restartButton');
+        
+        // Initialize audio context on first interaction
+        function initAudio() {
+            if (!isAudioInitialized) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                isAudioInitialized = true;
+            }
+        }
+        
+        // Audio synthesis functions
+        function playLaserSound() {
+            if (!isAudioInitialized) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.1);
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.1);
+        }
+        
+        function playExplosionSound() {
+            if (!isAudioInitialized) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.type = 'square';
+            oscillator.frequency.setValueAtTime(100, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(50, audioContext.currentTime + 0.3);
+            
+            gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }
+        
+        function playClickSound() {
+            if (!isAudioInitialized) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.1);
+            
+            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.1);
+        }
+        
+        // Particle system
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 6;
+                this.vy = (Math.random() - 0.5) * 6;
+                this.life = 30;
+                this.maxLife = 30;
+                this.color = color;
+                this.size = Math.random() * 3 + 1;
+            }
+            
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.life--;
+                this.vx *= 0.98;
+                this.vy *= 0.98;
+            }
+            
+            draw() {
+                const alpha = this.life / this.maxLife;
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+            
+            isDead() {
+                return this.life <= 0;
+            }
+        }
+        
+        // Bullet class
+        class Bullet {
+            constructor(x, y, angle) {
+                this.x = x;
+                this.y = y;
+                this.vx = Math.cos(angle) * BULLET_SPEED;
+                this.vy = Math.sin(angle) * BULLET_SPEED;
+                this.size = 3;
+                this.life = 60;
+            }
+            
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.life--;
+            }
+            
+            draw() {
+                ctx.globalAlpha = 0.8;
+                ctx.fillStyle = '#0f0';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+            
+            isDead() {
+                return this.life <= 0 || 
+                       this.x < 0 || this.x > CANVAS_WIDTH ||
+                       this.y < 0 || this.y > CANVAS_HEIGHT;
+            }
+        }
+        
+        // Enemy class
+        class Enemy {
+            constructor(x, y, type) {
+                this.x = x;
+                this.y = y;
+                this.type = type;
+                this.size = type === 'triangle' ? 15 : type === 'dodecahedron' ? 20 : 10;
+                this.speed = Math.random() * 1 + 0.5;
+                this.angle = Math.atan2(y - core.y, x - core.x);
+                this.rotation = 0;
+                this.rotationSpeed = (Math.random() - 0.5) * 0.05;
+                this.health = type === 'triangle' ? 2 : type === 'dodecahedron' ? 3 : 1;
+                this.maxHealth = this.health;
+            }
+            
+            update() {
+                // Orbit around core
+                const dx = core.x - this.x;
+                const dy = core.y - this.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                // Apply gravity
+                const force = GRAVITY_CONSTANT * core.radius / (distance * distance);
+                this.vx = dx * force;
+                this.vy = dy * force;
+                
+                // Update position
+                this.x += this.vx;
+                this.y += this.vy;
+                
+                // Update rotation
+                this.rotation += this.rotationSpeed;
+                
+                // Move towards center
+                const pullForce = 0.01;
+                this.x += (core.x - this.x) * pullForce;
+                this.y += (core.y - this.y) * pullForce;
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                
+                ctx.strokeStyle = '#0f0';
+                ctx.lineWidth = 2;
+                ctx.globalAlpha = 0.8;
+                
+                if (this.type === 'triangle') {
+                    ctx.beginPath();
+                    ctx.moveTo(0, -this.size);
+                    ctx.lineTo(this.size, this.size);
+                    ctx.lineTo(-this.size, this.size);
+                    ctx.closePath();
+                    ctx.stroke();
+                } else if (this.type === 'dodecahedron') {
+                    ctx.beginPath();
+                    for (let i = 0; i < 10; i++) {
+                        const angle = (i / 10) * Math.PI * 2;
+                        const x = Math.cos(angle) * this.size;
+                        const y = Math.sin(angle) * this.size;
+                        if (i === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                    }
+                    ctx.closePath();
+                    ctx.stroke();
+                } else {
+                    ctx.beginPath();
+                    ctx.arc(0, 0, this.size, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+                
+                ctx.restore();
+            }
+            
+            isDead() {
+                return this.health <= 0;
+            }
+        }
+        
+        // Create explosion particles
+        function createExplosion(x, y, color) {
+            for (let i = 0; i < 20; i++) {
+                particles.push(new Particle(x, y, color));
+            }
+        }
+        
+        // Spawn enemies
+        function spawnEnemy() {
+            if (enemies.length >= MAX_ENEMIES) return;
+            
+            // Spawn from outside the core
+            const angle = Math.random() * Math.PI * 2;
+            const distance = core.radius + 100 + Math.random() * 200;
+            const x = core.x + Math.cos(angle) * distance;
+            const y = core.y + Math.sin(angle) * distance;
+            
+            // Random enemy type
+            const types = ['triangle', 'dodecahedron', 'seeker'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            
+            enemies.push(new Enemy(x, y, type));
+        }
+        
+        // Update game state
+        function update(deltaTime) {
+            if (gameState !== GameState.PLAYING) return;
+            
+            // Update player
+            player.vx *= 0.95; // Friction
+            player.vy *= 0.95;
+            
+            // Apply thrust
+            if (keys['w'] || keys['W']) {
+                player.vx += Math.cos(player.angle) * 0.2;
+                player.vy += Math.sin(player.angle) * 0.2;
+            }
+            if (keys['s'] || keys['S']) {
+                player.vx -= Math.cos(player.angle) * 0.2;
+                player.vy -= Math.sin(player.angle) * 0.2;
+            }
+            if (keys['a'] || keys['A']) {
+                player.angle -= PLAYER_ROTATION_SPEED;
+            }
+            if (keys['d'] || keys['D']) {
+                player.angle += PLAYER_ROTATION_SPEED;
+            }
+            
+            // Update player position
+            player.x += player.vx;
+            player.y += player.vy;
+            
+            // Keep player within bounds
+            player.x = Math.max(player.size, Math.min(CANVAS_WIDTH - player.size, player.x));
+            player.y = Math.max(player.size, Math.min(CANVAS_HEIGHT - player.size, player.y));
+            
+            // Update bullets
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                bullets[i].update();
+                if (bullets[i].isDead()) {
+                    bullets.splice(i, 1);
+                }
+            }
+            
+            // Update enemies
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                enemies[i].update();
+                
+                // Check collision with player
+                const dx = player.x - enemies[i].x;
+                const dy = player.y - enemies[i].y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < player.size + enemies[i].size) {
+                    // Player hit
+                    lives--;
+                    createExplosion(player.x, player.y, '#0f0');
+                    playExplosionSound();
+                    enemies.splice(i, 1);
+                    
+                    if (lives <= 0) {
+                        gameState = GameState.GAMEOVER;
+                        finalScoreElement.textContent = score;
+                        gameOverScreen.style.display = 'flex';
+                    }
+                    continue;
+                }
+                
+                // Check collision with bullets
+                for (let j = bullets.length - 1; j >= 0; j--) {
+                    const bullet = bullets[j];
+                    const dx = bullet.x - enemies[i].x;
+                    const dy = bullet.y - enemies[i].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < enemies[i].size + bullet.size) {
+                        // Enemy hit
+                        enemies[i].health--;
+                        bullets.splice(j, 1);
+                        
+                        if (enemies[i].isDead()) {
+                            // Enemy destroyed
+                            score += enemies[i].type === 'triangle' ? 10 : 
+                                    enemies[i].type === 'dodecahedron' ? 20 : 5;
+                            createExplosion(enemies[i].x, enemies[i].y, '#0f0');
+                            playExplosionSound();
+                            enemies.splice(i, 1);
+                        }
+                        break;
+                    }
+                }
+                
+                // Check if enemy is too close to core
+                const coreDistance = Math.sqrt(
+                    Math.pow(enemies[i].x - core.x, 2) + 
+                    Math.pow(enemies[i].y - core.y, 2)
+                );
+                
+                if (coreDistance < core.radius + enemies[i].size) {
+                    // Enemy destroyed by core
+                    createExplosion(enemies[i].x, enemies[i].y, '#f00');
+                    playExplosionSound();
+                    enemies.splice(i, 1);
+                }
+            }
+            
+            // Update particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update();
+                if (particles[i].isDead()) {
+                    particles.splice(i, 1);
+                }
+            }
+            
+            // Spawn enemies
+            frameCount++;
+            if (frameCount % ENEMY_SPAWN_RATE === 0) {
+                spawnEnemy();
+            }
+            
+            // Update core health
+            const coreDistance = Math.sqrt(
+                Math.pow(player.x - core.x, 2) + 
+                Math.pow(player.y - core.y, 2)
+            );
+            
+            if (coreDistance < CORE_DESTRUCTION_RADIUS) {
+                core.health -= 0.01;
+            }
+            
+            if (core.health <= 0) {
+                gameState = GameState.GAMEOVER;
+                finalScoreElement.textContent = score;
+                gameOverScreen.style.display = 'flex';
+            }
+            
+            // Update UI
+            scoreElement.textContent = `SCORE: ${score}`;
+            livesElement.textContent = `LIVES: ${lives}`;
+            polarityElement.textContent = `POLARITY: ${polarity === Polarity.ATTRACT ? 'ATTRACT' : 'REPEL'}`;
+        }
+        
+        // Draw game
+        function draw() {
+            // Clear canvas
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            
+            // Draw core
+            ctx.save();
+            ctx.translate(core.x, core.y);
+            
+            // Draw core glow
+            const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, core.radius * 2);
+            gradient.addColorStop(0, 'rgba(0, 255, 0, 0.8)');
+            gradient.addColorStop(1, 'rgba(0, 255, 0, 0)');
+            
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(0, 0, core.radius * 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw core
+            ctx.fillStyle = '#0f0';
+            ctx.beginPath();
+            ctx.arc(0, 0, core.radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw core distortion
+            ctx.strokeStyle = '#0f0';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI * 2;
+                ctx.beginPath();
+                ctx.moveTo(Math.cos(angle) * core.radius, Math.sin(angle) * core.radius);
+                ctx.lineTo(Math.cos(angle) * core.radius * 1.5, Math.sin(angle) * core.radius * 1.5);
+                ctx.stroke();
+            }
+            
+            ctx.restore();
+            
+            // Draw gravity distortion
+            for (let i = 0; i < 50; i++) {
+                const angle = (i / 50) * Math.PI * 2;
+                const distance = core.radius + 10 + Math.sin(frameCount * 0.01 + angle) * 5;
+                const x = core.x + Math.cos(angle) * distance;
+                const y = core.y + Math.sin(angle) * distance;
+                
+                ctx.globalAlpha = 0.3;
+                ctx.strokeStyle = '#0f0';
+                ctx.beginPath();
+                ctx.arc(x, y, 2, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            
+            // Draw bullets
+            bullets.forEach(bullet =>
+                ctx.fillStyle = bullet.color;
+                ctx.beginPath();
+                ctx.arc(bullet.x, bullet.y, bullet.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            
+            // Draw enemies
+            enemies.forEach(enemy => {
+                ctx.save();
+                ctx.translate(enemy.x, enemy.y);
+                
+                // Draw enemy based on type
+                if (enemy.type === 'triangle') {
+                    ctx.fillStyle = '#f00';
+                    ctx.beginPath();
+                    ctx.moveTo(0, -enemy.size);
+                    ctx.lineTo(-enemy.size, enemy.size);
+                    ctx.lineTo(enemy.size, enemy.size);
+                    ctx.closePath();
+                    ctx.fill();
+                } else if (enemy.type === 'square') {
+                    ctx.fillStyle = '#ff0';
+                    ctx.fillRect(-enemy.size, -enemy.size, enemy.size * 2, enemy.size * 2);
+                } else if (enemy.type === 'dodecahedron') {
+                    ctx.fillStyle = '#00f';
+                    ctx.beginPath();
+                    for (let i = 0; i < 10; i++) {
+                        const angle = (i / 10) * Math.PI * 2;
+                        const x = Math.cos(angle) * enemy.size;
+                        const y = Math.sin(angle) * enemy.size;
+                        if (i === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                    }
+                    ctx.closePath();
+                    ctx.fill();
+                }
+                
+                ctx.restore();
+            });
+            
+            // Draw particles
+            particles.forEach(particle => {
+                ctx.fillStyle = particle.color;
+                ctx.globalAlpha = particle.alpha;
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            
+            // Draw player
+            ctx.save();
+            ctx.translate(player.x, player.y);
+            
+            // Draw player ship
+            ctx.fillStyle = polarity === Polarity.ATTRACT ? '#0ff' : '#f0f';
+            ctx.beginPath();
+            ctx.moveTo(0, -10);
+            ctx.lineTo(-10, 10);
+            ctx.lineTo(10, 10);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Draw polarity indicator
+            ctx.strokeStyle = polarity === Polarity.ATTRACT ? '#0ff' : '#f0f';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(0, 0, 15, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            ctx.restore();
+            
+            ctx.globalAlpha = 1;
+        }
+        
+        // Game loop
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Start game
+        gameLoop();
+    });
+</script>
+</body>
+</html>

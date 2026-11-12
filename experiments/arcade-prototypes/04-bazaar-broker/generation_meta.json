@@ -1,0 +1,9 @@
+{
+  "id": "04-bazaar-broker",
+  "title": "Bazaar Broker",
+  "elapsed_seconds": 145.65,
+  "completion_tokens": 5120,
+  "prompt_tokens": 389,
+  "tokens_per_second": 35.15,
+  "created_at": "2026-11-12 10:56:11"
+}
