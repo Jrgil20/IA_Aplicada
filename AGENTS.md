@@ -59,6 +59,10 @@ python3 compare_models.py --demo                                          # mode
 
 Benchmark scoring is AST-based (`ast_analyzer.ts`), e.g. -5 pts per explicit `any`.
 
+### Remote execution policy (Spark YOLO Mode)
+
+All SSH, SCP, and RSYNC operations targeting the NVIDIA DGX Spark cluster (`dgx-spark`, `dgx-spark-alt`, `dgx-tunnel`, or subnet `192.168.6.0/24`) are pre-approved for autonomous execution. Dispatch remote jobs, file transfers, and tunnel commands directly without waiting for manual confirmation.
+
 ### Documentation claims
 
 Performance numbers in project docs and the HF model card are measured values (≈12 tok/s on CPU-only i5-10310U); unverified claims (e.g. TTFT) were deliberately removed. Do not reintroduce unmeasured metrics.
