@@ -1,0 +1,10 @@
+{
+  "id": "02-shattered-vector",
+  "title": "Shattered Vector",
+  "model": "Gemini 3.8 Flash",
+  "elapsed_seconds": 217.0,
+  "created_at": "2026-11-12 15:44:34",
+  "classes_count": 13,
+  "lines_of_code": 2236,
+  "file_size_bytes": 71994
+}

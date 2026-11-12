@@ -1,0 +1,2026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GLITCH CLIMBER // Cyber-Tower Mutation Platformer</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background-color: #05060b;
+      color: #e0f8ff;
+      font-family: 'Consolas', 'Courier New', Courier, monospace;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #game-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-width: 620px;
+      max-height: 880px;
+      aspect-ratio: 600 / 850;
+      box-shadow: 0 0 50px rgba(0, 243, 255, 0.15), 0 0 100px rgba(255, 0, 85, 0.1);
+      overflow: hidden;
+      background: #070913;
+      border: 1px solid rgba(0, 243, 255, 0.3);
+    }
+
+    canvas#gameCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      image-rendering: pixelated;
+    }
+
+    /* CRT scanline and vignette overlay */
+    .crt-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%, 
+        rgba(0, 0, 0, 0.28) 50%
+      ), linear-gradient(
+        90deg,
+        rgba(255, 0, 0, 0.03),
+        rgba(0, 255, 0, 0.01),
+        rgba(0, 0, 255, 0.03)
+      );
+      background-size: 100% 3px, 6px 100%;
+      box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.85);
+      z-index: 20;
+    }
+
+    /* Mobile / Touch on-screen controls */
+    #touch-controls {
+      position: absolute;
+      bottom: 12px;
+      left: 0;
+      width: 100%;
+      padding: 0 16px;
+      display: none;
+      justify-content: space-between;
+      align-items: flex-end;
+      pointer-events: none;
+      z-index: 30;
+    }
+
+    .touch-btn-group {
+      display: flex;
+      gap: 12px;
+      pointer-events: auto;
+    }
+
+    .touch-btn {
+      width: 62px;
+      height: 62px;
+      border-radius: 12px;
+      background: rgba(8, 18, 30, 0.75);
+      border: 1.5px solid rgba(0, 243, 255, 0.45);
+      color: #00f3ff;
+      font-size: 18px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: manipulation;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 0 12px rgba(0, 243, 255, 0.2);
+      transition: transform 0.05s, background 0.05s;
+    }
+
+    .touch-btn:active {
+      transform: scale(0.92);
+      background: rgba(0, 243, 255, 0.3);
+      border-color: #00f3ff;
+    }
+
+    .touch-btn.dash-btn {
+      border-color: rgba(255, 230, 0, 0.6);
+      color: #ffe600;
+    }
+
+    .touch-btn.dash-btn:active {
+      background: rgba(255, 230, 0, 0.3);
+    }
+
+    .touch-btn.jump-btn {
+      width: 72px;
+      height: 72px;
+      border-color: rgba(0, 255, 119, 0.7);
+      color: #00ff77;
+    }
+
+    .touch-btn.jump-btn:active {
+      background: rgba(0, 255, 119, 0.3);
+    }
+
+    @media (hover: none) and (pointer: coarse) {
+      #touch-controls {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="game-container">
+    <canvas id="gameCanvas" width="600" height="850"></canvas>
+    <div class="crt-overlay"></div>
+
+    <!-- Touch Controls for mobile/tablets -->
+    <div id="touch-controls">
+      <div class="touch-btn-group">
+        <button class="touch-btn" id="btn-left">◀</button>
+        <button class="touch-btn" id="btn-down">▼</button>
+        <button class="touch-btn" id="btn-right">▶</button>
+      </div>
+      <div class="touch-btn-group">
+        <button class="touch-btn dash-btn" id="btn-dash">DASH</button>
+        <button class="touch-btn jump-btn" id="btn-jump">JUMP</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  /**
+   * GLITCH CLIMBER - Zero-Dependency HTML5 Cyber Precision Platformer
+   * Architecture:
+   *   - AudioSynth: Web Audio API procedural synthesizer
+   *   - ParticleSystem: High-performance particle physics & VFX
+   *   - PlatformManager: Procedural vertical chunking & 5s mutation engine
+   *   - PlayerPhysics: Precision kinematics, coyote time, jump buffering, wall-jump, dash
+   *   - GlitchRenderer: CRT post-fx, chromatic aberration, procedural cyber graphics
+   *   - GameEngine: Game state machine, loop, input management
+   */
+
+  // --- AUDIO SYNTHESIZER ---
+  class AudioSynth {
+    constructor() {
+      this.ctx = null;
+      this.masterGain = null;
+      this.isMuted = false;
+      this.isUnlocked = false;
+
+      // Generative BGM properties
+      this.bgmTimer = null;
+      this.bgmStep = 0;
+      this.bassNotes = [55, 55, 65.4, 55, 73.4, 55, 82.4, 73.4]; // A1, C2, D2, E2 minor cyber pattern
+    }
+
+    unlock() {
+      if (this.isUnlocked) return;
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        this.ctx = new AudioContextClass();
+        this.masterGain = this.ctx.createGain();
+        this.masterGain.gain.setValueAtTime(0.35, this.ctx.currentTime);
+        this.masterGain.connect(this.ctx.destination);
+        this.isUnlocked = true;
+
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+
+        this.startBGM();
+      } catch (e) {
+        console.warn('Web Audio init failed:', e);
+      }
+    }
+
+    toggleMute() {
+      this.isMuted = !this.isMuted;
+      if (this.masterGain && this.ctx) {
+        this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : 0.35, this.ctx.currentTime);
+      }
+      return this.isMuted;
+    }
+
+    // Jump sound: rapid pitch climb triangle wave
+    playJump() {
+      if (!this.isUnlocked || this.isMuted) return;
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(160, now);
+      osc.frequency.exponentialRampToValueAtTime(460, now + 0.12);
+
+      gain.gain.setValueAtTime(0.4, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+
+      osc.start(now);
+      osc.stop(now + 0.14);
+    }
+
+    // Wall Jump: bright metallic chirp
+    playWallJump() {
+      if (!this.isUnlocked || this.isMuted) return;
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(240, now);
+      osc.frequency.exponentialRampToValueAtTime(580, now + 0.09);
+
+      gain.gain.setValueAtTime(0.25, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+
+      osc.start(now);
+      osc.stop(now + 0.1);
+    }
+
+    // Horizontal Dash: resonant white-noise swoosh
+    playDash() {
+      if (!this.isUnlocked || this.isMuted) return;
+      const now = this.ctx.currentTime;
+      const bufferSize = this.ctx.sampleRate * 0.16;
+      const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+
+      const noise = this.ctx.createBufferSource();
+      noise.buffer = buffer;
+
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(1800, now);
+      filter.frequency.exponentialRampToValueAtTime(320, now + 0.15);
+      filter.Q.setValueAtTime(4, now);
+
+      const gain = this.ctx.createGain();
+      gain.gain.setValueAtTime(0.5, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.16);
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.masterGain);
+
+      noise.start(now);
+      noise.stop(now + 0.16);
+    }
+
+    // Boost pad trigger: bright upward sci-fi chime
+    playBoost() {
+      if (!this.isUnlocked || this.isMuted) return;
+      const now = this.ctx.currentTime;
+
+      [1, 1.5, 2].forEach((ratio, index) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(320 * ratio, now + index * 0.03);
+        osc.frequency.exponentialRampToValueAtTime(840 * ratio, now + 0.25);
+
+        gain.gain.setValueAtTime(0.18, now + index * 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+
+        osc.start(now + index * 0.03);
+        osc.stop(now + 0.28);
+      });
+    }
+
+    // Glitch tick countdown: 3s, 2s, 1s warning digital beeps
+    playGlitchWarning(secondsLeft) {
+      if (!this.isUnlocked || this.isMuted) return;
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      const freqs = { 3: 750, 2: 950, 1: 1400 };
+      const f = freqs[secondsLeft] || 800;
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(f, now);
+      osc.frequency.setValueAtTime(f * 1.25, now + 0.04);
+
+      gain.gain.setValueAtTime(0.3, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+
+      osc.start(now);
+      osc.stop(now + 0.08);
+    }
+
+    // Platform morph sizzle: noisy frequency-shifted crackle
+    playMorph() {
+      if (!this.isUnlocked || this.isMuted) return;
+      const now = this.ctx.currentTime;
+
+      // FM crackle
+      const carrier = this.ctx.createOscillator();
+      const modulator = this.ctx.createOscillator();
+      const modGain = this.ctx.createGain();
+      const mainGain = this.ctx.createGain();
+
+      carrier.type = 'square';
+      carrier.frequency.setValueAtTime(420, now);
+      carrier.frequency.exponentialRampToValueAtTime(140, now + 0.22);
+
+      modulator.type = 'sawtooth';
+      modulator.frequency.setValueAtTime(60, now);
+      modulator.frequency.linearRampToValueAtTime(220, now + 0.22);
+
+      modGain.gain.setValueAtTime(300, now);
+      modGain.gain.linearRampToValueAtTime(50, now + 0.22);
+
+      modulator.connect(modGain);
+      modGain.connect(carrier.frequency);
+
+      mainGain.gain.setValueAtTime(0.35, now);
+      mainGain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+
+      carrier.connect(mainGain);
+      mainGain.connect(this.masterGain);
+
+      modulator.start(now);
+      carrier.start(now);
+      modulator.stop(now + 0.24);
+      carrier.stop(now + 0.24);
+    }
+
+    // Death crunch: 8-bit bitcrushed distortion explosion
+    playDeath() {
+      if (!this.isUnlocked || this.isMuted) return;
+      const now = this.ctx.currentTime;
+
+      // Sub-bass thump
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(160, now);
+      osc.frequency.exponentialRampToValueAtTime(20, now + 0.45);
+
+      gain.gain.setValueAtTime(0.6, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(now);
+      osc.stop(now + 0.45);
+
+      // Noise blast
+      const bufferSize = this.ctx.sampleRate * 0.35;
+      const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        // Bitcrush simulation
+        data[i] = Math.floor((Math.random() * 2 - 1) * 4) / 4;
+      }
+      const noise = this.ctx.createBufferSource();
+      noise.buffer = buffer;
+      const nGain = this.ctx.createGain();
+      nGain.gain.setValueAtTime(0.4, now);
+      nGain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+
+      noise.connect(nGain);
+      nGain.connect(this.masterGain);
+      noise.start(now);
+      noise.stop(now + 0.35);
+    }
+
+    // Phase through platform sound
+    playPhase() {
+      if (!this.isUnlocked || this.isMuted) return;
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(320, now);
+      osc.frequency.exponentialRampToValueAtTime(140, now + 0.08);
+
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(now);
+      osc.stop(now + 0.08);
+    }
+
+    // Cyberpunk ambient bassline generator
+    startBGM() {
+      if (this.bgmTimer) return;
+      const stepInterval = (60 / 128) / 4 * 1000; // 16th notes at 128 BPM
+      this.bgmTimer = setInterval(() => {
+        if (!this.isUnlocked || this.isMuted) return;
+        this.playBgmStep();
+        this.bgmStep = (this.bgmStep + 1) % 16;
+      }, stepInterval);
+    }
+
+    playBgmStep() {
+      const now = this.ctx.currentTime;
+      const noteIdx = Math.floor(this.bgmStep / 2) % this.bassNotes.length;
+      const freq = this.bassNotes[noteIdx];
+
+      // Bass synth on 16th notes
+      if (this.bgmStep % 2 === 0 || this.bgmStep === 7 || this.bgmStep === 15) {
+        const osc = this.ctx.createOscillator();
+        const filter = this.ctx.createBiquadFilter();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq, now);
+
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(this.bgmStep % 4 === 0 ? 550 : 320, now);
+        filter.frequency.exponentialRampToValueAtTime(90, now + 0.12);
+
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.masterGain);
+
+        osc.start(now);
+        osc.stop(now + 0.14);
+      }
+
+      // Cyber hi-hat on every offbeat
+      if (this.bgmStep % 4 === 2) {
+        const bufferSize = this.ctx.sampleRate * 0.03;
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'highpass';
+        filter.frequency.setValueAtTime(7000, now);
+
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.05, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.masterGain);
+
+        noise.start(now);
+        noise.stop(now + 0.03);
+      }
+    }
+  }
+
+  // --- PARTICLE SYSTEM ---
+  class ParticleSystem {
+    constructor() {
+      this.particles = [];
+    }
+
+    emit(x, y, count, options = {}) {
+      const {
+        color = '#00f3ff',
+        speed = 120,
+        spread = Math.PI * 2,
+        angle = 0,
+        life = 0.5,
+        size = 3,
+        gravity = 0,
+        shape = 'square'
+      } = options;
+
+      for (let i = 0; i < count; i++) {
+        const a = angle + (Math.random() - 0.5) * spread;
+        const s = (Math.random() * 0.7 + 0.3) * speed;
+        this.particles.push({
+          x,
+          y,
+          vx: Math.cos(a) * s,
+          vy: Math.sin(a) * s,
+          maxLife: life * (Math.random() * 0.5 + 0.75),
+          life: life * (Math.random() * 0.5 + 0.75),
+          size: size * (Math.random() * 0.5 + 0.75),
+          color,
+          gravity,
+          shape
+        });
+      }
+    }
+
+    update(dt) {
+      for (let i = this.particles.length - 1; i >= 0; i--) {
+        const p = this.particles[i];
+        p.life -= dt;
+        if (p.life <= 0) {
+          this.particles.splice(i, 1);
+          continue;
+        }
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.vy += p.gravity * dt;
+      }
+    }
+
+    render(ctx, cameraY) {
+      ctx.save();
+      for (let i = 0; i < this.particles.length; i++) {
+        const p = this.particles[i];
+        const alpha = Math.max(0, p.life / p.maxLife);
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = p.color;
+
+        const screenY = p.y - cameraY;
+        if (p.shape === 'square') {
+          ctx.fillRect(p.x - p.size / 2, screenY - p.size / 2, p.size, p.size);
+        } else {
+          ctx.beginPath();
+          ctx.arc(p.x, screenY, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      ctx.restore();
+    }
+
+    clear() {
+      this.particles = [];
+    }
+  }
+
+  // --- PLATFORM MANAGER ---
+  // Platform States:
+  // GREEN (0): Solid Bedrock
+  // RED (1): Corrupted Lethal Data
+  // BLUE (2): Permeable / Phase-through
+  // YELLOW (3): Boost / Launch Pad
+  const STATE = {
+    GREEN: 0,
+    RED: 1,
+    BLUE: 2,
+    YELLOW: 3
+  };
+
+  const STATE_INFO = {
+    [STATE.GREEN]: { name: 'BEDROCK', color: '#00ff77', glow: 'rgba(0, 255, 119, 0.4)', icon: '■' },
+    [STATE.RED]: { name: 'LETHAL', color: '#ff0055', glow: 'rgba(255, 0, 85, 0.5)', icon: '▲' },
+    [STATE.BLUE]: { name: 'PHASE', color: '#00d4ff', glow: 'rgba(0, 212, 255, 0.4)', icon: '▼' },
+    [STATE.YELLOW]: { name: 'BOOST', color: '#ffe600', glow: 'rgba(255, 230, 0, 0.5)', icon: '⚡' }
+  };
+
+  class PlatformManager {
+    constructor(audioSynth, particleSystem) {
+      this.audio = audioSynth;
+      this.particles = particleSystem;
+
+      this.platforms = [];
+      this.highestY = 0;
+      this.mutationCycleDuration = 5.0; // 5.0s per glitch tick
+      this.mutationTimer = 5.0;
+      this.warningPhaseDuration = 1.4; // Last 1.4s countdown warning
+
+      this.towerWidth = 600;
+      this.leftWallX = 30;
+      this.rightWallX = 570;
+
+      this.lastSecondTriggered = -1;
+      this.glitchTickTriggered = false;
+
+      this.init();
+    }
+
+    init() {
+      this.platforms = [];
+      this.highestY = 100;
+      this.mutationTimer = this.mutationCycleDuration;
+      this.lastSecondTriggered = -1;
+
+      // Base landing floor
+      this.platforms.push({
+        id: 0,
+        x: this.leftWallX,
+        y: 60,
+        w: this.rightWallX - this.leftWallX,
+        h: 22,
+        state: STATE.GREEN,
+        nextState: STATE.GREEN,
+        cycle: [STATE.GREEN],
+        cycleIdx: 0,
+        jitterX: 0,
+        morphPulse: 0,
+        isBaseFloor: true
+      });
+
+      // Generate initial vertical chunks
+      this.generateUpTo(-1800);
+    }
+
+    // Procedural vertical chunk generation
+    generateUpTo(targetY) {
+      let currentY = this.highestY;
+
+      while (currentY > targetY) {
+        // Vertical step between 95px and 145px (reachable with precision jump)
+        const step = 100 + Math.random() * 40;
+        currentY -= step;
+
+        const altitudeMeters = Math.floor(-currentY / 20);
+
+        // Platform width scales down slightly as altitude increases
+        const minW = Math.max(70, 140 - altitudeMeters * 0.1);
+        const maxW = Math.max(100, 190 - altitudeMeters * 0.1);
+        const w = minW + Math.random() * (maxW - minW);
+
+        // Position across shaft
+        const padding = 15;
+        const minX = this.leftWallX + padding;
+        const maxX = this.rightWallX - padding - w;
+        const x = minX + Math.random() * (maxX - minX);
+
+        // Assign a mutation cycle pattern based on height/difficulty
+        const cycle = this.createMutationCycle(altitudeMeters);
+        const initialState = cycle[0];
+        const nextState = cycle[1 % cycle.length];
+
+        this.platforms.push({
+          id: Math.random(),
+          x,
+          y: currentY,
+          w,
+          h: 16,
+          state: initialState,
+          nextState: nextState,
+          cycle: cycle,
+          cycleIdx: 0,
+          jitterX: 0,
+          morphPulse: 0,
+          isBaseFloor: false
+        });
+
+        // Chance of secondary smaller wall ledge or stepping stone
+        if (Math.random() < 0.35 && altitudeMeters > 30) {
+          const isLeft = Math.random() < 0.5;
+          const ledgeW = 55 + Math.random() * 25;
+          const ledgeX = isLeft ? this.leftWallX : (this.rightWallX - ledgeW);
+          const ledgeY = currentY - (step * 0.5);
+
+          const lCycle = this.createMutationCycle(altitudeMeters);
+          this.platforms.push({
+            id: Math.random(),
+            x: ledgeX,
+            y: ledgeY,
+            w: ledgeW,
+            h: 16,
+            state: lCycle[0],
+            nextState: lCycle[1 % lCycle.length],
+            cycle: lCycle,
+            cycleIdx: 0,
+            jitterX: 0,
+            morphPulse: 0,
+            isBaseFloor: false
+          });
+        }
+      }
+
+      this.highestY = currentY;
+    }
+
+    createMutationCycle(altitude) {
+      // Guaranteed safe platform distribution to keep gameplay skill-based and fair
+      const patterns = [
+        [STATE.GREEN, STATE.BLUE, STATE.YELLOW, STATE.GREEN],
+        [STATE.BLUE, STATE.GREEN, STATE.BLUE, STATE.YELLOW],
+        [STATE.YELLOW, STATE.BLUE, STATE.GREEN, STATE.YELLOW]
+      ];
+
+      // Introduce lethal RED platforms once climbed past 40 meters
+      if (altitude > 40) {
+        patterns.push(
+          [STATE.GREEN, STATE.RED, STATE.BLUE, STATE.GREEN],
+          [STATE.BLUE, STATE.YELLOW, STATE.RED, STATE.BLUE],
+          [STATE.RED, STATE.GREEN, STATE.YELLOW, STATE.BLUE]
+        );
+      }
+
+      // Harder / High Altitude patterns
+      if (altitude > 150) {
+        patterns.push(
+          [STATE.RED, STATE.BLUE, STATE.RED, STATE.YELLOW],
+          [STATE.YELLOW, STATE.RED, STATE.GREEN, STATE.RED]
+        );
+      }
+
+      const selected = patterns[Math.floor(Math.random() * patterns.length)];
+      return [...selected];
+    }
+
+    update(dt, playerY) {
+      this.mutationTimer -= dt;
+
+      // Glitch warning countdown beeps
+      if (this.mutationTimer <= this.warningPhaseDuration) {
+        const sec = Math.ceil(this.mutationTimer);
+        if (sec >= 1 && sec <= 3 && sec !== this.lastSecondTriggered) {
+          this.audio.playGlitchWarning(sec);
+          this.lastSecondTriggered = sec;
+        }
+
+        // Apply visual digital jitter to platforms as warning
+        const shiverIntensity = (1.0 - (this.mutationTimer / this.warningPhaseDuration)) * 3.5;
+        for (let p of this.platforms) {
+          p.jitterX = (Math.random() - 0.5) * shiverIntensity;
+          p.morphPulse = Math.sin(this.mutationTimer * 20) * 0.5 + 0.5;
+        }
+      } else {
+        for (let p of this.platforms) {
+          p.jitterX = 0;
+          p.morphPulse = 0;
+        }
+      }
+
+      // MUTATION TICK TRIGGER!
+      if (this.mutationTimer <= 0) {
+        this.triggerGlitchTick();
+        this.mutationTimer = this.mutationCycleDuration;
+        this.lastSecondTriggered = -1;
+      }
+
+      // Generate upward dynamically ahead of player
+      if (playerY < this.highestY + 1200) {
+        this.generateUpTo(playerY - 1400);
+      }
+
+      // Cull platforms far below to maintain 60 FPS
+      const cullY = playerY + 900;
+      this.platforms = this.platforms.filter(p => p.isBaseFloor || p.y < cullY);
+    }
+
+    triggerGlitchTick() {
+      this.audio.playMorph();
+      this.glitchTickTriggered = true;
+
+      for (let p of this.platforms) {
+        if (p.isBaseFloor) continue;
+
+        // Transition to next state
+        p.state = p.nextState;
+
+        // Advance cycle to select subsequent preview state
+        p.cycleIdx = (p.cycleIdx + 1) % p.cycle.length;
+        p.nextState = p.cycle[(p.cycleIdx + 1) % p.cycle.length];
+
+        // Emit mutation sizzle particles
+        this.particles.emit(p.x + p.w / 2, p.y + p.h / 2, 8, {
+          color: STATE_INFO[p.state].color,
+          speed: 80,
+          spread: Math.PI * 2,
+          life: 0.35,
+          size: 2.5
+        });
+      }
+    }
+  }
+
+  // --- PLAYER PHYSICS ENGINE ---
+  class PlayerPhysics {
+    constructor(audioSynth, particleSystem) {
+      this.audio = audioSynth;
+      this.particles = particleSystem;
+
+      // Kinematic constants (tuned for ultra-tight precision platforming)
+      this.width = 20;
+      this.height = 28;
+
+      this.ACCEL_GROUND = 1900;
+      this.ACCEL_AIR = 1350;
+      this.FRICTION_GROUND = 1700;
+      this.MAX_RUN_SPEED = 270;
+
+      this.GRAVITY = 1100;
+      this.MAX_FALL_SPEED = 620;
+      this.WALL_SLIDE_SPEED = 110;
+
+      this.JUMP_VELOCITY = -470;
+      this.WALL_JUMP_VY = -440;
+      this.WALL_JUMP_VX = 340;
+      this.BOOST_PAD_VY = -780;
+
+      this.DASH_SPEED = 640;
+      this.DASH_TIME = 0.15;
+      this.DASH_COOLDOWN = 0.65;
+
+      this.reset(300, 20);
+    }
+
+    reset(startX, startY) {
+      this.x = startX;
+      this.y = startY;
+      this.vx = 0;
+      this.vy = 0;
+
+      this.facing = 1; // 1 = right, -1 = left
+      this.isGrounded = false;
+      this.isOnWall = false;
+      this.wallDir = 0; // -1 = left wall, 1 = right wall
+
+      // Precision platforming assists
+      this.coyoteTimer = 0; // Allows jump shortly after stepping off edge
+      this.jumpBufferTimer = 0; // Buffers jump button pressed right before landing
+      this.wallJumpLockTimer = 0; // Prevents steering into wall immediately during wall-kick
+
+      // Dash state machine
+      this.dashTimer = 0;
+      this.dashCooldownTimer = 0;
+      this.dashVx = 0;
+      this.dashVy = 0;
+      this.hasAirDash = true;
+
+      // Phase drop-through
+      this.dropThroughTimer = 0;
+
+      // Trail ghost effects for dash and speed
+      this.ghosts = [];
+      this.isDead = false;
+    }
+
+    update(dt, input, platformManager) {
+      if (this.isDead) return;
+
+      // Update timers
+      if (this.coyoteTimer > 0) this.coyoteTimer -= dt;
+      if (this.jumpBufferTimer > 0) this.jumpBufferTimer -= dt;
+      if (this.wallJumpLockTimer > 0) this.wallJumpLockTimer -= dt;
+      if (this.dashCooldownTimer > 0) this.dashCooldownTimer -= dt;
+      if (this.dropThroughTimer > 0) this.dropThroughTimer -= dt;
+
+      // Buffer jump press
+      if (input.jumpJustPressed) {
+        this.jumpBufferTimer = 0.12;
+      }
+
+      // Check drop-through command: Down + Jump
+      if (input.down && input.jumpJustPressed) {
+        this.dropThroughTimer = 0.22;
+        this.audio.playPhase();
+      }
+
+      // Handle Dash Initiation
+      if (input.dashJustPressed && this.dashTimer <= 0 && this.dashCooldownTimer <= 0 && this.hasAirDash) {
+        this.initiateDash(input);
+      }
+
+      // Active Dash Physics
+      if (this.dashTimer > 0) {
+        this.dashTimer -= dt;
+        this.vx = this.dashVx;
+        this.vy = this.dashVy;
+
+        // Spawn chromatic after-image ghost
+        if (Math.random() < 0.6) {
+          this.ghosts.push({
+            x: this.x,
+            y: this.y,
+            facing: this.facing,
+            alpha: 0.65,
+            color: '#ffe600'
+          });
+        }
+
+        // Particle spark during dash
+        this.particles.emit(this.x + this.width / 2, this.y + this.height / 2, 2, {
+          color: '#ffe600',
+          speed: 60,
+          spread: Math.PI * 2,
+          life: 0.2,
+          size: 2.5
+        });
+
+        this.applyMotionAndCollision(dt, platformManager, input);
+        return;
+      }
+
+      // Horizontal steering
+      const moveDir = (input.right ? 1 : 0) - (input.left ? 1 : 0);
+      if (moveDir !== 0) {
+        this.facing = moveDir;
+      }
+
+      if (this.wallJumpLockTimer <= 0) {
+        const accel = this.isGrounded ? this.ACCEL_GROUND : this.ACCEL_AIR;
+        if (moveDir !== 0) {
+          this.vx += moveDir * accel * dt;
+          if (Math.abs(this.vx) > this.MAX_RUN_SPEED) {
+            this.vx = Math.sign(this.vx) * this.MAX_RUN_SPEED;
+          }
+        } else {
+          // Friction deceleration
+          const friction = this.isGrounded ? this.FRICTION_GROUND : (this.ACCEL_AIR * 0.5);
+          if (this.vx > 0) {
+            this.vx = Math.max(0, this.vx - friction * dt);
+          } else if (this.vx < 0) {
+            this.vx = Math.min(0, this.vx + friction * dt);
+          }
+        }
+      }
+
+      // Gravity & Wall Slide
+      if (this.isOnWall && this.vy > 0 && ((this.wallDir < 0 && input.left) || (this.wallDir > 0 && input.right))) {
+        // Wall slide friction
+        this.vy = Math.min(this.vy + this.GRAVITY * 0.4 * dt, this.WALL_SLIDE_SPEED);
+
+        // Wall sparks
+        if (Math.random() < 0.3) {
+          const sparkX = this.wallDir < 0 ? this.x : this.x + this.width;
+          this.particles.emit(sparkX, this.y + this.height * 0.6, 1, {
+            color: '#00f3ff',
+            speed: 50,
+            spread: 0.8,
+            angle: this.wallDir < 0 ? 0.3 : Math.PI - 0.3,
+            life: 0.2,
+            size: 2
+          });
+        }
+      } else {
+        this.vy += this.GRAVITY * dt;
+        if (this.vy > this.MAX_FALL_SPEED) {
+          this.vy = this.MAX_FALL_SPEED;
+        }
+      }
+
+      // Variable Jump Height (cutting jump early if button released)
+      if (input.jumpReleased && this.vy < -150) {
+        this.vy = -150;
+      }
+
+      // Jump Execution
+      if (this.jumpBufferTimer > 0) {
+        // Normal ground jump / coyote jump
+        if (this.isGrounded || this.coyoteTimer > 0) {
+          this.vy = this.JUMP_VELOCITY;
+          this.jumpBufferTimer = 0;
+          this.coyoteTimer = 0;
+          this.isGrounded = false;
+          this.audio.playJump();
+
+          this.particles.emit(this.x + this.width / 2, this.y + this.height, 6, {
+            color: '#00f3ff',
+            speed: 90,
+            spread: Math.PI * 0.7,
+            angle: -Math.PI / 2,
+            life: 0.25,
+            size: 2
+          });
+        }
+        // Wall Jump
+        else if (this.isOnWall) {
+          this.vy = this.WALL_JUMP_VY;
+          this.vx = -this.wallDir * this.WALL_JUMP_VX;
+          this.facing = -this.wallDir;
+          this.wallJumpLockTimer = 0.13;
+          this.jumpBufferTimer = 0;
+          this.hasAirDash = true; // Refresh dash on wall kick
+          this.audio.playWallJump();
+
+          const kickX = this.wallDir < 0 ? this.x : this.x + this.width;
+          this.particles.emit(kickX, this.y + this.height / 2, 8, {
+            color: '#00f3ff',
+            speed: 120,
+            spread: Math.PI * 0.6,
+            angle: this.wallDir < 0 ? 0 : Math.PI,
+            life: 0.3,
+            size: 2.5
+          });
+        }
+      }
+
+      // Integrate motion and resolve AABB collisions
+      this.applyMotionAndCollision(dt, platformManager, input);
+
+      // Update ghost trails
+      for (let i = this.ghosts.length - 1; i >= 0; i--) {
+        this.ghosts[i].alpha -= dt * 3.5;
+        if (this.ghosts[i].alpha <= 0) {
+          this.ghosts.splice(i, 1);
+        }
+      }
+    }
+
+    initiateDash(input) {
+      let dx = (input.right ? 1 : 0) - (input.left ? 1 : 0);
+      let dy = (input.down ? 1 : 0) - (input.up ? 1 : 0);
+
+      if (dx === 0 && dy === 0) {
+        dx = this.facing;
+      }
+
+      // Normalize 8-way dash vector
+      const mag = Math.hypot(dx, dy);
+      this.dashVx = (dx / mag) * this.DASH_SPEED;
+      this.dashVy = (dy / mag) * this.DASH_SPEED;
+
+      this.dashTimer = this.DASH_TIME;
+      this.dashCooldownTimer = this.DASH_COOLDOWN;
+      this.hasAirDash = false;
+      this.wallJumpLockTimer = 0;
+      this.audio.playDash();
+
+      this.particles.emit(this.x + this.width / 2, this.y + this.height / 2, 10, {
+        color: '#ffe600',
+        speed: 140,
+        spread: Math.PI * 2,
+        life: 0.3,
+        size: 3
+      });
+    }
+
+    applyMotionAndCollision(dt, platformManager, input) {
+      // 1. Move Horizontally
+      this.x += this.vx * dt;
+
+      // Shaft boundary wall collisions
+      const leftWallLimit = platformManager.leftWallX;
+      const rightWallLimit = platformManager.rightWallX;
+
+      this.isOnWall = false;
+      this.wallDir = 0;
+
+      if (this.x <= leftWallLimit) {
+        this.x = leftWallLimit;
+        this.vx = 0;
+        this.isOnWall = true;
+        this.wallDir = -1;
+        this.hasAirDash = true; // Wall touch refreshes dash
+      } else if (this.x + this.width >= rightWallLimit) {
+        this.x = rightWallLimit - this.width;
+        this.vx = 0;
+        this.isOnWall = true;
+        this.wallDir = 1;
+        this.hasAirDash = true;
+      }
+
+      // 2. Move Vertically
+      const prevY = this.y;
+      this.y += this.vy * dt;
+
+      const wasGrounded = this.isGrounded;
+      this.isGrounded = false;
+
+      // Platform Collisions
+      const playerBox = {
+        left: this.x,
+        right: this.x + this.width,
+        top: this.y,
+        bottom: this.y + this.height
+      };
+
+      for (let p of platformManager.platforms) {
+        // Broad phase bounding box check
+        if (playerBox.right <= p.x || playerBox.left >= p.x + p.w) continue;
+        if (playerBox.bottom < p.y || playerBox.top > p.y + p.h + 20) continue;
+
+        // Collision logic by state:
+        // RED: Corrupted Lethal Data
+        if (p.state === STATE.RED) {
+          // If dashing, pass through safely (high-skill dodge mechanic); otherwise, lethal!
+          if (this.dashTimer <= 0) {
+            if (playerBox.bottom >= p.y + 4 && playerBox.top <= p.y + p.h - 4) {
+              this.kill();
+              return;
+            }
+          }
+        }
+
+        // BLUE: Permeable / Phase-through
+        if (p.state === STATE.BLUE) {
+          if (this.dropThroughTimer > 0) continue; // Phasing through down
+        }
+
+        // GREEN (Bedrock), BLUE (Phase when not dropping), and YELLOW (Boost)
+        // One-way landing from above
+        const prevBottom = prevY + this.height;
+        if (this.vy >= 0 && prevBottom <= p.y + 10 && playerBox.bottom >= p.y) {
+          // Landed on top of platform
+          this.y = p.y - this.height;
+          this.vy = 0;
+          this.isGrounded = true;
+          this.hasAirDash = true; // Restore dash charge
+
+          // Yellow Boost Pad Action
+          if (p.state === STATE.YELLOW) {
+            this.vy = this.BOOST_PAD_VY;
+            this.isGrounded = false;
+            this.audio.playBoost();
+
+            // Geyser particle burst
+            this.particles.emit(this.x + this.width / 2, p.y, 16, {
+              color: '#ffe600',
+              speed: 220,
+              spread: Math.PI * 0.45,
+              angle: -Math.PI / 2,
+              life: 0.45,
+              size: 3.5
+            });
+          }
+
+          if (!wasGrounded && p.state !== STATE.YELLOW) {
+            // Landing dust
+            this.particles.emit(this.x + this.width / 2, this.y + this.height, 4, {
+              color: STATE_INFO[p.state].color,
+              speed: 50,
+              spread: Math.PI * 0.8,
+              angle: -Math.PI / 2,
+              life: 0.2,
+              size: 2
+            });
+          }
+          break;
+        }
+      }
+
+      // Update coyote timer
+      if (this.isGrounded) {
+        this.coyoteTimer = 0.1;
+      }
+    }
+
+    kill() {
+      if (this.isDead) return;
+      this.isDead = true;
+      this.audio.playDeath();
+
+      // Cyber voxel disintegration
+      this.particles.emit(this.x + this.width / 2, this.y + this.height / 2, 35, {
+        color: '#ff0055',
+        speed: 180,
+        spread: Math.PI * 2,
+        life: 0.75,
+        size: 3.5
+      });
+      this.particles.emit(this.x + this.width / 2, this.y + this.height / 2, 25, {
+        color: '#00f3ff',
+        speed: 150,
+        spread: Math.PI * 2,
+        life: 0.6,
+        size: 2.5
+      });
+    }
+  }
+
+  // --- GLITCH & CRT RENDERER ---
+  class GlitchRenderer {
+    constructor(canvas) {
+      this.canvas = canvas;
+      this.ctx = canvas.getContext('2d');
+      this.width = canvas.width;
+      this.height = canvas.height;
+
+      this.cameraY = 0;
+      this.cameraTargetY = 0;
+      this.glitchSliceTimer = 0;
+      this.chromaticOffset = 0;
+
+      // Parallax cyber background stars/nodes
+      this.bgNodes = [];
+      for (let i = 0; i < 45; i++) {
+        this.bgNodes.push({
+          x: Math.random() * this.width,
+          y: Math.random() * this.height * 2,
+          speed: 0.2 + Math.random() * 0.5,
+          size: 1 + Math.random() * 2,
+          alpha: 0.15 + Math.random() * 0.35
+        });
+      }
+    }
+
+    updateCamera(playerY, dt) {
+      // Smooth vertical camera tracking (keeping player centered vertically)
+      this.cameraTargetY = playerY - this.height * 0.6;
+      this.cameraY += (this.cameraTargetY - this.cameraY) * Math.min(1.0, dt * 8);
+
+      if (this.glitchSliceTimer > 0) {
+        this.glitchSliceTimer -= dt;
+      }
+    }
+
+    triggerGlitchArtifact(duration = 0.2, intensity = 6) {
+      this.glitchSliceTimer = duration;
+      this.chromaticOffset = intensity;
+    }
+
+    render(engine) {
+      const ctx = this.ctx;
+      const { player, platformManager, particles, altitude, highScore, gameState } = engine;
+      const camY = this.cameraY;
+
+      ctx.clearRect(0, 0, this.width, this.height);
+
+      // 1. Cyber Grid & Parallax Background
+      this.renderBackground(ctx, camY);
+
+      // 2. Tower Shaft Enclosure Walls
+      this.renderTowerWalls(ctx, camY, platformManager);
+
+      // 3. Rising Corruption / Glitch Void
+      this.renderGlitchVoid(ctx, camY, engine.voidY);
+
+      // 4. Platforms with Mutation Indicators
+      this.renderPlatforms(ctx, camY, platformManager);
+
+      // 5. Particles
+      particles.render(ctx, camY);
+
+      // 6. Player & Ghost Trails
+      if (!player.isDead) {
+        this.renderPlayer(ctx, camY, player);
+      }
+
+      // 7. Full HUD Interface
+      this.renderHUD(ctx, engine);
+
+      // 8. Chromatic Aberration & Horizontal Glitch Slices Post-FX
+      if (this.glitchSliceTimer > 0 || platformManager.mutationTimer <= 0.6) {
+        this.renderGlitchPostFX(ctx);
+      }
+    }
+
+    renderBackground(ctx, camY) {
+      // Deep gradient
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, this.height);
+      bgGrad.addColorStop(0, '#04050a');
+      bgGrad.addColorStop(1, '#090d18');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, this.width, this.height);
+
+      // Parallax Grid
+      ctx.strokeStyle = 'rgba(0, 243, 255, 0.05)';
+      ctx.lineWidth = 1;
+      const gridSize = 40;
+      const offsetY = -camY * 0.3 % gridSize;
+
+      ctx.beginPath();
+      for (let y = offsetY; y < this.height; y += gridSize) {
+        ctx.moveTo(0, y);
+        ctx.lineTo(this.width, y);
+      }
+      for (let x = 0; x < this.width; x += gridSize) {
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, this.height);
+      }
+      ctx.stroke();
+
+      // Floating data nodes
+      ctx.fillStyle = '#00f3ff';
+      for (let node of this.bgNodes) {
+        const screenY = (node.y - camY * node.speed) % (this.height + 40);
+        ctx.globalAlpha = node.alpha;
+        ctx.fillRect(node.x, screenY, node.size, node.size);
+      }
+      ctx.globalAlpha = 1.0;
+    }
+
+    renderTowerWalls(ctx, camY, pm) {
+      // Left Wall
+      ctx.fillStyle = '#0b101d';
+      ctx.fillRect(0, 0, pm.leftWallX, this.height);
+      // Right Wall
+      ctx.fillRect(pm.rightWallX, 0, this.width - pm.rightWallX, this.height);
+
+      // Glowing Wall Rails
+      ctx.strokeStyle = '#00f3ff';
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = '#00f3ff';
+      ctx.shadowBlur = 12;
+
+      ctx.beginPath();
+      ctx.moveTo(pm.leftWallX, 0);
+      ctx.lineTo(pm.leftWallX, this.height);
+      ctx.moveTo(pm.rightWallX, 0);
+      ctx.lineTo(pm.rightWallX, this.height);
+      ctx.stroke();
+
+      ctx.shadowBlur = 0; // reset glow
+
+      // Wall circuit notches
+      ctx.strokeStyle = 'rgba(0, 243, 255, 0.25)';
+      ctx.lineWidth = 1;
+      const notchGap = 60;
+      const notchOffset = -camY % notchGap;
+
+      ctx.beginPath();
+      for (let y = notchOffset; y < this.height; y += notchGap) {
+        ctx.moveTo(0, y);
+        ctx.lineTo(pm.leftWallX - 6, y);
+        ctx.moveTo(pm.rightWallX + 6, y);
+        ctx.lineTo(this.width, y);
+      }
+      ctx.stroke();
+    }
+
+    renderGlitchVoid(ctx, camY, voidY) {
+      const screenVoidY = voidY - camY;
+      if (screenVoidY < this.height) {
+        ctx.save();
+
+        // Boiling plasma gradient
+        const vGrad = ctx.createLinearGradient(0, screenVoidY, 0, this.height);
+        vGrad.addColorStop(0, 'rgba(255, 0, 85, 0.85)');
+        vGrad.addColorStop(0.3, 'rgba(150, 0, 60, 0.95)');
+        vGrad.addColorStop(1, '#050106');
+
+        ctx.fillStyle = vGrad;
+        ctx.fillRect(0, screenVoidY, this.width, this.height - screenVoidY);
+
+        // Void jagged electric surface
+        ctx.strokeStyle = '#ff0055';
+        ctx.lineWidth = 3;
+        ctx.shadowColor = '#ff0055';
+        ctx.shadowBlur = 18;
+
+        ctx.beginPath();
+        ctx.moveTo(0, screenVoidY);
+        for (let x = 0; x <= this.width; x += 15) {
+          const jitter = (Math.random() - 0.5) * 12;
+          ctx.lineTo(x, screenVoidY + jitter);
+        }
+        ctx.stroke();
+
+        ctx.restore();
+      }
+    }
+
+    renderPlatforms(ctx, camY, pm) {
+      const isWarning = pm.mutationTimer <= pm.warningPhaseDuration;
+
+      for (let p of pm.platforms) {
+        const screenY = p.y - camY;
+        if (screenY + p.h < -50 || screenY > this.height + 50) continue;
+
+        const info = STATE_INFO[p.state];
+        const nextInfo = STATE_INFO[p.nextState];
+        const drawX = p.x + p.jitterX;
+
+        ctx.save();
+
+        // Platform base glow
+        ctx.shadowColor = info.color;
+        ctx.shadowBlur = isWarning ? 16 + p.morphPulse * 10 : 8;
+
+        // Platform Body fill & stroke
+        if (p.state === STATE.BLUE) {
+          // Permeable dashed / holographic style
+          ctx.fillStyle = 'rgba(0, 212, 255, 0.22)';
+          ctx.strokeStyle = info.color;
+          ctx.lineWidth = 2;
+          ctx.setLineDash([6, 4]);
+        } else if (p.state === STATE.RED) {
+          // Corrupted hazard
+          ctx.fillStyle = 'rgba(255, 0, 85, 0.35)';
+          ctx.strokeStyle = info.color;
+          ctx.lineWidth = 2;
+          ctx.setLineDash([]);
+        } else if (p.state === STATE.YELLOW) {
+          // Boost pad
+          ctx.fillStyle = 'rgba(255, 230, 0, 0.3)';
+          ctx.strokeStyle = info.color;
+          ctx.lineWidth = 2.5;
+          ctx.setLineDash([]);
+        } else {
+          // Green solid bedrock
+          ctx.fillStyle = 'rgba(0, 255, 119, 0.25)';
+          ctx.strokeStyle = info.color;
+          ctx.lineWidth = 2;
+          ctx.setLineDash([]);
+        }
+
+        ctx.fillRect(drawX, screenY, p.w, p.h);
+        ctx.strokeRect(drawX, screenY, p.w, p.h);
+        ctx.setLineDash([]);
+
+        // Hazard Spikes for RED platforms
+        if (p.state === STATE.RED) {
+          ctx.fillStyle = '#ff0055';
+          const spikeCount = Math.floor(p.w / 12);
+          const spikeW = p.w / spikeCount;
+          ctx.beginPath();
+          for (let i = 0; i < spikeCount; i++) {
+            const sx = drawX + i * spikeW;
+            ctx.moveTo(sx, screenY);
+            ctx.lineTo(sx + spikeW / 2, screenY - 6);
+            ctx.lineTo(sx + spikeW, screenY);
+          }
+          ctx.fill();
+        }
+
+        // Boost Chevrons for YELLOW platforms
+        if (p.state === STATE.YELLOW) {
+          ctx.fillStyle = '#ffe600';
+          const chevCount = Math.max(1, Math.floor(p.w / 28));
+          for (let i = 0; i < chevCount; i++) {
+            const cx = drawX + (p.w / (chevCount + 1)) * (i + 1);
+            ctx.font = 'bold 11px Consolas, monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('▲', cx, screenY + p.h - 4);
+          }
+        }
+
+        // Phase down arrows for BLUE platforms
+        if (p.state === STATE.BLUE) {
+          ctx.fillStyle = '#00d4ff';
+          const arrCount = Math.max(1, Math.floor(p.w / 28));
+          for (let i = 0; i < arrCount; i++) {
+            const cx = drawX + (p.w / (arrCount + 1)) * (i + 1);
+            ctx.font = 'bold 11px Consolas, monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('▼', cx, screenY + p.h - 4);
+          }
+        }
+
+        // NEXT STATE HOLO-PREVIEW during Warning Countdown
+        if (isWarning && !p.isBaseFloor) {
+          ctx.fillStyle = nextInfo.color;
+          ctx.font = 'bold 10px Consolas, monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(`> ${nextInfo.name} <`, drawX + p.w / 2, screenY - 8);
+
+          // Pulsing warning outline in next state color
+          ctx.strokeStyle = nextInfo.color;
+          ctx.lineWidth = 1.5;
+          ctx.globalAlpha = p.morphPulse;
+          ctx.strokeRect(drawX - 2, screenY - 2, p.w + 4, p.h + 4);
+        }
+
+        ctx.restore();
+      }
+    }
+
+    renderPlayer(ctx, camY, player) {
+      const screenY = player.y - camY;
+
+      // Draw Ghost Trails (Dash and High Velocity)
+      for (let g of player.ghosts) {
+        ctx.save();
+        ctx.globalAlpha = g.alpha;
+        ctx.fillStyle = g.color;
+        ctx.fillRect(g.x, g.y - camY, player.width, player.height);
+        ctx.restore();
+      }
+
+      ctx.save();
+
+      // Cyber Climber Sprite Body
+      const px = player.x;
+      const py = screenY;
+      const pw = player.width;
+      const ph = player.height;
+
+      // Body Armor
+      ctx.fillStyle = '#0f172a';
+      ctx.strokeStyle = player.dashTimer > 0 ? '#ffe600' : '#00f3ff';
+      ctx.lineWidth = 2;
+      ctx.shadowColor = ctx.strokeStyle;
+      ctx.shadowBlur = 10;
+
+      ctx.fillRect(px, py, pw, ph);
+      ctx.strokeRect(px, py, pw, ph);
+
+      // Glowing Neon Visor
+      ctx.fillStyle = player.dashCooldownTimer <= 0 ? '#ffe600' : '#00f3ff';
+      const visorW = 10;
+      const visorH = 4;
+      const visorX = player.facing > 0 ? px + pw - visorW - 1 : px + 1;
+      const visorY = py + 5;
+      ctx.fillRect(visorX, visorY, visorW, visorH);
+
+      // Cyber Chest Core Reactor
+      ctx.fillStyle = player.hasAirDash ? '#00ff77' : '#ff0055';
+      ctx.beginPath();
+      ctx.arc(px + pw / 2, py + ph / 2 + 1, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Wall-slide grip aura or jump thrust
+      if (player.isOnWall) {
+        ctx.strokeStyle = '#00f3ff';
+        ctx.lineWidth = 2;
+        const gripX = player.wallDir < 0 ? px - 3 : px + pw + 3;
+        ctx.beginPath();
+        ctx.moveTo(gripX, py + 4);
+        ctx.lineTo(gripX, py + ph - 4);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    renderHUD(ctx, engine) {
+      const { altitude, highScore, platformManager, player, gameState } = engine;
+
+      ctx.save();
+      ctx.font = '13px Consolas, monospace';
+
+      // 1. Altitude Counter (Top Left)
+      ctx.fillStyle = '#00f3ff';
+      ctx.shadowColor = '#00f3ff';
+      ctx.shadowBlur = 8;
+      ctx.fillText(`ALTITUDE: ${altitude}m`, 24, 34);
+
+      ctx.fillStyle = 'rgba(0, 243, 255, 0.6)';
+      ctx.shadowBlur = 0;
+      ctx.fillText(`BEST: ${highScore}m`, 24, 52);
+
+      // 2. Dash Status Indicator
+      const dashReady = player.dashCooldownTimer <= 0 && player.hasAirDash;
+      ctx.fillStyle = dashReady ? '#ffe600' : 'rgba(255, 230, 0, 0.3)';
+      ctx.fillText(`DASH: ${dashReady ? 'READY [SHIFT/X]' : 'CHARGING'}`, 24, 70);
+
+      // 3. Glitch Mutation Timer Gauge (Top Right)
+      const timeLeft = Math.max(0, platformManager.mutationTimer);
+      const isWarning = timeLeft <= platformManager.warningPhaseDuration;
+
+      const timerBoxW = 170;
+      const timerBoxH = 44;
+      const timerX = this.width - timerBoxW - 24;
+      const timerY = 20;
+
+      // Timer background
+      ctx.fillStyle = 'rgba(10, 16, 28, 0.85)';
+      ctx.strokeStyle = isWarning ? '#ff0055' : 'rgba(0, 243, 255, 0.4)';
+      ctx.lineWidth = 1.5;
+      ctx.fillRect(timerX, timerY, timerBoxW, timerBoxH);
+      ctx.strokeRect(timerX, timerY, timerBoxW, timerBoxH);
+
+      // Progress bar fill
+      const progress = timeLeft / platformManager.mutationCycleDuration;
+      const barW = (timerBoxW - 12) * progress;
+      ctx.fillStyle = isWarning ? '#ff0055' : '#00f3ff';
+      ctx.fillRect(timerX + 6, timerY + 24, barW, 12);
+
+      // Timer Text
+      ctx.fillStyle = isWarning ? '#ff0055' : '#e0f8ff';
+      ctx.font = 'bold 12px Consolas, monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText(isWarning ? '⚠ GLITCH MUTATING' : 'NEXT MUTATION', timerX + 8, timerY + 16);
+
+      ctx.textAlign = 'right';
+      ctx.fillText(`${timeLeft.toFixed(1)}s`, timerX + timerBoxW - 8, timerY + 16);
+
+      // 4. Platform Legend Bar (Bottom HUD)
+      const legY = this.height - 18;
+      ctx.font = '11px Consolas, monospace';
+      ctx.textAlign = 'center';
+
+      const legendItems = [
+        { label: 'GRN: SOLID', color: '#00ff77', x: 80 },
+        { label: 'RED: HAZARD', color: '#ff0055', x: 220 },
+        { label: 'BLU: PHASE', color: '#00d4ff', x: 370 },
+        { label: 'YEL: BOOST', color: '#ffe600', x: 510 }
+      ];
+
+      for (let item of legendItems) {
+        ctx.fillStyle = item.color;
+        ctx.shadowColor = item.color;
+        ctx.shadowBlur = 6;
+        ctx.fillText(item.label, item.x, legY);
+      }
+
+      ctx.restore();
+
+      // Screen Overlays: TITLE, GAMEOVER, PAUSED
+      if (gameState === 'TITLE') {
+        this.renderTitleScreen(ctx);
+      } else if (gameState === 'GAMEOVER') {
+        this.renderGameOverScreen(ctx, engine);
+      } else if (gameState === 'PAUSED') {
+        this.renderPauseScreen(ctx);
+      }
+    }
+
+    renderTitleScreen(ctx) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(5, 7, 14, 0.88)';
+      ctx.fillRect(0, 0, this.width, this.height);
+
+      ctx.textAlign = 'center';
+
+      // Title
+      ctx.font = '900 38px Consolas, monospace';
+      ctx.fillStyle = '#00f3ff';
+      ctx.shadowColor = '#00f3ff';
+      ctx.shadowBlur = 24;
+      ctx.fillText('GLITCH CLIMBER', this.width / 2, this.height * 0.28);
+
+      ctx.font = 'bold 14px Consolas, monospace';
+      ctx.fillStyle = '#ff0055';
+      ctx.shadowColor = '#ff0055';
+      ctx.shadowBlur = 12;
+      ctx.fillText('CYBER-TOWER MUTATION PLATFORMER', this.width / 2, this.height * 0.33);
+
+      // Instructions Box
+      const boxW = 460;
+      const boxH = 240;
+      const bx = (this.width - boxW) / 2;
+      const by = this.height * 0.40;
+
+      ctx.fillStyle = 'rgba(10, 18, 32, 0.9)';
+      ctx.strokeStyle = 'rgba(0, 243, 255, 0.4)';
+      ctx.lineWidth = 1.5;
+      ctx.fillRect(bx, by, boxW, boxH);
+      ctx.strokeRect(bx, by, boxW, boxH);
+
+      ctx.shadowBlur = 0;
+      ctx.font = '13px Consolas, monospace';
+      ctx.fillStyle = '#e0f8ff';
+      ctx.textAlign = 'left';
+
+      const lines = [
+        'MISSION: Ascend the disintegrating cyber tower.',
+        'MUTATION TICK: Terrain mutates state every 5 SECONDS!',
+        '',
+        '■ GREEN  : Solid Bedrock (Safe footing)',
+        '▲ RED    : Corrupted Data (Lethal on touch)',
+        '▼ BLUE   : Permeable Data (Press DOWN+JUMP to drop)',
+        '⚡ YELLOW : Kinetic Boost Pad (High launch)',
+        '',
+        'CONTROLS:',
+        '• ARROWS / WASD : Move & Aim',
+        '• SPACE / W / Z : Precision Jump (Hold for height)',
+        '• WALL-SLIDE    : Hug walls to slide & Wall-Jump',
+        '• SHIFT / X / J : Directional Air Dash'
+      ];
+
+      lines.forEach((l, idx) => {
+        ctx.fillText(l, bx + 20, by + 26 + idx * 17);
+      });
+
+      // Start Prompt
+      const pulse = Math.sin(Date.now() * 0.006) * 0.5 + 0.5;
+      ctx.textAlign = 'center';
+      ctx.font = 'bold 18px Consolas, monospace';
+      ctx.fillStyle = `rgba(0, 255, 119, ${0.4 + pulse * 0.6})`;
+      ctx.shadowColor = '#00ff77';
+      ctx.shadowBlur = 14;
+      ctx.fillText('PRESS SPACE OR CLICK TO CLIMB', this.width / 2, this.height * 0.78);
+
+      ctx.font = '12px Consolas, monospace';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.shadowBlur = 0;
+      ctx.fillText('AUDIO CONTEXT UNLOCKS ON START', this.width / 2, this.height * 0.83);
+
+      ctx.restore();
+    }
+
+    renderGameOverScreen(ctx, engine) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(12, 4, 10, 0.88)';
+      ctx.fillRect(0, 0, this.width, this.height);
+
+      ctx.textAlign = 'center';
+
+      ctx.font = '900 38px Consolas, monospace';
+      ctx.fillStyle = '#ff0055';
+      ctx.shadowColor = '#ff0055';
+      ctx.shadowBlur = 25;
+      ctx.fillText('DISINTEGRATED', this.width / 2, this.height * 0.35);
+
+      ctx.font = '15px Consolas, monospace';
+      ctx.fillStyle = '#e0f8ff';
+      ctx.shadowBlur = 0;
+      ctx.fillText(`ALTITUDE REACHED: ${engine.altitude}m`, this.width / 2, this.height * 0.44);
+
+      if (engine.isNewRecord) {
+        ctx.font = 'bold 16px Consolas, monospace';
+        ctx.fillStyle = '#ffe600';
+        ctx.shadowColor = '#ffe600';
+        ctx.shadowBlur = 14;
+        ctx.fillText('★ NEW TOWER RECORD! ★', this.width / 2, this.height * 0.49);
+      } else {
+        ctx.font = '14px Consolas, monospace';
+        ctx.fillStyle = 'rgba(0, 243, 255, 0.7)';
+        ctx.fillText(`PERSONAL BEST: ${engine.highScore}m`, this.width / 2, this.height * 0.49);
+      }
+
+      const pulse = Math.sin(Date.now() * 0.007) * 0.5 + 0.5;
+      ctx.font = 'bold 17px Consolas, monospace';
+      ctx.fillStyle = `rgba(0, 243, 255, ${0.4 + pulse * 0.6})`;
+      ctx.shadowColor = '#00f3ff';
+      ctx.shadowBlur = 14;
+      ctx.fillText('PRESS R / SPACE TO RETRY', this.width / 2, this.height * 0.62);
+
+      ctx.restore();
+    }
+
+    renderPauseScreen(ctx) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(5, 7, 14, 0.75)';
+      ctx.fillRect(0, 0, this.width, this.height);
+
+      ctx.textAlign = 'center';
+      ctx.font = '900 32px Consolas, monospace';
+      ctx.fillStyle = '#00f3ff';
+      ctx.shadowColor = '#00f3ff';
+      ctx.shadowBlur = 20;
+      ctx.fillText('SYSTEM PAUSED', this.width / 2, this.height * 0.45);
+
+      ctx.font = '14px Consolas, monospace';
+      ctx.fillStyle = '#e0f8ff';
+      ctx.shadowBlur = 0;
+      ctx.fillText('PRESS P OR ESC TO RESUME', this.width / 2, this.height * 0.52);
+
+      ctx.restore();
+    }
+
+    renderGlitchPostFX(ctx) {
+      // Horizontal digital slice displacement
+      const sliceCount = 4 + Math.floor(Math.random() * 5);
+      for (let i = 0; i < sliceCount; i++) {
+        const sliceY = Math.random() * this.height;
+        const sliceH = 4 + Math.random() * 22;
+        const sliceShift = (Math.random() - 0.5) * 16;
+
+        ctx.drawImage(
+          this.canvas,
+          0, sliceY, this.width, sliceH,
+          sliceShift, sliceY, this.width, sliceH
+        );
+      }
+
+      // Chromatic split tint
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+      ctx.fillStyle = 'rgba(255, 0, 85, 0.08)';
+      ctx.fillRect(3, 0, this.width, this.height);
+      ctx.fillStyle = 'rgba(0, 243, 255, 0.08)';
+      ctx.fillRect(-3, 0, this.width, this.height);
+      ctx.restore();
+    }
+  }
+
+  // --- CORE GAME ENGINE ---
+  class GameEngine {
+    constructor() {
+      this.canvas = document.getElementById('gameCanvas');
+      this.audio = new AudioSynth();
+      this.particles = new ParticleSystem();
+      this.platformManager = new PlatformManager(this.audio, this.particles);
+      this.player = new PlayerPhysics(this.audio, this.particles);
+      this.renderer = new GlitchRenderer(this.canvas);
+
+      this.gameState = 'TITLE'; // 'TITLE', 'PLAYING', 'PAUSED', 'GAMEOVER'
+      this.altitude = 0;
+      this.highScore = parseInt(localStorage.getItem('glitch_climber_best') || '0', 10);
+      this.isNewRecord = false;
+
+      // Rising Void Death Zone
+      this.voidY = 500;
+      this.voidBaseSpeed = 30; // pixels per second
+
+      // Input tracking state
+      this.input = {
+        left: false,
+        right: false,
+        up: false,
+        down: false,
+        jump: false,
+        jumpJustPressed: false,
+        jumpReleased: false,
+        dash: false,
+        dashJustPressed: false
+      };
+
+      this.lastTime = performance.now();
+
+      this.bindEvents();
+      this.bindTouchControls();
+
+      // Start RAF loop
+      requestAnimationFrame(this.loop.bind(this));
+    }
+
+    start() {
+      this.audio.unlock();
+      this.player.reset(300, 20);
+      this.platformManager.init();
+      this.particles.clear();
+      this.voidY = 500;
+      this.altitude = 0;
+      this.isNewRecord = false;
+      this.gameState = 'PLAYING';
+    }
+
+    restart() {
+      this.start();
+    }
+
+    bindEvents() {
+      window.addEventListener('keydown', (e) => {
+        // Unlock Web Audio on first keypress
+        this.audio.unlock();
+
+        if (e.code === 'KeyP' || e.code === 'Escape') {
+          if (this.gameState === 'PLAYING') this.gameState = 'PAUSED';
+          else if (this.gameState === 'PAUSED') this.gameState = 'PLAYING';
+          return;
+        }
+
+        if (e.code === 'KeyR' && (this.gameState === 'GAMEOVER' || this.gameState === 'PLAYING')) {
+          this.restart();
+          return;
+        }
+
+        if (e.code === 'KeyM') {
+          this.audio.toggleMute();
+          return;
+        }
+
+        if (this.gameState === 'TITLE' || this.gameState === 'GAMEOVER') {
+          if (e.code === 'Space' || e.code === 'Enter') {
+            this.start();
+            return;
+          }
+        }
+
+        // Active control keys
+        if (e.code === 'ArrowLeft' || e.code === 'KeyA') this.input.left = true;
+        if (e.code === 'ArrowRight' || e.code === 'KeyD') this.input.right = true;
+        if (e.code === 'ArrowUp' || e.code === 'KeyW') this.input.up = true;
+        if (e.code === 'ArrowDown' || e.code === 'KeyS') this.input.down = true;
+
+        if (e.code === 'Space' || e.code === 'KeyW' || e.code === 'ArrowUp' || e.code === 'KeyZ') {
+          if (!this.input.jump) {
+            this.input.jumpJustPressed = true;
+          }
+          this.input.jump = true;
+        }
+
+        if (e.code === 'ShiftLeft' || e.code === 'ShiftRight' || e.code === 'KeyX' || e.code === 'KeyJ' || e.code === 'KeyK') {
+          if (!this.input.dash) {
+            this.input.dashJustPressed = true;
+          }
+          this.input.dash = true;
+        }
+      });
+
+      window.addEventListener('keyup', (e) => {
+        if (e.code === 'ArrowLeft' || e.code === 'KeyA') this.input.left = false;
+        if (e.code === 'ArrowRight' || e.code === 'KeyD') this.input.right = false;
+        if (e.code === 'ArrowUp' || e.code === 'KeyW') this.input.up = false;
+        if (e.code === 'ArrowDown' || e.code === 'KeyS') this.input.down = false;
+
+        if (e.code === 'Space' || e.code === 'KeyW' || e.code === 'ArrowUp' || e.code === 'KeyZ') {
+          this.input.jump = false;
+          this.input.jumpReleased = true;
+        }
+
+        if (e.code === 'ShiftLeft' || e.code === 'ShiftRight' || e.code === 'KeyX' || e.code === 'KeyJ' || e.code === 'KeyK') {
+          this.input.dash = false;
+        }
+      });
+
+      this.canvas.addEventListener('pointerdown', () => {
+        this.audio.unlock();
+        if (this.gameState === 'TITLE' || this.gameState === 'GAMEOVER') {
+          this.start();
+        }
+      });
+    }
+
+    bindTouchControls() {
+      const setTouch = (btnId, keyName, isJustPressed = false) => {
+        const btn = document.getElementById(btnId);
+        if (!btn) return;
+
+        const start = (e) => {
+          e.preventDefault();
+          this.audio.unlock();
+          if (this.gameState === 'TITLE' || this.gameState === 'GAMEOVER') {
+            this.start();
+            return;
+          }
+          this.input[keyName] = true;
+          if (isJustPressed) {
+            this.input[keyName + 'JustPressed'] = true;
+          }
+        };
+
+        const end = (e) => {
+          e.preventDefault();
+          this.input[keyName] = false;
+          if (keyName === 'jump') {
+            this.input.jumpReleased = true;
+          }
+        };
+
+        btn.addEventListener('touchstart', start, { passive: false });
+        btn.addEventListener('touchend', end, { passive: false });
+        btn.addEventListener('mousedown', start);
+        btn.addEventListener('mouseup', end);
+      };
+
+      setTouch('btn-left', 'left');
+      setTouch('btn-right', 'right');
+      setTouch('btn-down', 'down');
+      setTouch('btn-jump', 'jump', true);
+      setTouch('btn-dash', 'dash', true);
+    }
+
+    loop(currentTime) {
+      const dt = Math.min(0.05, (currentTime - this.lastTime) / 1000);
+      this.lastTime = currentTime;
+
+      this.update(dt);
+      this.renderer.render(this);
+
+      // Reset single-frame justPressed triggers
+      this.input.jumpJustPressed = false;
+      this.input.jumpReleased = false;
+      this.input.dashJustPressed = false;
+
+      requestAnimationFrame(this.loop.bind(this));
+    }
+
+    update(dt) {
+      if (this.gameState !== 'PLAYING') return;
+
+      // Update Player
+      this.player.update(dt, this.input, this.platformManager);
+
+      // Update Altitude (1m per 20 pixels climbed above starting position)
+      const currentAlt = Math.max(0, Math.floor(-this.player.y / 20));
+      if (currentAlt > this.altitude) {
+        this.altitude = currentAlt;
+        if (this.altitude > this.highScore) {
+          this.highScore = this.altitude;
+          this.isNewRecord = true;
+          localStorage.setItem('glitch_climber_best', this.highScore.toString());
+        }
+      }
+
+      // Update Platforms and 5s Mutation Cycle
+      this.platformManager.update(dt, this.player.y);
+
+      // Screen glitch effect when platforms mutate
+      if (this.platformManager.glitchTickTriggered) {
+        this.renderer.triggerGlitchArtifact(0.22, 10);
+        this.platformManager.glitchTickTriggered = false;
+      }
+
+      // Update Particles
+      this.particles.update(dt);
+
+      // Update Rising Glitch Void
+      const speedMultiplier = 1 + (this.altitude * 0.001);
+      this.voidY -= this.voidBaseSpeed * speedMultiplier * dt;
+
+      // Check Death Conditions:
+      // 1. Touched Rising Void
+      // 2. Fallen far below camera
+      if (!this.player.isDead) {
+        if (this.player.y + this.player.height >= this.voidY || 
+            this.player.y > this.renderer.cameraY + this.renderer.height + 150) {
+          this.player.kill();
+        }
+      }
+
+      // Check GameOver Transition after death particle delay
+      if (this.player.isDead) {
+        setTimeout(() => {
+          this.gameState = 'GAMEOVER';
+        }, 650);
+      }
+
+      // Camera smooth update
+      this.renderer.updateCamera(this.player.y, dt);
+    }
+  }
+
+  // --- INITIALIZATION ---
+  window.addEventListener('DOMContentLoaded', () => {
+    new GameEngine();
+  });
+  </script>
+</body>
+</html>

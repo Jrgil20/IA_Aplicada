@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GRIDLOCK PROTOCOL // Caracas Cyber-Grid</title>
+  <style>
+    /* Retro Cyberpunk Terminal Aesthetics */
+    :root {
+      --bg-color: #050811;
+      --grid-color: rgba(0, 240, 255, 0.08);
+      --neon-cyan: #00f0ff;
+      --neon-magenta: #ff0077;
+      --neon-amber: #ffaa00;
+      --neon-green: #00ff66;
+      --neon-red: #ff3344;
+      --neon-purple: #b537f2;
+      --hud-bg: rgba(7, 16, 32, 0.85);
+      --hud-border: rgba(0, 240, 255, 0.35);
+      --font-stack: 'Courier New', Courier, 'Lucida Console', Monaco, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: #d8f4ff;
+      font-family: var(--font-stack);
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #game-container {
+      position: relative;
+      width: 1220px;
+      height: 720px;
+      max-width: 98vw;
+      max-height: 96vh;
+      aspect-ratio: 1220 / 720;
+      box-shadow: 0 0 50px rgba(0, 240, 255, 0.2), inset 0 0 30px rgba(0, 0, 0, 0.8);
+      border: 1px solid var(--hud-border);
+      background: radial-gradient(circle at 50% 50%, #081124 0%, #03060c 100%);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: crosshair;
+    }
+
+    /* Scanlines and CRT curvature overlay */
+    .crt-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%, 
+        rgba(0, 0, 0, 0.35) 50%
+      ), linear-gradient(
+        90deg,
+        rgba(255, 0, 0, 0.03),
+        rgba(0, 255, 0, 0.01),
+        rgba(0, 0, 255, 0.03)
+      );
+      background-size: 100% 3px, 6px 100%;
+      box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.85);
+      z-index: 10;
+    }
+
+    /* Screen flicker effect */
+    .crt-overlay::after {
+      content: " ";
+      display: block;
+      position: absolute;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: rgba(18, 16, 16, 0.05);
+      opacity: 0.8;
+      pointer-events: none;
+      animation: flicker 0.15s infinite;
+    }
+
+    @keyframes flicker {
+      0% { opacity: 0.94; }
+      50% { opacity: 0.98; }
+      100% { opacity: 0.95; }
+    }
+
+    /* Controls & telemetry overlay */
+    #hud-panel {
+      position: absolute;
+      top: 10px;
+      left: 14px;
+      right: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 16px;
+      background: var(--hud-bg);
+      border: 1px solid var(--hud-border);
+      border-radius: 3px;
+      font-size: 13px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      z-index: 15;
+      backdrop-filter: blur(4px);
+    }
+
+    .hud-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .hud-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .hud-label {
+      font-size: 9px;
+      color: #6a9bbb;
+    }
+
+    .hud-val {
+      font-weight: bold;
+      color: var(--neon-cyan);
+      text-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+    }
+
+    .health-bar-container {
+      width: 140px;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(0, 240, 255, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #health-fill {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #00ff66, #00f0ff);
+      transition: width 0.2s ease, background 0.3s;
+    }
+
+    .btn-cyber {
+      background: rgba(0, 240, 255, 0.12);
+      border: 1px solid var(--neon-cyan);
+      color: var(--neon-cyan);
+      font-family: var(--font-stack);
+      font-size: 11px;
+      padding: 5px 12px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-cyber:hover {
+      background: var(--neon-cyan);
+      color: #000;
+      box-shadow: 0 0 12px var(--neon-cyan);
+    }
+
+    /* Modal / Menu screens */
+    .screen-modal {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(3, 7, 16, 0.88);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 20;
+      text-align: center;
+      padding: 24px;
+      backdrop-filter: blur(6px);
+    }
+
+    .screen-modal.hidden {
+      display: none;
+    }
+
+    .cyber-title {
+      font-size: 38px;
+      font-weight: 900;
+      color: var(--neon-cyan);
+      text-shadow: 0 0 20px rgba(0, 240, 255, 0.8), 0 0 40px rgba(0, 240, 255, 0.4);
+      letter-spacing: 4px;
+      margin-bottom: 6px;
+    }
+
+    .cyber-subtitle {
+      font-size: 14px;
+      color: var(--neon-magenta);
+      letter-spacing: 3px;
+      margin-bottom: 24px;
+      text-transform: uppercase;
+    }
+
+    .instructions-card {
+      max-width: 650px;
+      background: rgba(0, 240, 255, 0.05);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      padding: 18px 24px;
+      border-radius: 4px;
+      text-align: left;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #b0d8f0;
+      margin-bottom: 26px;
+    }
+
+    .instructions-card strong {
+      color: var(--neon-cyan);
+    }
+
+    .instructions-card ul {
+      margin-left: 20px;
+      margin-top: 6px;
+    }
+
+    .instructions-card li {
+      margin-bottom: 4px;
+    }
+
+    .big-btn {
+      font-size: 16px;
+      padding: 12px 36px;
+      border-width: 2px;
+    }
+
+    .footer-bar {
+      position: absolute;
+      bottom: 8px;
+      left: 14px;
+      right: 14px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: #4a7490;
+      letter-spacing: 1px;
+      z-index: 15;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="game-container">
+    <canvas id="gameCanvas" width="1220" height="720"></canvas>
+    <div class="crt-overlay"></div>
+
+    <!-- Telemetry HUD -->
+    <div id="hud-panel">
+      <div class="hud-group">
+        <div class="hud-item">
+          <span class="hud-label">INTEGRIDAD RED</span>
+          <div class="health-bar-container">
+            <div id="health-fill"></div>
+          </div>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">ESTRÉS TÉRMICO</span>
+          <span id="heat-val" class="hud-val" style="color: #00ff66;">0% (NORMAL)</span>
+        </div>
+      </div>
+
+      <div class="hud-group">
+        <div class="hud-item">
+          <span class="hud-label">PAQUETES EN RUTA</span>
+          <span id="packets-val" class="hud-val">0</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">ENRUTADOS</span>
+          <span id="routed-val" class="hud-val">0</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">COMBO</span>
+          <span id="combo-val" class="hud-val" style="color: var(--neon-amber);">1.0x</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">PUNTAJE</span>
+          <span id="score-val" class="hud-val">000000</span>
+        </div>
+      </div>
+
+      <div class="hud-group">
+        <button id="mute-btn" class="btn-cyber">AUDIO [ON]</button>
+        <button id="pause-btn" class="btn-cyber">PAUSA</button>
+      </div>
+    </div>
+
+    <!-- Start Screen Modal -->
+    <div id="start-screen" class="screen-modal">
+      <div class="cyber-title">GRIDLOCK PROTOCOL</div>
+      <div class="cyber-subtitle">DOWNTOWN CARACAS OPTICAL FIBER NETWORK // CANTV 2099</div>
+
+      <div class="instructions-card">
+        <p><strong>ALERTA DE SISTEMA:</strong> El troncal óptico subterráneo de Caracas está colapsando bajo una sobrecarga masiva de paquetes de datos entre El Silencio, Av. Urdaneta y Plaza Venezuela.</p>
+        <br>
+        <p><strong>INSTRUCCIONES DE ENRUTAMIENTO:</strong></p>
+        <ul>
+          <li><strong>Haz clic en cualquier intersección:</strong> Alterna las compuertas de enrutamiento entre <em>Norte/Sur</em> y <em>Este/Oeste</em>.</li>
+          <li><strong>Colisiones Espaciales:</strong> Paquetes en rumbos cruzados colisionarán y explotarán si ambos entran a la intersección a la vez.</li>
+          <li><strong>Sobrecarga Térmica & Buffers:</strong> Los paquetes detenidos ante compuertas rojas se acumulan en la cola. Si el buffer se desborda, el nodo entra en sobrecalentamiento crítico.</li>
+          <li><strong>Prioridad de Tráfico:</strong> Paquetes estándar (Cyan), Urgentes de alta velocidad (Rojo), Carga Pesada (Morado) y Cripto-Datos de reparación (Dorado).</li>
+        </ul>
+      </div>
+
+      <button id="start-btn" class="btn-cyber big-btn">INICIALIZAR PROTOCOLO [START]</button>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div id="gameover-screen" class="screen-modal hidden">
+      <div class="cyber-title" style="color: var(--neon-red); text-shadow: 0 0 25px rgba(255, 51, 68, 0.9);">BLACKOUT SISTÉMICO</div>
+      <div class="cyber-subtitle">INTEGRIDAD DEL TRONCAL CARACAS COMPROMETIDA</div>
+
+      <div class="instructions-card" style="text-align: center; border-color: rgba(255, 51, 68, 0.4);">
+        <p style="font-size: 16px; margin-bottom: 12px; color: #fff;">ESTADÍSTICAS DE ENRUTAMIENTO</p>
+        <p>Puntaje Final: <span id="final-score" style="color: var(--neon-cyan); font-weight: bold; font-size: 20px;">0</span></p>
+        <p>Paquetes Enrutados con Éxito: <span id="final-routed" style="color: var(--neon-green); font-weight: bold;">0</span></p>
+        <p>Colisiones en Red: <span id="final-collisions" style="color: var(--neon-red); font-weight: bold;">0</span></p>
+        <p>Mayor Combo Sostenido: <span id="final-combo" style="color: var(--neon-amber); font-weight: bold;">1.0x</span></p>
+      </div>
+
+      <button id="restart-btn" class="btn-cyber big-btn">REINICIAR TRONCAL [REBOOT]</button>
+    </div>
+
+    <div class="footer-bar">
+      <span>SECTOR DOWNTOWN // METRO-RED CANTV TRUNK // 12 OPTICAL NODES</span>
+      <span>INTERSECTIONS: CLICK TO TOGGLE GATE ORIENTATION [N-S / E-W]</span>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * GRIDLOCK PROTOCOL - CARACAS CYBER-GRID
+     * Single-file Zero-dependency HTML5 Canvas2D + Web Audio API Game Engine
+     */
+
+    // --- 1. AUDIOSYNTH: PROCEDURAL WEB AUDIO SYNTHESIZER ---
+    class AudioSynth {
+      constructor() {
+        this.ctx = null;
+        this.masterGain = null;
+        this.isMuted = false;
+        this.ambientOsc = null;
+        this.ambientGain = null;
+        this.alarmOsc = null;
+        this.alarmGain = null;
+        this.isAlarming = false;
+      }
+
+      init() {
+        if (this.ctx) {
+          if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+          }
+          return;
+        }
+
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        this.ctx = new AudioContextClass();
+        this.masterGain = this.ctx.createGain();
+        this.masterGain.gain.setValueAtTime(0.35, this.ctx.currentTime);
+        this.masterGain.connect(this.ctx.destination);
+
+        this.startAmbientDrone();
+        this.initAlarmSiren();
+      }
+
+      toggleMute() {
+        this.isMuted = !this.isMuted;
+        if (this.masterGain) {
+          this.masterGain.gain.setTargetAtTime(this.isMuted ? 0 : 0.35, this.ctx.currentTime, 0.05);
+        }
+        return !this.isMuted;
+      }
+
+      startAmbientDrone() {
+        try {
+          const t = this.ctx.currentTime;
+          this.ambientGain = this.ctx.createGain();
+          this.ambientGain.gain.setValueAtTime(0.08, t);
+
+          // Low cyber drone
+          const osc1 = this.ctx.createOscillator();
+          osc1.type = 'sawtooth';
+          osc1.frequency.setValueAtTime(55, t); // A1 note
+
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(140, t);
+
+          osc1.connect(filter);
+          filter.connect(this.ambientGain);
+          this.ambientGain.connect(this.masterGain);
+          osc1.start();
+        } catch(e) {
+          console.warn("Drone audio could not start", e);
+        }
+      }
+
+      initAlarmSiren() {
+        try {
+          this.alarmGain = this.ctx.createGain();
+          this.alarmGain.gain.setValueAtTime(0, this.ctx.currentTime);
+
+          this.alarmOsc = this.ctx.createOscillator();
+          this.alarmOsc.type = 'triangle';
+          this.alarmOsc.frequency.setValueAtTime(750, this.ctx.currentTime);
+
+          // LFO for wailing siren
+          const lfo = this.ctx.createOscillator();
+          lfo.frequency.setValueAtTime(3.5, this.ctx.currentTime);
+          const lfoGain = this.ctx.createGain();
+          lfoGain.gain.setValueAtTime(200, this.ctx.currentTime);
+
+          lfo.connect(lfoGain);
+          lfoGain.connect(this.alarmOsc.frequency);
+
+          this.alarmOsc.connect(this.alarmGain);
+          this.alarmGain.connect(this.masterGain);
+
+          lfo.start();
+          this.alarmOsc.start();
+        } catch(e) {
+          console.warn("Alarm audio init error", e);
+        }
+      }
+
+      setAlarm(active, severity = 0.5) {
+        if (!this.alarmGain || !this.ctx || this.isMuted) return;
+        const targetVol = active ? Math.min(0.25, severity * 0.25) : 0;
+        this.alarmGain.gain.setTargetAtTime(targetVol, this.ctx.currentTime, 0.1);
+        this.isAlarming = active;
+      }
+
+      playSwitch() {
+        if (!this.ctx || this.isMuted) return;
+        this.init();
+        const t = this.ctx.currentTime;
+
+        // Snappy metallic click
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, t);
+        osc.frequency.exponentialRampToValueAtTime(180, t + 0.08);
+
+        gain.gain.setValueAtTime(0.3, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+
+        // Noise click component
+        const bufferSize = this.ctx.sampleRate * 0.02;
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const output = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          output[i] = Math.random() * 2 - 1;
+        }
+        const whiteNoise = this.ctx.createBufferSource();
+        whiteNoise.buffer = buffer;
+        const noiseGain = this.ctx.createGain();
+        noiseGain.gain.setValueAtTime(0.2, t);
+        noiseGain.gain.exponentialRampToValueAtTime(0.01, t + 0.02);
+
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        whiteNoise.connect(noiseGain);
+        noiseGain.connect(this.masterGain);
+
+        osc.start(t);
+        osc.stop(t + 0.09);
+        whiteNoise.start(t);
+        whiteNoise.stop(t + 0.025);
+      }
+
+      playExplosion() {
+        if (!this.ctx || this.isMuted) return;
+        this.init();
+        const t = this.ctx.currentTime;
+
+        // Sub bass drop
+        const subOsc = this.ctx.createOscillator();
+        const subGain = this.ctx.createGain();
+        subOsc.type = 'sine';
+        subOsc.frequency.setValueAtTime(150, t);
+        subOsc.frequency.exponentialRampToValueAtTime(30, t + 0.45);
+
+        subGain.gain.setValueAtTime(0.7, t);
+        subGain.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+
+        subOsc.connect(subGain);
+        subGain.connect(this.masterGain);
+        subOsc.start(t);
+        subOsc.stop(t + 0.5);
+
+        // Noise rumble with resonant low-pass filter
+        const bufferSize = this.ctx.sampleRate * 0.5;
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (this.ctx.sampleRate * 0.12));
+        }
+
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(1000, t);
+        filter.frequency.exponentialRampToValueAtTime(80, t + 0.4);
+
+        const noiseGain = this.ctx.createGain();
+        noiseGain.gain.setValueAtTime(0.6, t);
+        noiseGain.gain.exponentialRampToValueAtTime(0.01, t + 0.5);
+
+        noise.connect(filter);
+        filter.connect(noiseGain);
+        noiseGain.connect(this.masterGain);
+
+        noise.start(t);
+        noise.stop(t + 0.52);
+      }
+
+      playDelivery(combo = 1) {
+        if (!this.ctx || this.isMuted) return;
+        this.init();
+        const t = this.ctx.currentTime;
+
+        // Pentatonic scale frequencies
+        const notes = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50];
+        const noteIdx = Math.min(notes.length - 1, Math.floor(combo - 1) % notes.length);
+        const freq = notes[noteIdx];
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, t);
+        osc.frequency.exponentialRampToValueAtTime(freq * 1.5, t + 0.12);
+
+        gain.gain.setValueAtTime(0.25, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(t);
+        osc.stop(t + 0.22);
+      }
+
+      playGameOver() {
+        if (!this.ctx || this.isMuted) return;
+        this.init();
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(320, t);
+        osc.frequency.exponentialRampToValueAtTime(40, t + 1.2);
+
+        gain.gain.setValueAtTime(0.4, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 1.3);
+
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(t);
+        osc.stop(t + 1.35);
+      }
+    }
+
+    // --- 2. PARTICLE SYSTEM & VISUAL EFFECTS ---
+    class ParticleSystem {
+      constructor() {
+        this.particles = [];
+        this.shockwaves = [];
+        this.floatingTexts = [];
+      }
+
+      emitExplosion(x, y, color = '#ff3344', count = 28) {
+        for (let i = 0; i < count; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = Math.random() * 180 + 30;
+          this.particles.push({
+            x, y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            size: Math.random() * 4 + 1.5,
+            color: color,
+            alpha: 1,
+            decay: Math.random() * 1.5 + 1.2,
+            type: 'shard'
+          });
+        }
+
+        // Add expanding shockwave
+        this.shockwaves.push({
+          x, y,
+          radius: 4,
+          maxRadius: 65,
+          color: color,
+          alpha: 1,
+          speed: 160
+        });
+      }
+
+      emitSparks(x, y, directionAngle, color = '#00f0ff', count = 10) {
+        for (let i = 0; i < count; i++) {
+          const spread = (Math.random() - 0.5) * 1.2;
+          const angle = directionAngle + spread;
+          const speed = Math.random() * 120 + 40;
+          this.particles.push({
+            x, y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            size: Math.random() * 2.5 + 1,
+            color: color,
+            alpha: 1,
+            decay: Math.random() * 2.5 + 2.0,
+            type: 'spark'
+          });
+        }
+      }
+
+      addFloatingText(text, x, y, color = '#00f0ff', size = 14) {
+        this.floatingTexts.push({
+          text, x, y,
+          vy: -35,
+          alpha: 1,
+          color,
+          size
+        });
+      }
+
+      update(dt) {
+        // Particles
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const p = this.particles[i];
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+          p.vx *= (1 - 1.5 * dt);
+          p.vy *= (1 - 1.5 * dt);
+          p.alpha -= p.decay * dt;
+          if (p.alpha <= 0) {
+            this.particles.splice(i, 1);
+          }
+        }
+
+        // Shockwaves
+        for (let i = this.shockwaves.length - 1; i >= 0; i--) {
+          const sw = this.shockwaves[i];
+          sw.radius += sw.speed * dt;
+          sw.alpha = 1 - (sw.radius / sw.maxRadius);
+          if (sw.radius >= sw.maxRadius || sw.alpha <= 0) {
+            this.shockwaves.splice(i, 1);
+          }
+        }
+
+        // Floating texts
+        for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
+          const ft = this.floatingTexts[i];
+          ft.y += ft.vy * dt;
+          ft.alpha -= 0.8 * dt;
+          if (ft.alpha <= 0) {
+            this.floatingTexts.splice(i, 1);
+          }
+        }
+      }
+
+      render(ctx) {
+        ctx.save();
+
+        // Render shockwaves
+        for (const sw of this.shockwaves) {
+          ctx.beginPath();
+          ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
+          ctx.strokeStyle = sw.color;
+          ctx.globalAlpha = Math.max(0, sw.alpha);
+          ctx.lineWidth = 2.5;
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = sw.color;
+          ctx.stroke();
+        }
+
+        // Render particles
+        for (const p of this.particles) {
+          ctx.globalAlpha = Math.max(0, p.alpha);
+          ctx.fillStyle = p.color;
+          ctx.shadowBlur = 8;
+          ctx.shadowColor = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Render floating texts
+        ctx.shadowBlur = 6;
+        for (const ft of this.floatingTexts) {
+          ctx.globalAlpha = Math.max(0, ft.alpha);
+          ctx.fillStyle = ft.color;
+          ctx.shadowColor = ft.color;
+          ctx.font = `bold ${ft.size}px monospace`;
+          ctx.textAlign = 'center';
+          ctx.fillText(ft.text, ft.x, ft.y);
+        }
+
+        ctx.restore();
+      }
+    }
+
+    // --- 3. GRID SYSTEM & DOWNTOWN CARACAS TOPOLOGY ---
+    class GridSystem {
+      constructor(canvasWidth, canvasHeight) {
+        this.width = canvasWidth;
+        this.height = canvasHeight;
+
+        // 4 Columns x 3 Rows = 12 Intersections
+        this.cols = [220, 480, 740, 1000];
+        this.rows = [170, 370, 570];
+
+        // Caracas Downtown Iconic Nodes Lore
+        this.nodeNames = [
+          ["EL SILENCIO", "CAPITOLIO", "LA HOYADA", "PARQUE CENTRAL"],
+          ["AV. BARALT", "AV. URDANETA", "BELLAS ARTES", "PLAZA VZLA"],
+          ["EL CALVARIO", "AV. UNIVERSIDAD", "LOS CAOBOS", "SABANA GRANDE"]
+        ];
+
+        this.intersections = [];
+        this.initGrid();
+      }
+
+      initGrid() {
+        this.intersections = [];
+        for (let r = 0; r < this.rows.length; r++) {
+          for (let c = 0; c < this.cols.length; c++) {
+            this.intersections.push({
+              id: `${c}-${r}`,
+              col: c,
+              row: r,
+              x: this.cols[c],
+              y: this.rows[r],
+              name: this.nodeNames[r][c],
+              // 'NS' (North-South open, East-West red) or 'EW' (East-West open, North-South red)
+              gateState: (r + c) % 2 === 0 ? 'NS' : 'EW',
+              targetAngle: (r + c) % 2 === 0 ? 0 : Math.PI / 2,
+              currentAngle: (r + c) % 2 === 0 ? 0 : Math.PI / 2,
+              heat: 0,              // 0 to 100%
+              isOverheating: false,
+              radius: 36,           // Click hitbox
+              // Queues for 4 arms: N (coming from North heading South), S (heading North), W (heading East), E (heading West)
+              queues: { N: [], S: [], E: [], W: [] },
+              maxQueueCapacity: 4,  // Per arm
+              totalOccupants: 0
+            });
+          }
+        }
+      }
+
+      getIntersectionAt(x, y) {
+        for (const node of this.intersections) {
+          const dx = x - node.x;
+          const dy = y - node.y;
+          if (dx * dx + dy * dy <= node.radius * node.radius) {
+            return node;
+          }
+        }
+        return null;
+      }
+
+      toggleNode(node) {
+        if (!node) return;
+        node.gateState = (node.gateState === 'NS') ? 'EW' : 'NS';
+        node.targetAngle = (node.gateState === 'NS') ? 0 : Math.PI / 2;
+      }
+
+      update(dt) {
+        let maxGlobalHeat = 0;
+
+        for (const node of this.intersections) {
+          // Smooth rotation animation toward targetAngle
+          const diff = node.targetAngle - node.currentAngle;
+          node.currentAngle += diff * Math.min(1, 14 * dt);
+
+          // Calculate queue occupancy
+          const countN = node.queues.N.length;
+          const countS = node.queues.S.length;
+          const countE = node.queues.E.length;
+          const countW = node.queues.W.length;
+          node.totalOccupants = countN + countS + countE + countW;
+
+          // Thermal dynamics: waiting packets generate heat
+          let heatGenRate = 0;
+          for (const arm of ['N', 'S', 'E', 'W']) {
+            for (const packet of node.queues[arm]) {
+              heatGenRate += (packet.type === 'URGENT' ? 8 : (packet.type === 'PAYLOAD' ? 6 : 3.5));
+            }
+          }
+
+          if (node.totalOccupants > 0) {
+            node.heat = Math.min(100, node.heat + heatGenRate * dt);
+          } else {
+            // Cool down when empty
+            node.heat = Math.max(0, node.heat - 12 * dt);
+          }
+
+          node.isOverheating = (node.heat >= 80);
+          if (node.heat > maxGlobalHeat) {
+            maxGlobalHeat = node.heat;
+          }
+        }
+
+        return maxGlobalHeat;
+      }
+
+      render(ctx, hoveredNode = null) {
+        ctx.save();
+
+        // 1. Render Conduit Network Roads (Horizontal and Vertical Fiber Trunks)
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = 'rgba(0, 240, 255, 0.22)';
+        ctx.shadowBlur = 4;
+        ctx.shadowColor = 'rgba(0, 240, 255, 0.4)';
+
+        // Horizontal lines
+        for (const y of this.rows) {
+          ctx.beginPath();
+          ctx.moveTo(60, y);
+          ctx.lineTo(1160, y);
+          ctx.stroke();
+
+          // Double optical guide rails
+          ctx.lineWidth = 1;
+          ctx.strokeStyle = 'rgba(0, 240, 255, 0.08)';
+          ctx.beginPath();
+          ctx.moveTo(60, y - 10); ctx.lineTo(1160, y - 10);
+          ctx.moveTo(60, y + 10); ctx.lineTo(1160, y + 10);
+          ctx.stroke();
+          ctx.lineWidth = 3;
+          ctx.strokeStyle = 'rgba(0, 240, 255, 0.22)';
+        }
+
+        // Vertical lines
+        for (const x of this.cols) {
+          ctx.beginPath();
+          ctx.moveTo(x, 60);
+          ctx.lineTo(x, 660);
+          ctx.stroke();
+
+          // Double optical guide rails
+          ctx.lineWidth = 1;
+          ctx.strokeStyle = 'rgba(0, 240, 255, 0.08)';
+          ctx.beginPath();
+          ctx.moveTo(x - 10, 60); ctx.lineTo(x - 10, 660);
+          ctx.moveTo(x + 10, 60); ctx.lineTo(x + 10, 660);
+          ctx.stroke();
+          ctx.lineWidth = 3;
+          ctx.strokeStyle = 'rgba(0, 240, 255, 0.22)';
+        }
+
+        // 2. Render Boundary Ingress / Egress Gateways
+        this.renderPortals(ctx);
+
+        // 3. Render Intersections
+        for (const node of this.intersections) {
+          const isHovered = (hoveredNode && hoveredNode.id === node.id);
+
+          // Heat color calculation
+          const heatRatio = node.heat / 100;
+          let ringColor = 'rgba(0, 240, 255, 0.45)';
+          if (node.heat > 50) {
+            ringColor = (node.heat > 80) ? '#ff3344' : '#ffaa00';
+          }
+
+          // Outer node casing
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+          ctx.fillStyle = isHovered ? 'rgba(0, 240, 255, 0.18)' : 'rgba(5, 14, 28, 0.85)';
+          ctx.fill();
+          ctx.strokeStyle = isHovered ? '#00f0ff' : ringColor;
+          ctx.lineWidth = isHovered ? 2.5 : 1.5;
+          ctx.shadowBlur = isHovered ? 14 : (node.heat > 70 ? 12 : 5);
+          ctx.shadowColor = ringColor;
+          ctx.stroke();
+
+          // Thermal stress arc gauge around perimeter
+          if (node.heat > 5) {
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, node.radius + 4, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * heatRatio));
+            ctx.strokeStyle = ringColor;
+            ctx.lineWidth = 3;
+            ctx.shadowBlur = 8;
+            ctx.stroke();
+          }
+
+          // Dynamic Gate Routing Indicators:
+          // Gate orientation: When NS, allows vertical travel; EW shows red barriers.
+          // We draw a rotating cyber gate crossbar inside the intersection node.
+          ctx.save();
+          ctx.translate(node.x, node.y);
+          ctx.rotate(node.currentAngle);
+
+          // North-South passage channel (Green/Cyan open flow)
+          ctx.strokeStyle = '#00ff66';
+          ctx.lineWidth = 4;
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = '#00ff66';
+          ctx.beginPath();
+          ctx.moveTo(0, -22); ctx.lineTo(0, 22);
+          ctx.stroke();
+
+          // Green directional flow arrows
+          ctx.fillStyle = '#00ff66';
+          ctx.beginPath();
+          ctx.moveTo(-4, -14); ctx.lineTo(0, -20); ctx.lineTo(4, -14); ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(-4, 14); ctx.lineTo(0, 20); ctx.lineTo(4, 14); ctx.fill();
+
+          // East-West barrier (Red forcefield gates perpendicular to passage)
+          ctx.strokeStyle = '#ff3344';
+          ctx.lineWidth = 3.5;
+          ctx.shadowBlur = 8;
+          ctx.shadowColor = '#ff3344';
+          ctx.beginPath();
+          ctx.moveTo(-22, -6); ctx.lineTo(-22, 6);
+          ctx.moveTo(22, -6); ctx.lineTo(22, 6);
+          ctx.stroke();
+
+          ctx.restore();
+
+          // Node Label & Buffer Count
+          ctx.font = 'bold 9px monospace';
+          ctx.fillStyle = isHovered ? '#00f0ff' : '#6bb8db';
+          ctx.textAlign = 'center';
+          ctx.shadowBlur = 3;
+          ctx.fillText(node.name, node.x, node.y - node.radius - 8);
+
+          // Total queued badge if any
+          if (node.totalOccupants > 0) {
+            const badgeColor = (node.totalOccupants >= 4) ? '#ff3344' : '#ffaa00';
+            ctx.fillStyle = badgeColor;
+            ctx.beginPath();
+            ctx.arc(node.x, node.y + node.radius + 9, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#000';
+            ctx.font = 'bold 9px monospace';
+            ctx.fillText(node.totalOccupants, node.x, node.y + node.radius + 12);
+          }
+        }
+
+        ctx.restore();
+      }
+
+      renderPortals(ctx) {
+        ctx.font = '8px monospace';
+        ctx.fillStyle = '#4080a0';
+        ctx.textAlign = 'center';
+
+        // West gateways (Left ingress)
+        for (const y of this.rows) {
+          ctx.fillStyle = 'rgba(0, 240, 255, 0.15)';
+          ctx.fillRect(40, y - 14, 20, 28);
+          ctx.strokeStyle = '#00f0ff';
+          ctx.strokeRect(40, y - 14, 20, 28);
+          ctx.fillStyle = '#00f0ff';
+          ctx.fillText('IN', 50, y + 3);
+        }
+
+        // East gateways (Right egress)
+        for (const y of this.rows) {
+          ctx.fillStyle = 'rgba(0, 255, 102, 0.15)';
+          ctx.fillRect(1160, y - 14, 20, 28);
+          ctx.strokeStyle = '#00ff66';
+          ctx.strokeRect(1160, y - 14, 20, 28);
+          ctx.fillStyle = '#00ff66';
+          ctx.fillText('OUT', 1170, y + 3);
+        }
+
+        // North gateways (Top ingress/egress)
+        for (const x of this.cols) {
+          ctx.fillStyle = 'rgba(0, 240, 255, 0.15)';
+          ctx.fillRect(x - 14, 40, 28, 20);
+          ctx.strokeStyle = '#00f0ff';
+          ctx.strokeRect(x - 14, 40, 28, 20);
+          ctx.fillStyle = '#00f0ff';
+          ctx.fillText('N-TRK', x, 53);
+        }
+
+        // South gateways (Bottom ingress/egress)
+        for (const x of this.cols) {
+          ctx.fillStyle = 'rgba(0, 255, 102, 0.15)';
+          ctx.fillRect(x - 14, 660, 28, 20);
+          ctx.strokeStyle = '#00ff66';
+          ctx.strokeRect(x - 14, 660, 28, 20);
+          ctx.fillStyle = '#00ff66';
+          ctx.fillText('S-TRK', x, 673);
+        }
+      }
+    }
+
+    // --- 4. PACKET MANAGER & SPATIAL COLLISION SYSTEM ---
+    class PacketManager {
+      constructor(gridSystem, particleSystem, audioSynth) {
+        this.grid = gridSystem;
+        this.particles = particleSystem;
+        this.audio = audioSynth;
+        this.packets = [];
+        this.nextPacketId = 1;
+        this.spawnTimer = 0;
+        this.spawnInterval = 2.0; // Seconds between spawns (decreases over time)
+        this.stats = {
+          routed: 0,
+          collisions: 0,
+          overflows: 0
+        };
+      }
+
+      spawnPacket(waveLevel = 1) {
+        // Types:
+        // 'SYNC' (standard cyan, balanced)
+        // 'URGENT' (crimson, high speed, high heat)
+        // 'PAYLOAD' (violet, slow, high density)
+        // 'CRYPTO' (gold, rare, bonus points & heals network)
+        const rand = Math.random();
+        let type = 'SYNC';
+        let speed = 95;
+        let color = '#00f0ff';
+        let radius = 6.5;
+
+        if (rand < 0.25) {
+          type = 'URGENT';
+          speed = 150;
+          color = '#ff3344';
+          radius = 5.5;
+        } else if (rand < 0.45) {
+          type = 'PAYLOAD';
+          speed = 65;
+          color = '#b537f2';
+          radius = 9.0;
+        } else if (rand < 0.55 && waveLevel >= 2) {
+          type = 'CRYPTO';
+          speed = 110;
+          color = '#ffaa00';
+          radius = 7.0;
+        }
+
+        // Choose entry point:
+        // Horizontal: West to East (from x=60 along one of 3 rows)
+        // Vertical: North to South (from y=60 along one of 4 cols)
+        // Or reverse: South to North or East to West
+        const spawnSides = ['WEST_TO_EAST', 'NORTH_TO_SOUTH', 'EAST_TO_WEST', 'SOUTH_TO_NORTH'];
+        // Pick side weighted toward West->East and North->South early on
+        const sideIdx = Math.floor(Math.random() * (waveLevel >= 3 ? 4 : 2));
+        const side = spawnSides[sideIdx];
+
+        let x, y, vx, vy, direction;
+
+        if (side === 'WEST_TO_EAST') {
+          const rowIdx = Math.floor(Math.random() * this.grid.rows.length);
+          x = 60;
+          y = this.grid.rows[rowIdx];
+          vx = speed;
+          vy = 0;
+          direction = 'E';
+        } else if (side === 'NORTH_TO_SOUTH') {
+          const colIdx = Math.floor(Math.random() * this.grid.cols.length);
+          x = this.grid.cols[colIdx];
+          y = 60;
+          vx = 0;
+          vy = speed;
+          direction = 'S';
+        } else if (side === 'EAST_TO_WEST') {
+          const rowIdx = Math.floor(Math.random() * this.grid.rows.length);
+          x = 1160;
+          y = this.grid.rows[rowIdx];
+          vx = -speed;
+          vy = 0;
+          direction = 'W';
+        } else { // SOUTH_TO_NORTH
+          const colIdx = Math.floor(Math.random() * this.grid.cols.length);
+          x = this.grid.cols[colIdx];
+          y = 660;
+          vx = 0;
+          vy = -speed;
+          direction = 'N';
+        }
+
+        const packet = {
+          id: this.nextPacketId++,
+          type,
+          x, y,
+          vx, vy,
+          speed,
+          baseSpeed: speed,
+          color,
+          radius,
+          direction,          // 'E', 'W', 'S', 'N'
+          state: 'TRAVELING', // 'TRAVELING', 'QUEUED', 'CROSSING', 'DELIVERED', 'DESTROYED'
+          queuedNode: null,
+          queueArm: null,
+          queueIndex: 0,
+          waitTimer: 0,
+          tail: []            // Array of past positions for trailing laser effect
+        };
+
+        this.packets.push(packet);
+        this.particles.emitSparks(x, y, Math.atan2(vy, vx), color, 6);
+      }
+
+      update(dt, onDeliveryCallback, onCollisionCallback, onOverflowCallback) {
+        // Clear all intersection queue tracking lists so we can rebuild cleanly each frame
+        for (const node of this.grid.intersections) {
+          node.queues.N = [];
+          node.queues.S = [];
+          node.queues.E = [];
+          node.queues.W = [];
+        }
+
+        // 1. Process packet movements & queue alignment
+        for (let i = this.packets.length - 1; i >= 0; i--) {
+          const p = this.packets[i];
+
+          // Tail history
+          p.tail.unshift({ x: p.x, y: p.y });
+          if (p.tail.length > 8) p.tail.pop();
+
+          // Find upcoming intersection ahead
+          const upcoming = this.findUpcomingIntersection(p);
+
+          if (upcoming) {
+            const { node, distToNode, arm } = upcoming;
+
+            // Check if the gate is OPEN or CLOSED for this direction
+            const isGateOpen = (p.direction === 'E' || p.direction === 'W') 
+              ? (node.gateState === 'EW') 
+              : (node.gateState === 'NS');
+
+            // Queue stop distance before intersection center (radius + buffer spacing)
+            const stopDist = node.radius + 6;
+
+            if (!isGateOpen && distToNode <= stopDist + 90 && distToNode > 0) {
+              // Gate is RED. Packet must queue in its arm
+              const queueList = node.queues[arm];
+              const queuePos = queueList.length;
+
+              if (queuePos < node.maxQueueCapacity) {
+                queueList.push(p);
+                p.queuedNode = node;
+                p.queueArm = arm;
+                p.queueIndex = queuePos;
+
+                // Target waiting spot along conduit
+                const targetStopDist = stopDist + queuePos * 18;
+
+                if (distToNode <= targetStopDist) {
+                  // Packet has reached queue spot
+                  p.state = 'QUEUED';
+                  p.waitTimer += dt;
+
+                  // Snap gently to lane center
+                  if (p.direction === 'E') p.x = node.x - targetStopDist;
+                  else if (p.direction === 'W') p.x = node.x + targetStopDist;
+                  else if (p.direction === 'S') p.y = node.y - targetStopDist;
+                  else if (p.direction === 'N') p.y = node.y + targetStopDist;
+                } else {
+                  // Approaching queue spot: decelerate smoothly
+                  p.state = 'TRAVELING';
+                  p.x += p.vx * dt * 0.5;
+                  p.y += p.vy * dt * 0.5;
+                }
+              } else {
+                // Buffer OVERFLOW! Too many packets in queue arm
+                p.state = 'TRAVELING';
+                p.x += p.vx * dt;
+                p.y += p.vy * dt;
+
+                this.stats.overflows++;
+                onOverflowCallback(node, p);
+              }
+            } else {
+              // Gate is OPEN or packet is currently crossing intersection
+              p.queuedNode = null;
+              p.state = (distToNode <= node.radius) ? 'CROSSING' : 'TRAVELING';
+              p.x += p.vx * dt;
+              p.y += p.vy * dt;
+            }
+          } else {
+            // No node ahead, normal transit
+            p.queuedNode = null;
+            p.state = 'TRAVELING';
+            p.x += p.vx * dt;
+            p.y += p.vy * dt;
+          }
+
+          // 2. Check Boundary Exits (Deliveries)
+          if (p.x > 1175 || p.x < 45 || p.y > 675 || p.y < 45) {
+            // Successfully routed off the grid!
+            this.stats.routed++;
+            this.particles.emitSparks(p.x, p.y, Math.atan2(p.vy, p.vx) + Math.PI, '#00ff66', 15);
+            this.particles.addFloatingText(
+              p.type === 'CRYPTO' ? '+500 [REPAIR]' : (p.type === 'URGENT' ? '+250' : '+100'),
+              p.x > 1100 ? 1140 : (p.x < 100 ? 80 : p.x),
+              p.y > 600 ? 640 : (p.y < 100 ? 80 : p.y),
+              p.color
+            );
+            this.audio.playDelivery();
+            onDeliveryCallback(p);
+            this.packets.splice(i, 1);
+            continue;
+          }
+        }
+
+        // 3. Spatial Collision Detection
+        // Check pairwise collisions between moving packets inside intersection danger zones
+        for (let i = 0; i < this.packets.length; i++) {
+          const p1 = this.packets[i];
+          if (p1.state === 'QUEUED') continue;
+
+          for (let j = i + 1; j < this.packets.length; j++) {
+            const p2 = this.packets[j];
+            if (p2.state === 'QUEUED') continue;
+
+            const dx = p1.x - p2.x;
+            const dy = p1.y - p2.y;
+            const distSq = dx * dx + dy * dy;
+            const minDist = p1.radius + p2.radius + 3;
+
+            if (distSq < minDist * minDist) {
+              // BAM! SPATIAL COLLISION OCCURRED
+              const midX = (p1.x + p2.x) / 2;
+              const midY = (p1.y + p2.y) / 2;
+
+              this.particles.emitExplosion(midX, midY, '#ff3344', 35);
+              this.particles.addFloatingText('COLLISION!', midX, midY - 15, '#ff3344', 16);
+              this.audio.playExplosion();
+
+              this.stats.collisions++;
+              onCollisionCallback(p1, p2, midX, midY);
+
+              // Remove both collided packets
+              this.packets.splice(j, 1);
+              this.packets.splice(i, 1);
+              i--;
+              break;
+            }
+          }
+        }
+      }
+
+      findUpcomingIntersection(p) {
+        // Determine which intersection node is immediately ahead of packet along its track
+        let closestNode = null;
+        let minDist = Infinity;
+        let targetArm = null;
+
+        for (const node of this.grid.intersections) {
+          if (p.direction === 'E' && Math.abs(p.y - node.y) < 12 && node.x > p.x) {
+            const dist = node.x - p.x;
+            if (dist < minDist) {
+              minDist = dist;
+              closestNode = node;
+              targetArm = 'W'; // Approaching from West
+            }
+          } else if (p.direction === 'W' && Math.abs(p.y - node.y) < 12 && node.x < p.x) {
+            const dist = p.x - node.x;
+            if (dist < minDist) {
+              minDist = dist;
+              closestNode = node;
+              targetArm = 'E'; // Approaching from East
+            }
+          } else if (p.direction === 'S' && Math.abs(p.x - node.x) < 12 && node.y > p.y) {
+            const dist = node.y - p.y;
+            if (dist < minDist) {
+              minDist = dist;
+              closestNode = node;
+              targetArm = 'N'; // Approaching from North
+            }
+          } else if (p.direction === 'N' && Math.abs(p.x - node.x) < 12 && node.y < p.y) {
+            const dist = p.y - node.y;
+            if (dist < minDist) {
+              minDist = dist;
+              closestNode = node;
+              targetArm = 'S'; // Approaching from South
+            }
+          }
+        }
+
+        if (closestNode) {
+          return { node: closestNode, distToNode: minDist, arm: targetArm };
+        }
+        return null;
+      }
+
+      render(ctx) {
+        ctx.save();
+
+        for (const p of this.packets) {
+          // 1. Draw glowing data tail
+          if (p.tail.length > 1) {
+            ctx.beginPath();
+            ctx.moveTo(p.tail[0].x, p.tail[0].y);
+            for (let t = 1; t < p.tail.length; t++) {
+              ctx.lineTo(p.tail[t].x, p.tail[t].y);
+            }
+            ctx.strokeStyle = p.color;
+            ctx.globalAlpha = 0.35;
+            ctx.lineWidth = p.radius * 0.9;
+            ctx.stroke();
+          }
+
+          // 2. Draw Packet Core
+          ctx.globalAlpha = 1.0;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.shadowBlur = 12;
+          ctx.shadowColor = p.color;
+          ctx.fill();
+
+          // 3. Inner White Hot Nucleus
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius * 0.45, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowBlur = 4;
+          ctx.fill();
+
+          // 4. Queued stress indicator
+          if (p.state === 'QUEUED') {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius + 3, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(255, 51, 68, 0.7)';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+          }
+        }
+
+        ctx.restore();
+      }
+    }
+
+    // --- 5. GAME ENGINE: COORDINATION, HUD & GAME LOOP ---
+    class GameEngine {
+      constructor() {
+        this.canvas = document.getElementById('gameCanvas');
+        this.ctx = this.canvas.getContext('2d');
+
+        this.audio = new AudioSynth();
+        this.particles = new ParticleSystem();
+        this.grid = new GridSystem(this.canvas.width, this.canvas.height);
+        this.packets = new PacketManager(this.grid, this.particles, this.audio);
+
+        // Game State Metrics
+        this.state = 'START'; // 'START', 'RUNNING', 'PAUSED', 'GAMEOVER'
+        this.systemIntegrity = 100;
+        this.score = 0;
+        this.combo = 1.0;
+        this.comboTimer = 0;
+        this.maxCombo = 1.0;
+        this.wave = 1;
+        this.waveTimer = 0;
+        this.lastTime = 0;
+        this.hoveredNode = null;
+        this.screenShakeTime = 0;
+
+        // UI references
+        this.ui = {
+          healthFill: document.getElementById('health-fill'),
+          heatVal: document.getElementById('heat-val'),
+          packetsVal: document.getElementById('packets-val'),
+          routedVal: document.getElementById('routed-val'),
+          comboVal: document.getElementById('combo-val'),
+          scoreVal: document.getElementById('score-val'),
+          muteBtn: document.getElementById('mute-btn'),
+          pauseBtn: document.getElementById('pause-btn'),
+          startBtn: document.getElementById('start-btn'),
+          restartBtn: document.getElementById('restart-btn'),
+          startScreen: document.getElementById('start-screen'),
+          gameoverScreen: document.getElementById('gameover-screen'),
+          finalScore: document.getElementById('final-score'),
+          finalRouted: document.getElementById('final-routed'),
+          finalCollisions: document.getElementById('final-collisions'),
+          finalCombo: document.getElementById('final-combo')
+        };
+
+        this.bindEvents();
+      }
+
+      bindEvents() {
+        // Click to toggle gate
+        this.canvas.addEventListener('pointerdown', (e) => {
+          this.audio.init();
+
+          if (this.state !== 'RUNNING') return;
+
+          const rect = this.canvas.getBoundingClientRect();
+          const scaleX = this.canvas.width / rect.width;
+          const scaleY = this.canvas.height / rect.height;
+          const mouseX = (e.clientX - rect.left) * scaleX;
+          const mouseY = (e.clientY - rect.top) * scaleY;
+
+          const clickedNode = this.grid.getIntersectionAt(mouseX, mouseY);
+          if (clickedNode) {
+            this.grid.toggleNode(clickedNode);
+            this.audio.playSwitch();
+            this.particles.emitSparks(clickedNode.x, clickedNode.y, 0, '#00f0ff', 12);
+          }
+        });
+
+        // Hover tracking
+        this.canvas.addEventListener('pointermove', (e) => {
+          const rect = this.canvas.getBoundingClientRect();
+          const scaleX = this.canvas.width / rect.width;
+          const scaleY = this.canvas.height / rect.height;
+          const mouseX = (e.clientX - rect.left) * scaleX;
+          const mouseY = (e.clientY - rect.top) * scaleY;
+
+          this.hoveredNode = this.grid.getIntersectionAt(mouseX, mouseY);
+        });
+
+        // Mute button
+        this.ui.muteBtn.addEventListener('click', () => {
+          const unmuted = this.audio.toggleMute();
+          this.ui.muteBtn.textContent = unmuted ? 'AUDIO [ON]' : 'AUDIO [OFF]';
+        });
+
+        // Pause button
+        this.ui.pauseBtn.addEventListener('click', () => {
+          if (this.state === 'RUNNING') {
+            this.state = 'PAUSED';
+            this.ui.pauseBtn.textContent = 'REANUDAR';
+          } else if (this.state === 'PAUSED') {
+            this.state = 'RUNNING';
+            this.ui.pauseBtn.textContent = 'PAUSA';
+          }
+        });
+
+        // Start button
+        this.ui.startBtn.addEventListener('click', () => {
+          this.audio.init();
+          this.startGame();
+        });
+
+        // Restart button
+        this.ui.restartBtn.addEventListener('click', () => {
+          this.audio.init();
+          this.startGame();
+        });
+
+        // Keyboard hotkeys
+        window.addEventListener('keydown', (e) => {
+          if (e.code === 'Space') {
+            e.preventDefault();
+            this.ui.pauseBtn.click();
+          }
+        });
+      }
+
+      startGame() {
+        this.systemIntegrity = 100;
+        this.score = 0;
+        this.combo = 1.0;
+        this.maxCombo = 1.0;
+        this.comboTimer = 0;
+        this.wave = 1;
+        this.waveTimer = 0;
+        this.packets.packets = [];
+        this.packets.stats = { routed: 0, collisions: 0, overflows: 0 };
+        this.grid.initGrid();
+
+        this.state = 'RUNNING';
+        this.ui.startScreen.classList.add('hidden');
+        this.ui.gameoverScreen.classList.add('hidden');
+        this.ui.pauseBtn.textContent = 'PAUSA';
+      }
+
+      gameOver() {
+        this.state = 'GAMEOVER';
+        this.audio.setAlarm(false);
+        this.audio.playGameOver();
+
+        this.ui.finalScore.textContent = this.score;
+        this.ui.finalRouted.textContent = this.packets.stats.routed;
+        this.ui.finalCollisions.textContent = this.packets.stats.collisions;
+        this.ui.finalCombo.textContent = this.maxCombo.toFixed(1) + 'x';
+        this.ui.gameoverScreen.classList.remove('hidden');
+      }
+
+      update(dt) {
+        if (this.state !== 'RUNNING') return;
+
+        // Wave progression: spawns get faster every 30 seconds
+        this.waveTimer += dt;
+        if (this.waveTimer > 28) {
+          this.wave++;
+          this.waveTimer = 0;
+          this.particles.addFloatingText(`WAVE ${this.wave} SURGE INCOMING!`, this.canvas.width / 2, 280, '#ffaa00', 22);
+        }
+
+        // Packet Spawner frequency based on wave
+        this.packets.spawnTimer += dt;
+        const currentSpawnInterval = Math.max(0.7, 2.2 - (this.wave - 1) * 0.28);
+        if (this.packets.spawnTimer >= currentSpawnInterval) {
+          this.packets.spawnTimer = 0;
+          this.packets.spawnPacket(this.wave);
+        }
+
+        // Combo decay timer
+        if (this.combo > 1.0) {
+          this.comboTimer += dt;
+          if (this.comboTimer > 4.5) {
+            this.combo = Math.max(1.0, this.combo - 0.5 * dt);
+          }
+        }
+
+        // Update Grid and calculate global maximum heat
+        const maxHeat = this.grid.update(dt);
+
+        // Update Audio Alarm Siren if any node is critically overheating
+        if (maxHeat >= 80) {
+          this.audio.setAlarm(true, (maxHeat - 80) / 20);
+        } else {
+          this.audio.setAlarm(false);
+        }
+
+        // Overheat drain penalty
+        if (maxHeat >= 85) {
+          this.systemIntegrity -= 3.5 * dt;
+        }
+
+        // Update Packets with callbacks
+        this.packets.update(
+          dt,
+          // Delivery Success Callback
+          (packet) => {
+            let pts = 100;
+            if (packet.type === 'URGENT') pts = 250;
+            if (packet.type === 'PAYLOAD') pts = 300;
+            if (packet.type === 'CRYPTO') {
+              pts = 500;
+              this.systemIntegrity = Math.min(100, this.systemIntegrity + 6);
+            }
+
+            this.score += Math.round(pts * this.combo);
+            this.combo = Math.min(5.0, this.combo + 0.15);
+            this.comboTimer = 0;
+            if (this.combo > this.maxCombo) this.maxCombo = this.combo;
+          },
+          // Collision Penalty Callback
+          (p1, p2, x, y) => {
+            this.systemIntegrity -= 14;
+            this.combo = 1.0;
+            this.comboTimer = 0;
+            this.screenShakeTime = 0.35;
+          },
+          // Buffer Overflow Penalty Callback
+          (node, p) => {
+            this.systemIntegrity -= 6 * dt;
+          }
+        );
+
+        // Update Visual Particles
+        this.particles.update(dt);
+
+        // Check Integrity Loss / Game Over
+        if (this.systemIntegrity <= 0) {
+          this.systemIntegrity = 0;
+          this.gameOver();
+        }
+
+        // Screen shake decay
+        if (this.screenShakeTime > 0) {
+          this.screenShakeTime -= dt;
+        }
+
+        // Update Telemetry DOM
+        this.updateHUD(maxHeat);
+      }
+
+      updateHUD(maxHeat) {
+        this.ui.healthFill.style.width = `${Math.max(0, this.systemIntegrity)}%`;
+        if (this.systemIntegrity > 50) {
+          this.ui.healthFill.style.background = 'linear-gradient(90deg, #00ff66, #00f0ff)';
+        } else if (this.systemIntegrity > 25) {
+          this.ui.healthFill.style.background = 'linear-gradient(90deg, #ffaa00, #ff3344)';
+        } else {
+          this.ui.healthFill.style.background = '#ff3344';
+        }
+
+        // Heat indicator
+        this.ui.heatVal.textContent = `${Math.round(maxHeat)}% ${maxHeat > 80 ? '(CRÍTICO)' : (maxHeat > 50 ? '(ELEVADO)' : '(NORMAL)')}`;
+        this.ui.heatVal.style.color = maxHeat > 80 ? 'var(--neon-red)' : (maxHeat > 50 ? 'var(--neon-amber)' : 'var(--neon-green)');
+
+        this.ui.packetsVal.textContent = this.packets.packets.length;
+        this.ui.routedVal.textContent = this.packets.stats.routed;
+        this.ui.comboVal.textContent = `${this.combo.toFixed(1)}x`;
+        this.ui.scoreVal.textContent = String(this.score).padStart(6, '0');
+      }
+
+      render() {
+        this.ctx.save();
+
+        // Screen shake
+        if (this.screenShakeTime > 0) {
+          const shakeMag = this.screenShakeTime * 14;
+          const ox = (Math.random() - 0.5) * shakeMag;
+          const oy = (Math.random() - 0.5) * shakeMag;
+          this.ctx.translate(ox, oy);
+        }
+
+        // Clear canvas
+        this.ctx.fillStyle = '#050811';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Background subtle cyber matrix grid
+        this.ctx.lineWidth = 1;
+        this.ctx.strokeStyle = 'rgba(0, 240, 255, 0.035)';
+        const step = 40;
+        for (let x = 0; x < this.canvas.width; x += step) {
+          this.ctx.beginPath();
+          this.ctx.moveTo(x, 0); ctx.lineTo(x, this.canvas.height);
+          this.ctx.stroke();
+        }
+        for (let y = 0; y < this.canvas.height; y += step) {
+          this.ctx.beginPath();
+          this.ctx.moveTo(0, y); ctx.lineTo(this.canvas.width, y);
+          this.ctx.stroke();
+        }
+
+        // Render Components
+        this.grid.render(this.ctx, this.hoveredNode);
+        this.packets.render(this.ctx);
+        this.particles.render(this.ctx);
+
+        this.ctx.restore();
+      }
+
+      loop(timestamp) {
+        if (!this.lastTime) this.lastTime = timestamp;
+        const dt = Math.min(0.08, (timestamp - this.lastTime) / 1000);
+        this.lastTime = timestamp;
+
+        this.update(dt);
+        this.render();
+
+        requestAnimationFrame((t) => this.loop(t));
+      }
+
+      start() {
+        requestAnimationFrame((t) => this.loop(t));
+      }
+    }
+
+    // Initialize Game Engine on Page Load
+    window.addEventListener('DOMContentLoaded', () => {
+      const engine = new GameEngine();
+      engine.start();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,2023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Bazaar Broker // Clandestine Hardware Terminal</title>
+  <style>
+    :root {
+      --bg-dark: #070913;
+      --panel-bg: #0d1224;
+      --panel-border: #1a2744;
+      --neon-cyan: #00f0ff;
+      --neon-magenta: #ff0055;
+      --neon-amber: #ffaa00;
+      --neon-green: #00ff66;
+      --neon-purple: #b5179e;
+      --text-main: #d0e0ff;
+      --font-mono: 'Consolas', 'Courier New', 'Lucida Console', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-image: 
+        radial-gradient(circle at 50% 50%, #111a33 0%, #070913 85%),
+        linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+      background-size: 100% 100%, 30px 30px, 30px 30px;
+    }
+
+    #terminal-frame {
+      position: relative;
+      width: 1024px;
+      height: 720px;
+      max-width: 98vw;
+      max-height: 98vh;
+      background: #090e1d;
+      border: 2px solid #203354;
+      box-shadow: 
+        0 0 35px rgba(0, 240, 255, 0.15),
+        inset 0 0 25px rgba(0, 0, 0, 0.85);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Industrial Corner Brackets */
+    #terminal-frame::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    /* Terminal Bezel Top Bar */
+    .terminal-header {
+      height: 38px;
+      background: #060912;
+      border-bottom: 2px solid #1c2b48;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      font-size: 13px;
+      letter-spacing: 1px;
+      color: #7a94ba;
+      z-index: 10;
+    }
+
+    .terminal-header .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--neon-cyan);
+      font-weight: bold;
+      text-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+    }
+
+    .terminal-header .status-led {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--neon-green);
+      box-shadow: 0 0 8px var(--neon-green);
+      animation: blink 2s infinite ease-in-out;
+    }
+
+    .terminal-controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .ctrl-btn {
+      background: #111a30;
+      border: 1px solid #2b436e;
+      color: #9ab4db;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .ctrl-btn:hover {
+      background: #1b294d;
+      border-color: var(--neon-cyan);
+      color: #ffffff;
+      box-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
+    }
+
+    /* Canvas Area */
+    #canvas-container {
+      position: relative;
+      flex: 1;
+      width: 100%;
+      height: calc(100% - 38px);
+      overflow: hidden;
+      cursor: default;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      image-rendering: pixelated;
+    }
+
+    /* Scanlines and CRT Curvature Overlay */
+    .scanlines {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%, 
+        rgba(0, 0, 0, 0.35) 50%
+      );
+      background-size: 100% 4px;
+      z-index: 6;
+      opacity: 0.65;
+    }
+
+    .vignette {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      box-shadow: inset 0 0 70px rgba(0, 0, 0, 0.85);
+      z-index: 7;
+    }
+
+    /* Modal Screens Overlay */
+    .screen-overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(5, 8, 16, 0.92);
+      backdrop-filter: blur(4px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 20;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .screen-overlay.hidden {
+      display: none !important;
+    }
+
+    .screen-overlay h1 {
+      font-size: 42px;
+      letter-spacing: 4px;
+      color: var(--neon-cyan);
+      text-shadow: 0 0 15px rgba(0, 240, 255, 0.8);
+      margin-bottom: 8px;
+    }
+
+    .screen-overlay h2 {
+      font-size: 18px;
+      color: var(--neon-magenta);
+      letter-spacing: 2px;
+      margin-bottom: 24px;
+      text-shadow: 0 0 8px rgba(255, 0, 85, 0.6);
+    }
+
+    .dialog-box {
+      max-width: 640px;
+      background: #0d152a;
+      border: 1px solid #233a64;
+      border-radius: 6px;
+      padding: 22px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.9);
+      margin-bottom: 24px;
+      text-align: left;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #9cb8e2;
+    }
+
+    .recipe-grid-preview {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid #1d3054;
+      font-size: 12px;
+    }
+
+    .recipe-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #090e1d;
+      padding: 6px 10px;
+      border-radius: 4px;
+      border: 1px solid #162544;
+    }
+
+    .recipe-row span.badge {
+      display: inline-block;
+      padding: 2px 5px;
+      border-radius: 3px;
+      font-weight: bold;
+    }
+
+    .main-btn {
+      background: linear-gradient(180deg, #0d284a 0%, #061324 100%);
+      border: 2px solid var(--neon-cyan);
+      color: #ffffff;
+      font-family: var(--font-mono);
+      font-size: 18px;
+      letter-spacing: 2px;
+      padding: 14px 44px;
+      border-radius: 4px;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+      transition: all 0.2s;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+
+    .main-btn:hover {
+      background: linear-gradient(180deg, #153b6c 0%, #0a1f3a 100%);
+      box-shadow: 0 0 30px rgba(0, 240, 255, 0.8);
+      transform: scale(1.02);
+    }
+
+    .stats-table {
+      width: 100%;
+      max-width: 480px;
+      margin: 16px 0 24px 0;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    .stats-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #162544;
+    }
+
+    .stats-table td.val {
+      text-align: right;
+      color: var(--neon-amber);
+      font-weight: bold;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.25; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="terminal-frame">
+    <!-- Header bar -->
+    <div class="terminal-header">
+      <div class="brand">
+        <div class="status-led"></div>
+        <span>KOWLOON BLACK-MARKET // NODE #04-BAZAAR</span>
+      </div>
+      <div class="terminal-controls">
+        <button id="btn-manual" class="ctrl-btn" title="View Crafting Blueprints">BLUEPRINTS</button>
+        <button id="btn-audio" class="ctrl-btn" title="Toggle Synthesizer Mute">AUDIO: ON</button>
+        <button id="btn-pause" class="ctrl-btn" title="Pause Game [Esc / P]">PAUSE</button>
+      </div>
+    </div>
+
+    <!-- Canvas area -->
+    <div id="canvas-container">
+      <canvas id="game-canvas"></canvas>
+      <div class="scanlines"></div>
+      <div class="vignette"></div>
+
+      <!-- Start Screen Modal -->
+      <div id="modal-start" class="screen-overlay">
+        <h1>BAZAAR BROKER</h1>
+        <h2>CLANDESTINE HARDWARE TERMINAL // SHIFT PROTOCOL</h2>
+        <div class="dialog-box">
+          <p style="margin-bottom: 10px;">
+            <strong style="color:var(--neon-cyan)">MISSION DIRECTIVE:</strong> High customer rush in Sector 7. 
+            Cyborg mercenaries, corporate fixers, and rogue netrunners are demanding raw components and spliced cyber-modules.
+          </p>
+          <ul style="padding-left: 20px; margin-bottom: 10px;">
+            <li><strong>5x4 Inventory:</strong> Supplies drop via auto-conveyor into open slots.</li>
+            <li><strong>Crafting by Dragging:</strong> Drag one component onto another on the grid to combine them into high-tier modules!</li>
+            <li><strong>Order Delivery:</strong> Drag the requested item onto the customer's bay to fulfill their ticket.</li>
+            <li><strong>Speed Bonus & Rage-Quit:</strong> Deliver before the patience bar drops to earn speed tips. If patience runs out, they rage-quit! 3 rage-quits = BUSTED!</li>
+          </ul>
+
+          <div style="font-size: 11px; color: var(--neon-amber); margin-bottom: 4px;">KEY SYNTHESIS BLUEPRINTS:</div>
+          <div class="recipe-grid-preview">
+            <div class="recipe-row">⚡ Cap + ❄ Sink = <span class="badge" style="background:#ff7700; color:#fff">Overclock Rig</span></div>
+            <div class="recipe-row">➿ Cable + ◉ Lens = <span class="badge" style="background:#00f59b; color:#000">Neural Tap</span></div>
+            <div class="recipe-row">❄ Sink + ⚛ Core = <span class="badge" style="background:#00d2ff; color:#000">Cryo Matrix</span></div>
+            <div class="recipe-row">⚡ Cap + ◉ Lens = <span class="badge" style="background:#ff007f; color:#fff">Plasma Weaver</span></div>
+            <div class="recipe-row">➿ Cable + ⚛ Core = <span class="badge" style="background:#b5179e; color:#fff">Cyberdeck Engine</span></div>
+          </div>
+        </div>
+        <button id="btn-start" class="main-btn">OPEN STALL [BOOT TERMINAL]</button>
+      </div>
+
+      <!-- Blueprints Manual Modal -->
+      <div id="modal-manual" class="screen-overlay hidden">
+        <h1>BLUEPRINT DATABASE</h1>
+        <h2>FIELD SYNTHESIS COMBINATION MATRIX</h2>
+        <div class="dialog-box" style="max-width: 580px;">
+          <p style="margin-bottom: 12px; color: #a0c0e8;">
+            Combine components inside your 5x4 grid by dragging one component directly onto another. If valid, they fuse into a high-value module.
+          </p>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div class="recipe-row" style="justify-content: space-between;">
+              <span><strong>Overclocked Rig</strong> (⚡ Capacitor + ❄ Heat Sink)</span>
+              <span style="color:var(--neon-amber)">¢85 Value</span>
+            </div>
+            <div class="recipe-row" style="justify-content: space-between;">
+              <span><strong>Neural Tap</strong> (➿ SATA Cable + ◉ Optical Lens)</span>
+              <span style="color:var(--neon-amber)">¢95 Value</span>
+            </div>
+            <div class="recipe-row" style="justify-content: space-between;">
+              <span><strong>Cryo Matrix</strong> (❄ Heat Sink + ⚛ Quantum Core)</span>
+              <span style="color:var(--neon-amber)">¢110 Value</span>
+            </div>
+            <div class="recipe-row" style="justify-content: space-between;">
+              <span><strong>Plasma Weaver</strong> (⚡ Capacitor + ◉ Optical Lens)</span>
+              <span style="color:var(--neon-amber)">¢105 Value</span>
+            </div>
+            <div class="recipe-row" style="justify-content: space-between;">
+              <span><strong>Cyberdeck Engine</strong> (➿ SATA Cable + ⚛ Quantum Core)</span>
+              <span style="color:var(--neon-amber)">¢120 Value</span>
+            </div>
+          </div>
+          <p style="margin-top: 14px; font-size: 12px; color: #7f9ec7;">
+            Tip: Drop unwanted components into the <strong>RECYCLER</strong> in the lower right to clear grid space for ¢10 scrap credits.
+          </p>
+        </div>
+        <button id="btn-close-manual" class="main-btn" style="font-size: 15px; padding: 10px 30px;">RETURN TO TERMINAL</button>
+      </div>
+
+      <!-- Shift Completed Modal -->
+      <div id="modal-shift" class="screen-overlay hidden">
+        <h1 style="color: var(--neon-green)">SHIFT QUOTA MET</h1>
+        <h2>SYNDICATE RENT CLEARED // MARKET EXPANSION</h2>
+        <table class="stats-table">
+          <tr><td>Shift Number:</td><td class="val" id="shift-stat-num">1</td></tr>
+          <tr><td>Total Revenue:</td><td class="val" id="shift-stat-revenue">¢0</td></tr>
+          <tr><td>Orders Fulfilled:</td><td class="val" id="shift-stat-orders">0</td></tr>
+          <tr><td>Speed Tips Earned:</td><td class="val" id="shift-stat-tips">¢0</td></tr>
+          <tr><td>Rent Deducted:</td><td class="val" style="color: var(--neon-magenta)" id="shift-stat-rent">-¢0</td></tr>
+          <tr><td>Net Bank Balance:</td><td class="val" id="shift-stat-net">¢0</td></tr>
+        </table>
+        <button id="btn-next-shift" class="main-btn">COMMENCE NEXT SHIFT</button>
+      </div>
+
+      <!-- Game Over Modal -->
+      <div id="modal-gameover" class="screen-overlay hidden">
+        <h1 style="color: var(--neon-magenta)">TERMINAL LOCKED OUT</h1>
+        <h2>SYNDICATE RAID // 3 CUSTOMER STRIKES ACCUMULATED</h2>
+        <div class="dialog-box" style="text-align: center;">
+          <p style="margin-bottom: 8px;">Excessive rage-quits alerted market enforcers to your illegal stall.</p>
+          <table class="stats-table" style="margin: 12px auto;">
+            <tr><td>Final Score / Revenue:</td><td class="val" id="gov-revenue">¢0</td></tr>
+            <tr><td>Total Orders Closed:</td><td class="val" id="gov-orders">0</td></tr>
+            <tr><td>Modules Synthesized:</td><td class="val" id="gov-crafted">0</td></tr>
+            <tr><td>Best Combo Streak:</td><td class="val" id="gov-combo">x0</td></tr>
+            <tr><td>Broker Rank Achieved:</td><td class="val" id="gov-rank" style="color:var(--neon-cyan)">STREET NOVICE</td></tr>
+          </table>
+        </div>
+        <button id="btn-restart" class="main-btn">REBOOT OPERATING SYSTEM</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * BAZAAR BROKER - ES6 ARCADE ENGINE
+     * Architecture:
+     * - AudioSynth: Web Audio API procedural sound engine
+     * - InventoryGrid: 5x4 matrix, component storage, crafting recipes, scrap furnace
+     * - OrderSystem: Customer generation, impatience timers, rage-quit mechanics, tips
+     * - DragManager: Tactile pointer drag-and-drop system
+     * - GameEngine: 60FPS render loop, shift progression, particles, states
+     */
+
+    /* Component and Recipe Definitions */
+    const BASE_COMPONENTS = {
+      cap: { id: 'cap', name: 'Capacitor', tag: 'CAP', symbol: '⚡', color: '#ffb703', glow: 'rgba(255, 183, 3, 0.5)', value: 25 },
+      sink: { id: 'sink', name: 'Heat Sink', tag: 'SINK', symbol: '❄', color: '#00f5d4', glow: 'rgba(0, 245, 212, 0.5)', value: 25 },
+      cable: { id: 'cable', name: 'SATA Cable', tag: 'BUS', symbol: '➿', color: '#39ff14', glow: 'rgba(57, 255, 20, 0.5)', value: 25 },
+      core: { id: 'core', name: 'Quantum Core', tag: 'CORE', symbol: '⚛', color: '#ff007f', glow: 'rgba(255, 0, 127, 0.5)', value: 35 },
+      lens: { id: 'lens', name: 'Optical Lens', tag: 'LENS', symbol: '◉', color: '#b5179e', glow: 'rgba(181, 23, 158, 0.5)', value: 30 }
+    };
+
+    const RECIPES = [
+      { id: 'rig', parts: ['cap', 'sink'], name: 'Overclocked Rig', tag: 'RIG', symbol: '🖥️', color: '#ff7700', glow: 'rgba(255, 119, 0, 0.6)', value: 85 },
+      { id: 'tap', parts: ['cable', 'lens'], name: 'Neural Tap', tag: 'TAP', symbol: '🧠', color: '#00f59b', glow: 'rgba(0, 245, 155, 0.6)', value: 95 },
+      { id: 'matrix', parts: ['sink', 'core'], name: 'Cryo Matrix', tag: 'MTX', symbol: '🧊', color: '#00d2ff', glow: 'rgba(0, 210, 255, 0.6)', value: 110 },
+      { id: 'plasma', parts: ['cap', 'lens'], name: 'Plasma Weaver', tag: 'WVR', symbol: '⚡', color: '#ff007f', glow: 'rgba(255, 0, 127, 0.6)', value: 105 },
+      { id: 'engine', parts: ['cable', 'core'], name: 'Cyberdeck Engine', tag: 'ENG', symbol: '💾', color: '#9d4edd', glow: 'rgba(157, 78, 221, 0.6)', value: 120 }
+    ];
+
+    const CUSTOMER_ARCHETYPES = [
+      { role: 'NETRUNNER', prefix: 'Runner', quotes: ['Need clean bandwidth!', 'Ice is burning!'] },
+      { role: 'CHROME MERC', prefix: 'Unit', quotes: ['Ammo feed jammed.', 'Overheat warning.'] },
+      { role: 'CORPO FIXER', prefix: 'Agent', quotes: ['Make it discreet.', 'Corporate speed.'] },
+      { role: 'RIPPERDOC', prefix: 'Doc', quotes: ['Patient on the slab!', 'Suture fast.'] },
+      { role: 'STREET SAM', prefix: 'Blade', quotes: ['Reflexes sluggish.', 'Sharpen the optics.'] }
+    ];
+
+    /* =====================================================================
+       1. AudioSynth: Procedural Web Audio Engine
+       ===================================================================== */
+    class AudioSynth {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+        this.ambientGain = null;
+        this.ambientOsc = null;
+        this.isAmbientRunning = false;
+      }
+
+      init() {
+        if (this.ctx) {
+          if (this.ctx.state === 'suspended') this.ctx.resume();
+          return;
+        }
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        this.ctx = new AudioCtx();
+        this.startAmbientDrone();
+      }
+
+      toggleMute() {
+        this.muted = !this.muted;
+        if (this.ambientGain && this.ctx) {
+          this.ambientGain.gain.setValueAtTime(this.muted ? 0 : 0.035, this.ctx.currentTime);
+        }
+        return this.muted;
+      }
+
+      startAmbientDrone() {
+        if (!this.ctx || this.isAmbientRunning) return;
+        try {
+          this.ambientOsc = this.ctx.createOscillator();
+          const lfo = this.ctx.createOscillator();
+          const lfoGain = this.ctx.createGain();
+          const filter = this.ctx.createBiquadFilter();
+          this.ambientGain = this.ctx.createGain();
+
+          this.ambientOsc.type = 'sawtooth';
+          this.ambientOsc.frequency.setValueAtTime(55, this.ctx.currentTime); // Low A hum
+
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(130, this.ctx.currentTime);
+
+          lfo.frequency.setValueAtTime(0.25, this.ctx.currentTime);
+          lfoGain.gain.setValueAtTime(20, this.ctx.currentTime);
+          lfo.connect(filter.frequency);
+
+          this.ambientGain.gain.setValueAtTime(this.muted ? 0 : 0.035, this.ctx.currentTime);
+
+          this.ambientOsc.connect(filter);
+          filter.connect(this.ambientGain);
+          this.ambientGain.connect(this.ctx.destination);
+
+          this.ambientOsc.start();
+          lfo.start();
+          this.isAmbientRunning = true;
+        } catch (e) {
+          console.warn('Ambient drone start error:', e);
+        }
+      }
+
+      playPickup() {
+        if (!this.ctx || this.muted) return;
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(650, t);
+        osc.frequency.exponentialRampToValueAtTime(1350, t + 0.06);
+        gain.gain.setValueAtTime(0.2, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.065);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.07);
+      }
+
+      playSnap() {
+        if (!this.ctx || this.muted) return;
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(170, t);
+        osc.frequency.exponentialRampToValueAtTime(45, t + 0.06);
+        gain.gain.setValueAtTime(0.28, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.065);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.07);
+      }
+
+      playCraft() {
+        if (!this.ctx || this.muted) return;
+        const t = this.ctx.currentTime;
+        const freqs = [330, 495, 660, 990];
+        freqs.forEach((f, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const filter = this.ctx.createBiquadFilter();
+          osc.type = 'sawtooth';
+          const st = t + i * 0.035;
+          osc.frequency.setValueAtTime(f, st);
+          osc.frequency.exponentialRampToValueAtTime(f * 1.4, st + 0.12);
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(f * 1.8, st);
+          gain.gain.setValueAtTime(0.12, st);
+          gain.gain.exponentialRampToValueAtTime(0.001, st + 0.14);
+          osc.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(st);
+          osc.stop(st + 0.15);
+        });
+      }
+
+      playCash() {
+        if (!this.ctx || this.muted) return;
+        const t = this.ctx.currentTime;
+        [2093, 2637].forEach((f, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(f, t + idx * 0.025);
+          gain.gain.setValueAtTime(0.22, t + idx * 0.025);
+          gain.gain.exponentialRampToValueAtTime(0.0005, t + 0.45);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t + idx * 0.025);
+          osc.stop(t + 0.46);
+        });
+      }
+
+      playTip() {
+        if (!this.ctx || this.muted) return;
+        const t = this.ctx.currentTime;
+        [1046, 1318, 1567, 2093].forEach((f, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          const st = t + idx * 0.045;
+          osc.frequency.setValueAtTime(f, st);
+          gain.gain.setValueAtTime(0.16, st);
+          gain.gain.exponentialRampToValueAtTime(0.001, st + 0.2);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(st);
+          osc.stop(st + 0.22);
+        });
+      }
+
+      playAngryBuzz() {
+        if (!this.ctx || this.muted) return;
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(115, t);
+        osc.frequency.linearRampToValueAtTime(95, t + 0.2);
+        gain.gain.setValueAtTime(0.24, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.23);
+      }
+
+      playRageQuit() {
+        if (!this.ctx || this.muted) return;
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(95, t);
+        osc.frequency.exponentialRampToValueAtTime(25, t + 0.38);
+        gain.gain.setValueAtTime(0.4, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+
+        const bufferSize = Math.floor(this.ctx.sampleRate * 0.3);
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.25));
+        }
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(450, t);
+        const noiseGain = this.ctx.createGain();
+        noiseGain.gain.setValueAtTime(0.35, t);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.32);
+
+        noise.connect(filter);
+        filter.connect(noiseGain);
+        noiseGain.connect(this.ctx.destination);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(t);
+        noise.start(t);
+        osc.stop(t + 0.42);
+        noise.stop(t + 0.33);
+      }
+
+      playSiren() {
+        if (!this.ctx || this.muted) return;
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(700, t);
+        osc.frequency.linearRampToValueAtTime(950, t + 0.2);
+        osc.frequency.linearRampToValueAtTime(700, t + 0.4);
+        osc.frequency.linearRampToValueAtTime(950, t + 0.6);
+        osc.frequency.linearRampToValueAtTime(500, t + 0.9);
+        gain.gain.setValueAtTime(0.28, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.95);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 1.0);
+      }
+    }
+
+    /* =====================================================================
+       2. InventoryGrid: 5x4 Grid Matrix & Crafting Mechanics
+       ===================================================================== */
+    class InventoryGrid {
+      constructor(audio) {
+        this.audio = audio;
+        this.cols = 5;
+        this.rows = 4;
+        this.slotWidth = 92;
+        this.slotHeight = 78;
+        this.gap = 12;
+
+        // Position coordinates on the 1000x700 canvas
+        this.startX = 236;
+        this.startY = 330;
+
+        // 20 slots array
+        this.slots = [];
+        this.initSlots();
+
+        // Recycler / Scrap bay zone
+        this.scrapZone = {
+          x: 775,
+          y: 495,
+          width: 195,
+          height: 140
+        };
+
+        // Supply conveyor timer
+        this.dropInterval = 3400; // ms
+        this.dropTimer = 0;
+      }
+
+      initSlots() {
+        this.slots = [];
+        for (let r = 0; r < this.rows; r++) {
+          for (let c = 0; c < this.cols; c++) {
+            const x = this.startX + c * (this.slotWidth + this.gap);
+            const y = this.startY + r * (this.slotHeight + this.gap);
+            const coordLabel = String.fromCharCode(65 + r) + (c + 1);
+            this.slots.push({
+              index: r * this.cols + c,
+              col: c,
+              row: r,
+              coord: coordLabel,
+              x: x,
+              y: y,
+              width: this.slotWidth,
+              height: this.slotHeight,
+              item: null
+            });
+          }
+        }
+      }
+
+      reset() {
+        this.slots.forEach(s => s.item = null);
+        this.dropTimer = 0;
+        // Seed 4 initial basic components
+        this.spawnRandomComponent();
+        this.spawnRandomComponent();
+        this.spawnRandomComponent();
+        this.spawnRandomComponent();
+      }
+
+      update(dt) {
+        this.dropTimer += dt;
+        if (this.dropTimer >= this.dropInterval) {
+          this.dropTimer = 0;
+          this.spawnRandomComponent();
+        }
+      }
+
+      getEmptySlots() {
+        return this.slots.filter(s => s.item === null);
+      }
+
+      isFull() {
+        return this.getEmptySlots().length === 0;
+      }
+
+      spawnRandomComponent() {
+        const empty = this.getEmptySlots();
+        if (empty.length === 0) return false;
+        const targetSlot = empty[Math.floor(Math.random() * empty.length)];
+        const keys = Object.keys(BASE_COMPONENTS);
+        const randomKey = keys[Math.floor(Math.random() * keys.length)];
+        targetSlot.item = { ...BASE_COMPONENTS[randomKey], instanceId: Date.now() + Math.random() };
+        this.audio.playSnap();
+        return true;
+      }
+
+      forceAirdrop() {
+        const empty = this.getEmptySlots();
+        if (empty.length === 0) return false;
+        this.spawnRandomComponent();
+        if (empty.length > 1) {
+          this.spawnRandomComponent();
+        }
+        return true;
+      }
+
+      getSlotAt(x, y) {
+        for (const slot of this.slots) {
+          if (x >= slot.x && x <= slot.x + slot.width &&
+              y >= slot.y && y <= slot.y + slot.height) {
+            return slot;
+          }
+        }
+        return null;
+      }
+
+      isOverScrapZone(x, y) {
+        return (x >= this.scrapZone.x && x <= this.scrapZone.x + this.scrapZone.width &&
+                y >= this.scrapZone.y && y <= this.scrapZone.y + this.scrapZone.height);
+      }
+
+      checkRecipe(itemA, itemB) {
+        if (!itemA || !itemB) return null;
+        for (const r of RECIPES) {
+          if ((r.parts[0] === itemA.id && r.parts[1] === itemB.id) ||
+              (r.parts[1] === itemA.id && r.parts[0] === itemB.id)) {
+            return r;
+          }
+        }
+        return null;
+      }
+
+      combineSlots(sourceSlot, targetSlot) {
+        const recipe = this.checkRecipe(sourceSlot.item, targetSlot.item);
+        if (!recipe) return false;
+
+        // Synthesize target into crafted module
+        targetSlot.item = { ...recipe, instanceId: Date.now() + Math.random(), crafted: true };
+        sourceSlot.item = null;
+        this.audio.playCraft();
+        return recipe;
+      }
+
+      swapSlots(sourceSlot, targetSlot) {
+        const temp = targetSlot.item;
+        targetSlot.item = sourceSlot.item;
+        sourceSlot.item = temp;
+        this.audio.playSnap();
+      }
+
+      draw(ctx, dragTargetSlot, canCombineHighlight) {
+        // Draw 5x4 Grid Background Housing
+        ctx.fillStyle = '#0a1020';
+        ctx.strokeStyle = '#182b4a';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(this.startX - 14, this.startY - 14, (this.cols * (this.slotWidth + this.gap)) + 16, (this.rows * (this.slotHeight + this.gap)) + 16, 6);
+        ctx.fill();
+        ctx.stroke();
+
+        // Header tab for grid
+        ctx.fillStyle = '#00f0ff';
+        ctx.font = '10px Consolas, monospace';
+        ctx.fillText('STORAGE MATRIX [5x4] // HIGH-SPEED BUFFER', this.startX - 6, this.startY - 22);
+
+        // Draw Slots
+        for (const slot of this.slots) {
+          const isTargeted = (dragTargetSlot && dragTargetSlot.index === slot.index);
+          const isRecipeTarget = isTargeted && canCombineHighlight;
+
+          // Slot Background
+          ctx.fillStyle = isRecipeTarget ? 'rgba(255, 170, 0, 0.15)' : (isTargeted ? 'rgba(0, 240, 255, 0.12)' : '#0d152a');
+          ctx.strokeStyle = isRecipeTarget ? '#ffaa00' : (isTargeted ? '#00f0ff' : '#1e3355');
+          ctx.lineWidth = isTargeted ? 2 : 1;
+
+          ctx.beginPath();
+          ctx.roundRect(slot.x, slot.y, slot.width, slot.height, 4);
+          ctx.fill();
+          ctx.stroke();
+
+          // Coordinate label
+          ctx.fillStyle = '#36517a';
+          ctx.font = '9px Consolas, monospace';
+          ctx.fillText(slot.coord, slot.x + 5, slot.y + 12);
+
+          // Draw Item if present (and not currently being dragged by DragManager)
+          if (slot.item && !slot.isBeingDragged) {
+            this.drawItemBadge(ctx, slot.item, slot.x + 4, slot.y + 4, slot.width - 8, slot.height - 8);
+          }
+        }
+
+        // Draw Recycler / Scrap Bay
+        const sz = this.scrapZone;
+        ctx.fillStyle = '#0e1220';
+        ctx.strokeStyle = '#732035';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.roundRect(sz.x, sz.y, sz.width, sz.height, 6);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#ff0055';
+        ctx.font = 'bold 11px Consolas, monospace';
+        ctx.fillText('⚡ DISASSEMBLER / RECYCLER', sz.x + 10, sz.y + 20);
+
+        ctx.fillStyle = '#899bb5';
+        ctx.font = '10px Consolas, monospace';
+        ctx.fillText('Drop unwanted items here', sz.x + 10, sz.y + 40);
+        ctx.fillText('to reclaim ¢10 scrap credits.', sz.x + 10, sz.y + 54);
+
+        // Hazard diagonal stripes in recycler hatch
+        ctx.save();
+        ctx.beginPath();
+        ctx.roundRect(sz.x + 12, sz.y + 65, sz.width - 24, 60, 4);
+        ctx.clip();
+        ctx.fillStyle = '#150c18';
+        ctx.fillRect(sz.x + 12, sz.y + 65, sz.width - 24, 60);
+        ctx.strokeStyle = '#441424';
+        ctx.lineWidth = 6;
+        for (let i = -50; i < sz.width + 50; i += 16) {
+          ctx.beginPath();
+          ctx.moveTo(sz.x + i, sz.y + 65);
+          ctx.lineTo(sz.x + i + 30, sz.y + 125);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      drawItemBadge(ctx, item, x, y, w, h) {
+        // Component Base Card
+        ctx.fillStyle = '#11172a';
+        ctx.strokeStyle = item.color;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.roundRect(x, y, w, h, 4);
+        ctx.fill();
+        ctx.stroke();
+
+        // Glowing Corner accent
+        ctx.fillStyle = item.glow;
+        ctx.fillRect(x + 2, y + 2, w - 4, 3);
+
+        // Icon / Symbol
+        ctx.font = '22px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(item.symbol, x + 24, y + h / 2 + 2);
+
+        // Name & Tag
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 11px Consolas, monospace';
+        ctx.fillText(item.tag, x + 44, y + 22);
+
+        ctx.fillStyle = item.color;
+        ctx.font = '9px Consolas, monospace';
+        ctx.fillText('¢' + item.value, x + 44, y + 36);
+
+        // Tier / Crafted status badge
+        if (item.crafted) {
+          ctx.fillStyle = '#ffaa00';
+          ctx.font = '8px Consolas, monospace';
+          ctx.fillText('MOD:T2', x + 44, y + 50);
+        } else {
+          ctx.fillStyle = '#5c769e';
+          ctx.font = '8px Consolas, monospace';
+          ctx.fillText('RAW:T1', x + 44, y + 50);
+        }
+      }
+    }
+
+    /* =====================================================================
+       3. OrderSystem: Customer Generation, Impatience & Rage-Quits
+       ===================================================================== */
+    class OrderSystem {
+      constructor(audio) {
+        this.audio = audio;
+        this.maxCustomers = 3;
+        this.customers = [];
+
+        // Counter Bays layout (3 bays at the top)
+        this.bayWidth = 300;
+        this.bayHeight = 160;
+        this.startX = 30;
+        this.startY = 60;
+        this.gap = 25;
+
+        // Progression tuning
+        this.shiftLevel = 1;
+        this.spawnCooldown = 1500;
+        this.spawnTimer = 0;
+      }
+
+      reset(shiftLevel = 1) {
+        this.shiftLevel = shiftLevel;
+        this.customers = [];
+        this.spawnTimer = 0;
+        for (let i = 0; i < this.maxCustomers; i++) {
+          this.createCustomer(i);
+        }
+      }
+
+      createCustomer(bayIndex) {
+        const archetype = CUSTOMER_ARCHETYPES[Math.floor(Math.random() * CUSTOMER_ARCHETYPES.length)];
+        const id = Date.now() + Math.random();
+        const bayX = this.startX + bayIndex * (this.bayWidth + this.gap);
+        const bayY = this.startY;
+
+        // Impatience timer scales tighter with higher shifts
+        const baseTime = Math.max(11000, 21000 - (this.shiftLevel * 1800));
+        const maxTime = baseTime + Math.random() * 3000;
+
+        // Generate required items (Tier 1 vs Tier 2 crafted based on shift)
+        const orderItems = [];
+        const isAdvancedOrder = (this.shiftLevel >= 2 && Math.random() < 0.45);
+
+        if (isAdvancedOrder) {
+          // Requires 1 crafted module
+          const randomRecipe = RECIPES[Math.floor(Math.random() * RECIPES.length)];
+          orderItems.push({
+            requiredId: randomRecipe.id,
+            name: randomRecipe.name,
+            symbol: randomRecipe.symbol,
+            color: randomRecipe.color,
+            value: randomRecipe.value,
+            isFulfilled: false
+          });
+        } else {
+          // Requires 1 or 2 raw components
+          const count = (this.shiftLevel >= 2 && Math.random() < 0.5) ? 2 : 1;
+          const baseKeys = Object.keys(BASE_COMPONENTS);
+          for (let c = 0; c < count; c++) {
+            const k = baseKeys[Math.floor(Math.random() * baseKeys.length)];
+            const def = BASE_COMPONENTS[k];
+            orderItems.push({
+              requiredId: def.id,
+              name: def.name,
+              symbol: def.symbol,
+              color: def.color,
+              value: def.value,
+              isFulfilled: false
+            });
+          }
+        }
+
+        // Procedural face features
+        const eyeColor = ['#00f0ff', '#ff0055', '#ffaa00', '#00ff66', '#a855f7'][Math.floor(Math.random() * 5)];
+        const visorType = Math.floor(Math.random() * 3);
+
+        const customer = {
+          id: id,
+          bayIndex: bayIndex,
+          x: bayX,
+          y: bayY,
+          width: this.bayWidth,
+          height: this.bayHeight,
+          archetype: archetype.role,
+          name: archetype.prefix + '-' + Math.floor(100 + Math.random() * 900),
+          quote: archetype.quotes[Math.floor(Math.random() * archetype.quotes.length)],
+          orderItems: orderItems,
+          totalValue: orderItems.reduce((acc, i) => acc + i.value, 0),
+          maxTime: maxTime,
+          remainingTime: maxTime,
+          face: { eyeColor, visorType },
+          warningPlayed: false,
+          isRaging: false
+        };
+
+        this.customers[bayIndex] = customer;
+      }
+
+      update(dt, onRageQuit) {
+        for (let i = 0; i < this.maxCustomers; i++) {
+          const cust = this.customers[i];
+          if (!cust) {
+            this.createCustomer(i);
+            continue;
+          }
+
+          cust.remainingTime -= dt;
+
+          // Impatience warning buzz at < 25% patience
+          const ratio = cust.remainingTime / cust.maxTime;
+          if (ratio <= 0.25 && !cust.warningPlayed) {
+            cust.warningPlayed = true;
+            this.audio.playAngryBuzz();
+          }
+
+          // Rage-Quit condition!
+          if (cust.remainingTime <= 0) {
+            this.audio.playRageQuit();
+            onRageQuit(cust);
+            // Replace with new customer after brief pause
+            this.customers[i] = null;
+          }
+        }
+      }
+
+      getBayAt(x, y) {
+        for (const cust of this.customers) {
+          if (!cust) continue;
+          if (x >= cust.x && x <= cust.x + cust.width &&
+              y >= cust.y && y <= cust.y + cust.height) {
+            return cust;
+          }
+        }
+        return null;
+      }
+
+      tryDeliverItem(customer, draggedItem) {
+        if (!customer || !draggedItem) return null;
+
+        // Find matching unfulfilled item on this ticket
+        const slot = customer.orderItems.find(i => !i.isFulfilled && i.requiredId === draggedItem.id);
+        if (!slot) return null;
+
+        slot.isFulfilled = true;
+
+        // Check if ticket is 100% complete
+        const allDone = customer.orderItems.every(i => i.isFulfilled);
+        const timeRatio = customer.remainingTime / customer.maxTime;
+        const isTipEligible = (timeRatio >= 0.5);
+
+        return {
+          slotMatched: true,
+          ticketComplete: allDone,
+          customer: customer,
+          isTipEligible: isTipEligible,
+          timeRatio: timeRatio
+        };
+      }
+
+      fulfillCustomer(bayIndex) {
+        this.customers[bayIndex] = null;
+      }
+
+      draw(ctx, dragTargetBay) {
+        for (let i = 0; i < this.maxCustomers; i++) {
+          const cust = this.customers[i];
+          const x = this.startX + i * (this.bayWidth + this.gap);
+          const y = this.startY;
+
+          if (!cust) {
+            // Empty bay slot
+            ctx.fillStyle = '#080d1a';
+            ctx.strokeStyle = '#142238';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.roundRect(x, y, this.bayWidth, this.bayHeight, 6);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#3a4e70';
+            ctx.font = '11px Consolas, monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('// INCOMING CLIENT...', x + this.bayWidth / 2, y + this.bayHeight / 2);
+            continue;
+          }
+
+          const isTargeted = (dragTargetBay && dragTargetBay.id === cust.id);
+          const ratio = Math.max(0, cust.remainingTime / cust.maxTime);
+
+          // Panel border & background
+          ctx.fillStyle = isTargeted ? '#121f3d' : '#0d1527';
+          ctx.strokeStyle = isTargeted ? '#00f0ff' : (ratio < 0.25 ? '#ff0055' : '#1c3154');
+          ctx.lineWidth = isTargeted ? 2.5 : 1.5;
+
+          ctx.beginPath();
+          ctx.roundRect(x, y, this.bayWidth, this.bayHeight, 6);
+          ctx.fill();
+          ctx.stroke();
+
+          // Cyberpunk Portrait (Avatar on left side)
+          this.drawAvatar(ctx, cust, x + 12, y + 14, 56, 56);
+
+          // Customer Archetype and Name
+          ctx.textAlign = 'left';
+          ctx.fillStyle = '#00f0ff';
+          ctx.font = 'bold 11px Consolas, monospace';
+          ctx.fillText(cust.archetype, x + 76, y + 24);
+
+          ctx.fillStyle = '#9cb8e0';
+          ctx.font = '10px Consolas, monospace';
+          ctx.fillText(cust.name, x + 76, y + 38);
+
+          // Quote blurb
+          ctx.fillStyle = '#5c79a3';
+          ctx.font = 'italic 9px Consolas, monospace';
+          ctx.fillText('"' + cust.quote + '"', x + 76, y + 52);
+
+          // Ticket Orders Container
+          ctx.fillStyle = '#080c18';
+          ctx.strokeStyle = '#162847';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.roundRect(x + 10, y + 74, this.bayWidth - 20, 52, 4);
+          ctx.fill();
+          ctx.stroke();
+
+          // Draw requested item icons inside ticket
+          let itemX = x + 18;
+          for (const item of cust.orderItems) {
+            ctx.fillStyle = item.isFulfilled ? '#003322' : '#111a30';
+            ctx.strokeStyle = item.isFulfilled ? '#00ff66' : item.color;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.roundRect(itemX, y + 80, 115, 40, 3);
+            ctx.fill();
+            ctx.stroke();
+
+            // Item symbol
+            ctx.font = '16px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(item.symbol, itemX + 18, y + 104);
+
+            // Item Name
+            ctx.textAlign = 'left';
+            ctx.fillStyle = item.isFulfilled ? '#00ff66' : '#ffffff';
+            ctx.font = 'bold 9px Consolas, monospace';
+            ctx.fillText(item.name.substring(0, 11), itemX + 36, y + 96);
+
+            // Status check
+            ctx.fillStyle = item.isFulfilled ? '#00ff66' : '#738ea8';
+            ctx.font = '8px Consolas, monospace';
+            ctx.fillText(item.isFulfilled ? 'DELIVERED ✓' : 'REQUIRED', itemX + 36, y + 110);
+
+            itemX += 122;
+          }
+
+          // Impatience Bar at the bottom
+          const barWidth = this.bayWidth - 24;
+          const barHeight = 8;
+          const barX = x + 12;
+          const barY = y + 138;
+
+          // Bar track
+          ctx.fillStyle = '#060a14';
+          ctx.fillRect(barX, barY, barWidth, barHeight);
+
+          // Bar fill color logic: Green (>=50%) -> Yellow (25-50%) -> Red (<25%)
+          let barColor = '#00ff66';
+          if (ratio < 0.25) {
+            barColor = (Math.floor(Date.now() / 150) % 2 === 0) ? '#ff0055' : '#ffffff';
+          } else if (ratio < 0.5) {
+            barColor = '#ffaa00';
+          }
+
+          ctx.fillStyle = barColor;
+          ctx.fillRect(barX, barY, barWidth * ratio, barHeight);
+
+          // Patience label
+          ctx.fillStyle = (ratio < 0.25) ? '#ff0055' : '#8fa6c7';
+          ctx.font = '9px Consolas, monospace';
+          ctx.textAlign = 'right';
+          const statusText = (ratio >= 0.5) ? 'SPEED TIP +40%' : (ratio < 0.25 ? 'CRITICAL RAGE!' : 'PATIENCE');
+          ctx.fillText(statusText, barX + barWidth, barY - 4);
+        }
+      }
+
+      drawAvatar(ctx, cust, x, y, w, h) {
+        // Avatar frame
+        ctx.fillStyle = '#0a0f1d';
+        ctx.strokeStyle = cust.face.eyeColor;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.roundRect(x, y, w, h, 4);
+        ctx.fill();
+        ctx.stroke();
+
+        // Vector Face Representation
+        const cx = x + w / 2;
+        const cy = y + h / 2;
+
+        // Head silhouette
+        ctx.fillStyle = '#1c2842';
+        ctx.beginPath();
+        ctx.roundRect(cx - 16, cy - 18, 32, 36, 6);
+        ctx.fill();
+
+        // Visor / Cybernetic Eyes
+        ctx.fillStyle = cust.face.eyeColor;
+        ctx.shadowColor = cust.face.eyeColor;
+        ctx.shadowBlur = 8;
+        if (cust.face.visorType === 0) {
+          // Sleek single horizontal visor band
+          ctx.fillRect(cx - 14, cy - 6, 28, 6);
+        } else if (cust.face.visorType === 1) {
+          // Twin optic lens circles
+          ctx.beginPath();
+          ctx.arc(cx - 7, cy - 3, 4, 0, Math.PI * 2);
+          ctx.arc(cx + 7, cy - 3, 4, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          // Asymmetrical ocular implant
+          ctx.fillRect(cx - 12, cy - 6, 10, 8);
+          ctx.beginPath();
+          ctx.arc(cx + 7, cy - 2, 3, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.shadowBlur = 0;
+
+        // Respirator / Jaw plate
+        ctx.fillStyle = '#090d18';
+        ctx.fillRect(cx - 10, cy + 8, 20, 8);
+      }
+    }
+
+    /* =====================================================================
+       4. DragManager: Tactile Mouse and Touch Drag-and-Drop
+       ===================================================================== */
+    class DragManager {
+      constructor(canvas, grid, orderSystem, audio) {
+        this.canvas = canvas;
+        this.grid = grid;
+        this.orderSystem = orderSystem;
+        this.audio = audio;
+
+        this.isDragging = false;
+        this.draggedItem = null;
+        this.sourceSlot = null;
+        this.currentX = 0;
+        this.currentY = 0;
+        this.offsetX = 0;
+        this.offsetY = 0;
+
+        // Current target hover indicators
+        this.hoveredSlot = null;
+        this.hoveredCustomer = null;
+        this.canCombine = false;
+
+        this.initEvents();
+      }
+
+      initEvents() {
+        const getCanvasCoords = (e) => {
+          const rect = this.canvas.getBoundingClientRect();
+          const scaleX = 1000 / rect.width;
+          const scaleY = 700 / rect.height;
+          const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+          const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+          return {
+            x: (clientX - rect.left) * scaleX,
+            y: (clientY - rect.top) * scaleY
+          };
+        };
+
+        const onPointerDown = (e) => {
+          this.audio.init();
+          const { x, y } = getCanvasCoords(e);
+          const slot = this.grid.getSlotAt(x, y);
+
+          if (slot && slot.item) {
+            this.isDragging = true;
+            this.sourceSlot = slot;
+            this.draggedItem = slot.item;
+            slot.isBeingDragged = true;
+            this.currentX = x;
+            this.currentY = y;
+            this.offsetX = x - slot.x;
+            this.offsetY = y - slot.y;
+            this.audio.playPickup();
+            e.preventDefault();
+          }
+        };
+
+        const onPointerMove = (e) => {
+          if (!this.isDragging) return;
+          const { x, y } = getCanvasCoords(e);
+          this.currentX = x;
+          this.currentY = y;
+
+          // Check hover targets
+          this.hoveredSlot = this.grid.getSlotAt(x, y);
+          this.hoveredCustomer = this.orderSystem.getBayAt(x, y);
+
+          if (this.hoveredSlot && this.hoveredSlot !== this.sourceSlot && this.hoveredSlot.item) {
+            this.canCombine = !!this.grid.checkRecipe(this.draggedItem, this.hoveredSlot.item);
+          } else {
+            this.canCombine = false;
+          }
+          e.preventDefault();
+        };
+
+        const onPointerUp = (e) => {
+          if (!this.isDragging) return;
+          const { x, y } = getCanvasCoords(e);
+
+          let dropHandled = false;
+
+          // 1. Check if dropped over a Customer Ticket Bay
+          const cust = this.orderSystem.getBayAt(x, y);
+          if (cust) {
+            const deliveryResult = this.orderSystem.tryDeliverItem(cust, this.draggedItem);
+            if (deliveryResult) {
+              // Successfully delivered to ticket!
+              this.sourceSlot.item = null;
+              this.sourceSlot.isBeingDragged = false;
+              dropHandled = true;
+
+              // Fire custom event to notify GameEngine of successful delivery
+              window.dispatchEvent(new CustomEvent('itemDelivered', { detail: deliveryResult }));
+            }
+          }
+
+          // 2. Check if dropped over the Recycler / Scrap Zone
+          if (!dropHandled && this.grid.isOverScrapZone(x, y)) {
+            this.sourceSlot.item = null;
+            this.sourceSlot.isBeingDragged = false;
+            dropHandled = true;
+            this.audio.playSnap();
+            window.dispatchEvent(new CustomEvent('itemScrapped', { detail: { value: 10 } }));
+          }
+
+          // 3. Check if dropped over another Inventory Slot
+          if (!dropHandled) {
+            const targetSlot = this.grid.getSlotAt(x, y);
+            if (targetSlot && targetSlot !== this.sourceSlot) {
+              if (targetSlot.item === null) {
+                // Move item to empty slot
+                targetSlot.item = this.draggedItem;
+                this.sourceSlot.item = null;
+                this.sourceSlot.isBeingDragged = false;
+                this.audio.playSnap();
+                dropHandled = true;
+              } else {
+                // Check Crafting Recipe Combination!
+                const recipe = this.grid.combineSlots(this.sourceSlot, targetSlot);
+                if (recipe) {
+                  this.sourceSlot.isBeingDragged = false;
+                  dropHandled = true;
+                  window.dispatchEvent(new CustomEvent('itemCrafted', { detail: recipe }));
+                } else {
+                  // Swap slots
+                  this.grid.swapSlots(this.sourceSlot, targetSlot);
+                  this.sourceSlot.isBeingDragged = false;
+                  dropHandled = true;
+                }
+              }
+            }
+          }
+
+          // 4. If invalid drop or canceled, snap back
+          if (!dropHandled && this.sourceSlot) {
+            this.sourceSlot.isBeingDragged = false;
+            this.audio.playSnap();
+          }
+
+          this.isDragging = false;
+          this.draggedItem = null;
+          this.sourceSlot = null;
+          this.hoveredSlot = null;
+          this.hoveredCustomer = null;
+          this.canCombine = false;
+        };
+
+        this.canvas.addEventListener('mousedown', onPointerDown);
+        window.addEventListener('mousemove', onPointerMove);
+        window.addEventListener('mouseup', onPointerUp);
+
+        this.canvas.addEventListener('touchstart', onPointerDown, { passive: false });
+        window.addEventListener('touchmove', onPointerMove, { passive: false });
+        window.addEventListener('touchend', onPointerUp);
+      }
+
+      draw(ctx) {
+        if (!this.isDragging || !this.draggedItem) return;
+
+        // Render dragged item floating with shadow and neon glow
+        const item = this.draggedItem;
+        const w = this.grid.slotWidth - 8;
+        const h = this.grid.slotHeight - 8;
+        const x = this.currentX - w / 2;
+        const y = this.currentY - h / 2;
+
+        ctx.save();
+        ctx.shadowColor = item.color;
+        ctx.shadowBlur = 18;
+        ctx.fillStyle = '#141c33';
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+
+        ctx.beginPath();
+        ctx.roundRect(x, y, w, h, 5);
+        ctx.fill();
+        ctx.stroke();
+
+        // Symbol
+        ctx.font = '24px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(item.symbol, x + 24, y + h / 2);
+
+        // Tag
+        ctx.textAlign = 'left';
+        ctx.fillStyle = item.color;
+        ctx.font = 'bold 12px Consolas, monospace';
+        ctx.fillText(item.tag, x + 44, y + 26);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '10px Consolas, monospace';
+        ctx.fillText('¢' + item.value, x + 44, y + 42);
+
+        ctx.restore();
+      }
+    }
+
+    /* =====================================================================
+       5. GameEngine: Core Loop, Shift Progress, HUD & Particles
+       ===================================================================== */
+    class GameEngine {
+      constructor() {
+        this.canvas = document.getElementById('game-canvas');
+        this.ctx = this.canvas.getContext('2d');
+
+        // Set virtual resolution to 1000 x 700
+        this.canvas.width = 1000;
+        this.canvas.height = 700;
+
+        // Audio & Subsystems
+        this.audio = new AudioSynth();
+        this.grid = new InventoryGrid(this.audio);
+        this.orderSystem = new OrderSystem(this.audio);
+        this.dragManager = new DragManager(this.canvas, this.grid, this.orderSystem, this.audio);
+
+        // Game State: 'MENU', 'PLAYING', 'SHIFT_COMPLETE', 'GAMEOVER', 'PAUSED'
+        this.state = 'MENU';
+        this.credits = 100;
+        this.strikes = 0;
+        this.maxStrikes = 3;
+
+        // Shift Quotas
+        this.shift = 1;
+        this.shiftRevenue = 0;
+        this.shiftQuota = 450;
+        this.rentDue = 150;
+
+        // Statistics
+        this.totalRevenue = 0;
+        this.ordersClosed = 0;
+        this.modulesCrafted = 0;
+        this.tipsEarned = 0;
+        this.combo = 1;
+        this.maxCombo = 1;
+
+        // Visual FX
+        this.particles = [];
+        this.floatingTexts = [];
+        this.screenShake = 0;
+        this.lastTimestamp = 0;
+
+        this.initUI();
+        this.initEventListeners();
+        requestAnimationFrame((ts) => this.gameLoop(ts));
+      }
+
+      initUI() {
+        document.getElementById('btn-start').addEventListener('click', () => this.startGame());
+        document.getElementById('btn-restart').addEventListener('click', () => this.startGame());
+        document.getElementById('btn-next-shift').addEventListener('click', () => this.startNextShift());
+
+        document.getElementById('btn-audio').addEventListener('click', () => {
+          this.audio.init();
+          const muted = this.audio.toggleMute();
+          document.getElementById('btn-audio').textContent = muted ? 'AUDIO: OFF' : 'AUDIO: ON';
+        });
+
+        document.getElementById('btn-manual').addEventListener('click', () => {
+          document.getElementById('modal-manual').classList.remove('hidden');
+        });
+
+        document.getElementById('btn-close-manual').addEventListener('click', () => {
+          document.getElementById('modal-manual').classList.add('hidden');
+        });
+
+        document.getElementById('btn-pause').addEventListener('click', () => this.togglePause());
+
+        // Keyboard hotkeys
+        window.addEventListener('keydown', (e) => {
+          if (e.code === 'Space') {
+            if (this.state === 'PLAYING') {
+              // Manual supply drop
+              this.requestAirdrop();
+              e.preventDefault();
+            }
+          } else if (e.code === 'KeyP' || e.code === 'Escape') {
+            this.togglePause();
+          } else if (e.code === 'KeyM') {
+            const muted = this.audio.toggleMute();
+            document.getElementById('btn-audio').textContent = muted ? 'AUDIO: OFF' : 'AUDIO: ON';
+          }
+        });
+      }
+
+      initEventListeners() {
+        // Handle Item Delivery
+        window.addEventListener('itemDelivered', (e) => {
+          const { ticketComplete, customer, isTipEligible } = e.detail;
+          if (ticketComplete) {
+            const baseVal = customer.totalValue;
+            let tip = 0;
+            if (isTipEligible) {
+              tip = Math.floor(baseVal * 0.45 * this.combo);
+              this.tipsEarned += tip;
+              this.audio.playTip();
+              this.combo = Math.min(5, this.combo + 1);
+              if (this.combo > this.maxCombo) this.maxCombo = this.combo;
+              this.addFloatingText(customer.x + customer.width / 2, customer.y + 40, `+¢${baseVal} (+¢${tip} TIP!)`, '#00ff66');
+            } else {
+              this.addFloatingText(customer.x + customer.width / 2, customer.y + 40, `+¢${baseVal}`, '#ffaa00');
+            }
+
+            const totalEarned = baseVal + tip;
+            this.credits += totalEarned;
+            this.shiftRevenue += totalEarned;
+            this.totalRevenue += totalEarned;
+            this.ordersClosed++;
+            this.audio.playCash();
+            this.spawnCashParticles(customer.x + customer.width / 2, customer.y + 80);
+
+            // Clear bay and prepare new customer
+            this.orderSystem.fulfillCustomer(customer.bayIndex);
+
+            // Check if Shift Quota is Met!
+            if (this.shiftRevenue >= this.shiftQuota) {
+              this.completeShift();
+            }
+          } else {
+            this.audio.playSnap();
+            this.addFloatingText(customer.x + customer.width / 2, customer.y + 70, `PART DELIVERED!`, '#00f0ff');
+          }
+        });
+
+        // Handle Item Scrapped
+        window.addEventListener('itemScrapped', (e) => {
+          this.credits += e.detail.value;
+          this.addFloatingText(870, 560, `+¢10 SCRAP`, '#ffaa00');
+        });
+
+        // Handle Item Crafted
+        window.addEventListener('itemCrafted', (e) => {
+          this.modulesCrafted++;
+          const recipe = e.detail;
+          this.addFloatingText(this.dragManager.currentX, this.dragManager.currentY - 20, `SYNTHESIZED: ${recipe.name}!`, recipe.color);
+          this.spawnCraftParticles(this.dragManager.currentX, this.dragManager.currentY, recipe.color);
+        });
+      }
+
+      startGame() {
+        this.audio.init();
+        this.credits = 120;
+        this.strikes = 0;
+        this.shift = 1;
+        this.shiftRevenue = 0;
+        this.shiftQuota = 450;
+        this.rentDue = 150;
+        this.totalRevenue = 0;
+        this.ordersClosed = 0;
+        this.modulesCrafted = 0;
+        this.tipsEarned = 0;
+        this.combo = 1;
+        this.maxCombo = 1;
+        this.particles = [];
+        this.floatingTexts = [];
+
+        this.grid.reset();
+        this.orderSystem.reset(this.shift);
+
+        document.getElementById('modal-start').classList.add('hidden');
+        document.getElementById('modal-gameover').classList.add('hidden');
+        document.getElementById('modal-shift').classList.add('hidden');
+        this.state = 'PLAYING';
+      }
+
+      startNextShift() {
+        this.shift++;
+        this.shiftRevenue = 0;
+        this.shiftQuota = Math.floor(450 * Math.pow(1.5, this.shift - 1));
+        this.rentDue = Math.floor(150 * Math.pow(1.4, this.shift - 1));
+
+        this.orderSystem.reset(this.shift);
+        document.getElementById('modal-shift').classList.add('hidden');
+        this.state = 'PLAYING';
+      }
+
+      completeShift() {
+        this.state = 'SHIFT_COMPLETE';
+        this.credits = Math.max(0, this.credits - this.rentDue);
+
+        document.getElementById('shift-stat-num').textContent = this.shift;
+        document.getElementById('shift-stat-revenue').textContent = `¢${this.shiftRevenue}`;
+        document.getElementById('shift-stat-orders').textContent = this.ordersClosed;
+        document.getElementById('shift-stat-tips').textContent = `¢${this.tipsEarned}`;
+        document.getElementById('shift-stat-rent').textContent = `-¢${this.rentDue}`;
+        document.getElementById('shift-stat-net').textContent = `¢${this.credits}`;
+
+        document.getElementById('modal-shift').classList.remove('hidden');
+      }
+
+      triggerRageQuit(customer) {
+        this.strikes++;
+        this.combo = 1;
+        this.screenShake = 18;
+        this.addFloatingText(customer.x + customer.width / 2, customer.y + 60, `RAGE QUIT! -1 STRIKE`, '#ff0055');
+
+        if (this.strikes >= this.maxStrikes) {
+          this.gameOver();
+        }
+      }
+
+      gameOver() {
+        this.state = 'GAMEOVER';
+        this.audio.playSiren();
+
+        // Calculate Rank
+        let rank = 'STREET PEDDLER';
+        if (this.totalRevenue > 2500) rank = 'SHADOW SYNDICATE MASTER';
+        else if (this.totalRevenue > 1400) rank = 'CYBER BROKER PRIME';
+        else if (this.totalRevenue > 700) rank = 'TECH RUNNER';
+
+        document.getElementById('gov-revenue').textContent = `¢${this.totalRevenue}`;
+        document.getElementById('gov-orders').textContent = this.ordersClosed;
+        document.getElementById('gov-crafted').textContent = this.modulesCrafted;
+        document.getElementById('gov-combo').textContent = `x${this.maxCombo}`;
+        document.getElementById('gov-rank').textContent = rank;
+
+        document.getElementById('modal-gameover').classList.remove('hidden');
+      }
+
+      togglePause() {
+        if (this.state === 'PLAYING') {
+          this.state = 'PAUSED';
+          document.getElementById('btn-pause').textContent = 'RESUME';
+        } else if (this.state === 'PAUSED') {
+          this.state = 'PLAYING';
+          document.getElementById('btn-pause').textContent = 'PAUSE';
+        }
+      }
+
+      requestAirdrop() {
+        const cost = 15;
+        if (this.credits >= cost) {
+          const success = this.grid.forceAirdrop();
+          if (success) {
+            this.credits -= cost;
+            this.audio.playSnap();
+            this.addFloatingText(300, 310, `AIRDROP -¢15`, '#00f0ff');
+          }
+        } else {
+          this.audio.playAngryBuzz();
+          this.addFloatingText(300, 310, `INSUFFICIENT FUNDS!`, '#ff0055');
+        }
+      }
+
+      addFloatingText(x, y, text, color) {
+        this.floatingTexts.push({
+          x: x,
+          y: y,
+          text: text,
+          color: color,
+          alpha: 1.0,
+          vy: -1.2,
+          life: 70
+        });
+      }
+
+      spawnCashParticles(x, y) {
+        for (let i = 0; i < 18; i++) {
+          this.particles.push({
+            x: x,
+            y: y,
+            vx: (Math.random() - 0.5) * 5,
+            vy: (Math.random() - 0.7) * 5,
+            color: '#00ff66',
+            size: Math.random() * 3 + 2,
+            alpha: 1.0,
+            decay: 0.02
+          });
+        }
+      }
+
+      spawnCraftParticles(x, y, color) {
+        for (let i = 0; i < 22; i++) {
+          this.particles.push({
+            x: x,
+            y: y,
+            vx: (Math.random() - 0.5) * 6,
+            vy: (Math.random() - 0.5) * 6,
+            color: color,
+            size: Math.random() * 4 + 2,
+            alpha: 1.0,
+            decay: 0.025
+          });
+        }
+      }
+
+      gameLoop(timestamp) {
+        if (!this.lastTimestamp) this.lastTimestamp = timestamp;
+        const dt = Math.min(64, timestamp - this.lastTimestamp);
+        this.lastTimestamp = timestamp;
+
+        if (this.state === 'PLAYING') {
+          this.update(dt);
+        }
+
+        this.render();
+        requestAnimationFrame((ts) => this.gameLoop(ts));
+      }
+
+      update(dt) {
+        this.grid.update(dt);
+        this.orderSystem.update(dt, (cust) => this.triggerRageQuit(cust));
+
+        // Screen Shake decay
+        if (this.screenShake > 0) this.screenShake--;
+
+        // Update Particles
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const p = this.particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.alpha -= p.decay;
+          if (p.alpha <= 0) this.particles.splice(i, 1);
+        }
+
+        // Update Floating Texts
+        for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
+          const ft = this.floatingTexts[i];
+          ft.y += ft.vy;
+          ft.life--;
+          ft.alpha = ft.life / 70;
+          if (ft.life <= 0) this.floatingTexts.splice(i, 1);
+        }
+      }
+
+      render() {
+        this.ctx.save();
+
+        // Screen Shake Transform
+        if (this.screenShake > 0) {
+          const sx = (Math.random() - 0.5) * this.screenShake;
+          const sy = (Math.random() - 0.5) * this.screenShake;
+          this.ctx.translate(sx, sy);
+        }
+
+        // Clear Canvas
+        this.ctx.fillStyle = '#070914';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Render Top HUD / Status Bar
+        this.renderHUD();
+
+        // Render Order System (Customer bays)
+        this.orderSystem.draw(this.ctx, this.dragManager.hoveredCustomer);
+
+        // Render Inventory Grid
+        this.grid.draw(this.ctx, this.dragManager.hoveredSlot, this.dragManager.canCombine);
+
+        // Render Quick Blueprint Panel on Left Side
+        this.renderBlueprintHUD();
+
+        // Render Smuggler Airdrop Button
+        this.renderAirdropButton();
+
+        // Render Particles
+        for (const p of this.particles) {
+          this.ctx.save();
+          this.ctx.globalAlpha = p.alpha;
+          this.ctx.fillStyle = p.color;
+          this.ctx.beginPath();
+          this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          this.ctx.fill();
+          this.ctx.restore();
+        }
+
+        // Render Floating Texts
+        for (const ft of this.floatingTexts) {
+          this.ctx.save();
+          this.ctx.globalAlpha = ft.alpha;
+          this.ctx.fillStyle = ft.color;
+          this.ctx.font = 'bold 13px Consolas, monospace';
+          this.ctx.textAlign = 'center';
+          this.ctx.fillText(ft.text, ft.x, ft.y);
+          this.ctx.restore();
+        }
+
+        // Render Dragged Item on top of everything
+        this.dragManager.draw(this.ctx);
+
+        this.ctx.restore();
+      }
+
+      renderHUD() {
+        // Top HUD Header
+        this.ctx.fillStyle = '#0a1022';
+        this.ctx.strokeStyle = '#1d3152';
+        this.ctx.lineWidth = 1;
+        this.ctx.fillRect(20, 10, 960, 40);
+        this.ctx.strokeRect(20, 10, 960, 40);
+
+        // Bank / Credits
+        this.ctx.fillStyle = '#ffaa00';
+        this.ctx.font = 'bold 15px Consolas, monospace';
+        this.ctx.textAlign = 'left';
+        this.ctx.fillText(`CREDITS: ¢${this.credits}`, 35, 35);
+
+        // Shift Quota progress
+        this.ctx.fillStyle = '#00f0ff';
+        this.ctx.font = '13px Consolas, monospace';
+        this.ctx.fillText(`SHIFT #${this.shift} QUOTA: ¢${this.shiftRevenue} / ¢${this.shiftQuota}`, 230, 35);
+
+        // Combo Multiplier
+        this.ctx.fillStyle = this.combo > 1 ? '#00ff66' : '#6b82a3';
+        this.ctx.fillText(`COMBO: x${this.combo}`, 550, 35);
+
+        // Strikes Badges
+        this.ctx.fillStyle = '#d0e0ff';
+        this.ctx.fillText('STRIKES:', 690, 35);
+        for (let i = 0; i < this.maxStrikes; i++) {
+          this.ctx.fillStyle = (i < this.strikes) ? '#ff0055' : '#1a2944';
+          this.ctx.strokeStyle = (i < this.strikes) ? '#ff0055' : '#334e75';
+          this.ctx.beginPath();
+          this.ctx.arc(770 + i * 22, 31, 8, 0, Math.PI * 2);
+          this.ctx.fill();
+          this.ctx.stroke();
+
+          if (i < this.strikes) {
+            this.ctx.fillStyle = '#ffffff';
+            this.ctx.font = 'bold 10px Consolas, monospace';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText('X', 770 + i * 22, 34);
+          }
+        }
+      }
+
+      renderBlueprintHUD() {
+        const bx = 30;
+        const by = 245;
+        const bw = 185;
+        const bh = 425;
+
+        this.ctx.fillStyle = '#0b1120';
+        this.ctx.strokeStyle = '#192b47';
+        this.ctx.lineWidth = 1;
+        this.ctx.beginPath();
+        this.ctx.roundRect(bx, by, bw, bh, 6);
+        this.ctx.fill();
+        this.ctx.stroke();
+
+        this.ctx.fillStyle = '#00f0ff';
+        this.ctx.font = 'bold 11px Consolas, monospace';
+        this.ctx.textAlign = 'left';
+        this.ctx.fillText('CRAFTING MATRIX', bx + 12, by + 22);
+
+        this.ctx.fillStyle = '#657e9e';
+        this.ctx.font = '9px Consolas, monospace';
+        this.ctx.fillText('Drag & combine on grid:', bx + 12, by + 36);
+
+        let rowY = by + 56;
+        for (const r of RECIPES) {
+          this.ctx.fillStyle = '#070b14';
+          this.ctx.strokeStyle = '#142238';
+          this.ctx.beginPath();
+          this.ctx.roundRect(bx + 8, rowY, bw - 16, 64, 4);
+          this.ctx.fill();
+          this.ctx.stroke();
+
+          // Recipe name & value
+          this.ctx.fillStyle = r.color;
+          this.ctx.font = 'bold 10px Consolas, monospace';
+          this.ctx.fillText(r.name, bx + 14, rowY + 16);
+
+          this.ctx.fillStyle = '#ffaa00';
+          this.ctx.font = '9px Consolas, monospace';
+          this.ctx.fillText('¢' + r.value, bx + bw - 44, rowY + 16);
+
+          // Ingredients formula
+          const p1 = BASE_COMPONENTS[r.parts[0]];
+          const p2 = BASE_COMPONENTS[r.parts[1]];
+          this.ctx.fillStyle = '#ffffff';
+          this.ctx.font = '9px Consolas, monospace';
+          this.ctx.fillText(`${p1.symbol} ${p1.name.substring(0, 4)} + ${p2.symbol} ${p2.name.substring(0, 4)}`, bx + 14, rowY + 36);
+
+          this.ctx.fillStyle = '#4c6482';
+          this.ctx.font = '8px Consolas, monospace';
+          this.ctx.fillText(`→ MODIFIER: [${r.tag}]`, bx + 14, rowY + 52);
+
+          rowY += 72;
+        }
+      }
+
+      renderAirdropButton() {
+        const ax = 236;
+        const ay = 245;
+        const aw = 512;
+        const ah = 60;
+
+        // Button background
+        this.ctx.fillStyle = '#0c162d';
+        this.ctx.strokeStyle = '#00f0ff';
+        this.ctx.lineWidth = 1.5;
+        this.ctx.beginPath();
+        this.ctx.roundRect(ax, ay, aw, ah, 5);
+        this.ctx.fill();
+        this.ctx.stroke();
+
+        // Title
+        this.ctx.fillStyle = '#00f0ff';
+        this.ctx.font = 'bold 12px Consolas, monospace';
+        this.ctx.textAlign = 'left';
+        this.ctx.fillText('SMUGGLER CARGO DROP // INSTANT REFILL', ax + 16, ay + 24);
+
+        // Subtitle instructions
+        this.ctx.fillStyle = '#7a96bd';
+        this.ctx.font = '10px Consolas, monospace';
+        this.ctx.fillText('Auto-conveyor active. Tap or press [SPACE] to buy instant crate (¢15)', ax + 16, ay + 42);
+
+        // Hotkey badge
+        this.ctx.fillStyle = '#ffaa00';
+        this.ctx.font = 'bold 11px Consolas, monospace';
+        this.ctx.textAlign = 'right';
+        this.ctx.fillText('[SPACE]', ax + aw - 16, ay + 34);
+
+        // Click handler check on airdrop button
+        if (!this.airdropListenerBound) {
+          this.canvas.addEventListener('click', (e) => {
+            const rect = this.canvas.getBoundingClientRect();
+            const scaleX = 1000 / rect.width;
+            const scaleY = 700 / rect.height;
+            const x = (e.clientX - rect.left) * scaleX;
+            const y = (e.clientY - rect.top) * scaleY;
+            if (x >= ax && x <= ax + aw && y >= ay && y <= ay + ah) {
+              if (this.state === 'PLAYING') {
+                this.requestAirdrop();
+              }
+            }
+          });
+          this.airdropListenerBound = true;
+        }
+      }
+    }
+
+    // Initialize Game Engine on DOM Loaded
+    window.addEventListener('DOMContentLoaded', () => {
+      window.engine = new GameEngine();
+    });
+  </script>
+</body>
+</html>

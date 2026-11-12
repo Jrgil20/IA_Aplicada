@@ -1,0 +1,2236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Shattered Vector - Gravitational Twin-Stick Arcade</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #030308;
+      font-family: 'Courier New', Courier, monospace;
+      color: #00f0ff;
+    }
+
+    #canvas-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Scanline and CRT vignette overlays */
+    .crt-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      background: radial-gradient(circle at center, transparent 55%, rgba(0, 0, 0, 0.75) 100%),
+                  linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+      background-size: 100% 100%, 100% 4px;
+      z-index: 10;
+    }
+
+    /* Screen UI Overlay */
+    #ui-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 1.5rem 2rem;
+    }
+
+    .hud-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      text-transform: uppercase;
+      font-size: 0.95rem;
+      letter-spacing: 2px;
+    }
+
+    .hud-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      text-shadow: 0 0 8px currentColor;
+    }
+
+    .hud-label {
+      font-size: 0.7rem;
+      opacity: 0.7;
+      letter-spacing: 3px;
+    }
+
+    .hud-value {
+      font-size: 1.6rem;
+      font-weight: bold;
+    }
+
+    .polarity-box {
+      border: 2px solid #00f0ff;
+      padding: 0.5rem 1.2rem;
+      border-radius: 4px;
+      background: rgba(0, 240, 255, 0.08);
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      text-align: center;
+    }
+
+    .polarity-repel {
+      border-color: #00f0ff;
+      color: #00f0ff;
+      background: rgba(0, 240, 255, 0.12);
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+    }
+
+    .polarity-attract {
+      border-color: #ff007f;
+      color: #ff007f;
+      background: rgba(255, 0, 127, 0.12);
+      box-shadow: 0 0 20px rgba(255, 0, 127, 0.5);
+    }
+
+    .shield-pips {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .shield-pip {
+      width: 22px;
+      height: 8px;
+      border: 1px solid #00ff66;
+      background: #00ff66;
+      box-shadow: 0 0 8px #00ff66;
+      transition: background 0.3s;
+    }
+
+    .shield-pip.lost {
+      background: transparent;
+      box-shadow: none;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .singularity-alert {
+      color: #ff3344;
+      font-size: 0.85rem;
+      animation: alertPulse 0.5s infinite alternate;
+      display: none;
+    }
+
+    @keyframes alertPulse {
+      from { opacity: 0.3; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1.02); }
+    }
+
+    /* Overlay Screens (Start, Game Over, Pause) */
+    .overlay-modal {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: auto;
+      text-align: center;
+      background: rgba(5, 5, 15, 0.88);
+      border: 2px solid #00f0ff;
+      box-shadow: 0 0 35px rgba(0, 240, 255, 0.4), inset 0 0 20px rgba(0, 240, 255, 0.1);
+      padding: 2.5rem 3.5rem;
+      border-radius: 6px;
+      max-width: 620px;
+      width: 90%;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      backdrop-filter: blur(8px);
+    }
+
+    .modal-title {
+      font-size: 2.4rem;
+      letter-spacing: 6px;
+      color: #ffffff;
+      text-shadow: 0 0 15px #00f0ff, 0 0 30px #00f0ff;
+      margin-bottom: 0.5rem;
+    }
+
+    .modal-subtitle {
+      font-size: 0.9rem;
+      color: #ff007f;
+      letter-spacing: 3px;
+      text-shadow: 0 0 10px #ff007f;
+    }
+
+    .instruction-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8rem;
+      text-align: left;
+      font-size: 0.85rem;
+      color: #d0f0ff;
+      margin: 1rem 0;
+      background: rgba(0, 240, 255, 0.04);
+      padding: 1rem;
+      border-left: 2px solid #00f0ff;
+    }
+
+    .instruction-grid strong {
+      color: #00f0ff;
+    }
+
+    .btn-action {
+      background: transparent;
+      border: 2px solid #00f0ff;
+      color: #00f0ff;
+      font-family: inherit;
+      font-size: 1.1rem;
+      padding: 0.8rem 1.8rem;
+      letter-spacing: 3px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.2s;
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+      outline: none;
+    }
+
+    .btn-action:hover {
+      background: #00f0ff;
+      color: #030308;
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.8);
+      transform: translateY(-2px);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .stats-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.5rem 0;
+      font-size: 0.9rem;
+    }
+
+    .stats-table td {
+      padding: 0.4rem 0.5rem;
+    }
+
+    .stats-table td:first-child {
+      text-align: left;
+      opacity: 0.75;
+    }
+
+    .stats-table td:last-child {
+      text-align: right;
+      font-weight: bold;
+      color: #00f0ff;
+    }
+  </style>
+</head>
+<body>
+  <div id="canvas-container">
+    <canvas id="gameCanvas"></canvas>
+  </div>
+  <div class="crt-overlay"></div>
+
+  <!-- HUD -->
+  <div id="ui-layer">
+    <div class="hud-top">
+      <div class="hud-group">
+        <span class="hud-label">Score</span>
+        <span class="hud-value" id="hud-score">000000</span>
+        <div style="font-size:0.75rem; color:#ffb700;">
+          MULTIPLIER: <span id="hud-mult">x1.0</span>
+        </div>
+      </div>
+
+      <div class="hud-group" style="align-items: center;">
+        <div id="hud-polarity-box" class="polarity-box polarity-repel">
+          <span class="hud-label" style="display:block; margin-bottom:2px;">Polarity</span>
+          <span id="hud-polarity-text" style="font-weight:bold; letter-spacing:3px;">REPEL</span>
+        </div>
+        <div id="hud-gravity-alert" class="singularity-alert">⚠ SINGULARITY PROXIMITY CRITICAL ⚠</div>
+      </div>
+
+      <div class="hud-group" style="align-items: flex-end;">
+        <span class="hud-label">Shield Integrity</span>
+        <div class="shield-pips" id="hud-shields">
+          <div class="shield-pip"></div>
+          <div class="shield-pip"></div>
+          <div class="shield-pip"></div>
+        </div>
+        <div style="font-size:0.75rem; color:#a0b8ff; margin-top:5px;">
+          WAVE <span id="hud-wave" style="font-weight:bold; color:#ffffff;">01</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom HUD stats -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; font-size: 0.75rem; opacity: 0.8; letter-spacing: 2px;">
+      <div>SINGULARITY PULL: <span id="hud-grav-pull">0.0 G</span></div>
+      <div>SINGULARITY FEEDS: <span id="hud-singularity-kills" style="color:#ff007f;">0</span></div>
+      <div>HIGH SCORE: <span id="hud-high-score">000000</span></div>
+    </div>
+  </div>
+
+  <!-- Start Screen Modal -->
+  <div id="modal-start" class="overlay-modal">
+    <div>
+      <h1 class="modal-title">SHATTERED VECTOR</h1>
+      <div class="modal-subtitle">GRAVITATIONAL TWIN-STICK MATRIX</div>
+    </div>
+    
+    <p style="font-size: 0.9rem; line-height: 1.5; color: #a5c7d8;">
+      You are trapped in the accretion disk of an unstable singularity.
+      Use gravity-assist slingshots and kinetic polarity weapons to annihilate hostile swarms.
+    </p>
+
+    <div class="instruction-grid">
+      <div><strong>[W, A, S, D]</strong> Thrusters (Inertia)</div>
+      <div><strong>[MOUSE]</strong> Aim Vector Crosshair</div>
+      <div><strong>[LEFT CLICK]</strong> Rapid Plasma Cannons</div>
+      <div><strong>[SPACE / R-CLICK]</strong> Shift Weapon Polarity</div>
+      <div><strong>REPEL (Cyan)</strong> Push enemies outward</div>
+      <div><strong>ATTRACT (Pink)</strong> Pull enemies into Singularity</div>
+    </div>
+
+    <div style="font-size: 0.8rem; color: #ffb700;">
+      ★ BONUS: Feeding enemies directly into the event horizon yields 3x points!
+    </div>
+
+    <button id="btn-start" class="btn-action">INITIALIZE FLIGHT</button>
+  </div>
+
+  <!-- Game Over Modal -->
+  <div id="modal-gameover" class="overlay-modal hidden">
+    <div>
+      <h1 class="modal-title" style="color:#ff3344; text-shadow:0 0 15px #ff3344;">VESSEL CRUSHED</h1>
+      <div class="modal-subtitle" id="gameover-cause">CONSUMED BY EVENT HORIZON</div>
+    </div>
+
+    <table class="stats-table">
+      <tr>
+        <td>FINAL SCORE</td>
+        <td id="stat-final-score">0</td>
+      </tr>
+      <tr>
+        <td>PEAK MULTIPLIER</td>
+        <td id="stat-peak-mult">x1.0</td>
+      </tr>
+      <tr>
+        <td>WAVE REACHED</td>
+        <td id="stat-wave">1</td>
+      </tr>
+      <tr>
+        <td>SINGULARITY SACRIFICES</td>
+        <td id="stat-singularity-kills" style="color:#ff007f;">0</td>
+      </tr>
+      <tr>
+        <td>TOTAL ENEMIES DESTROYED</td>
+        <td id="stat-total-kills">0</td>
+      </tr>
+    </table>
+
+    <button id="btn-restart" class="btn-action">RE-ENGAGE VECTORS</button>
+  </div>
+
+  <!-- JAVASCRIPT MODULE IMPLEMENTATION -->
+  <script>
+    /**
+     * =========================================================================
+     * 1. VectorMath Module: 2D Vector Operations & Utilities
+     * =========================================================================
+     */
+    class VectorMath {
+      constructor(x = 0, y = 0) {
+        this.x = x;
+        this.y = y;
+      }
+
+      set(x, y) {
+        this.x = x;
+        this.y = y;
+        return this;
+      }
+
+      copy(v) {
+        this.x = v.x;
+        this.y = v.y;
+        return this;
+      }
+
+      clone() {
+        return new VectorMath(this.x, this.y);
+      }
+
+      add(v) {
+        this.x += v.x;
+        this.y += v.y;
+        return this;
+      }
+
+      sub(v) {
+        this.x -= v.x;
+        this.y -= v.y;
+        return this;
+      }
+
+      scale(s) {
+        this.x *= s;
+        this.y *= s;
+        return this;
+      }
+
+      magSq() {
+        return this.x * this.x + this.y * this.y;
+      }
+
+      mag() {
+        return Math.hypot(this.x, this.y);
+      }
+
+      norm() {
+        const m = this.mag();
+        if (m > 0.00001) {
+          this.x /= m;
+          this.y /= m;
+        }
+        return this;
+      }
+
+      dist(v) {
+        return Math.hypot(this.x - v.x, this.y - v.y);
+      }
+
+      distSq(v) {
+        const dx = this.x - v.x;
+        const dy = this.y - v.y;
+        return dx * dx + dy * dy;
+      }
+
+      dot(v) {
+        return this.x * v.x + this.y * v.y;
+      }
+
+      heading() {
+        return Math.atan2(this.y, this.x);
+      }
+
+      rotate(angle) {
+        const cos = Math.cos(angle);
+        const sin = Math.sin(angle);
+        const rx = this.x * cos - this.y * sin;
+        const ry = this.x * sin + this.y * cos;
+        this.x = rx;
+        this.y = ry;
+        return this;
+      }
+
+      static dist(v1, v2) {
+        return Math.hypot(v1.x - v2.x, v1.y - v2.y);
+      }
+
+      static sub(v1, v2) {
+        return new VectorMath(v1.x - v2.x, v1.y - v2.y);
+      }
+
+      static fromAngle(angle, length = 1) {
+        return new VectorMath(Math.cos(angle) * length, Math.sin(angle) * length);
+      }
+    }
+
+    /**
+     * =========================================================================
+     * 2. AudioSynth Module: Procedural Web Audio API Sound Synthesizer
+     * =========================================================================
+     */
+    class AudioSynth {
+      constructor() {
+        this.ctx = null;
+        this.masterGain = null;
+        this.compressor = null;
+        this.droneOsc1 = null;
+        this.droneOsc2 = null;
+        this.droneFilter = null;
+        this.droneGain = null;
+        this.noiseBuffer = null;
+        this.initialized = false;
+        this.isMuted = false;
+      }
+
+      init() {
+        if (this.initialized) return;
+        try {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContextClass();
+
+          // Master Dynamics Compressor to prevent clipping
+          this.compressor = this.ctx.createDynamicsCompressor();
+          this.compressor.threshold.setValueAtTime(-14, this.ctx.currentTime);
+          this.compressor.knee.setValueAtTime(30, this.ctx.currentTime);
+          this.compressor.ratio.setValueAtTime(10, this.ctx.currentTime);
+          this.compressor.attack.setValueAtTime(0.003, this.ctx.currentTime);
+          this.compressor.release.setValueAtTime(0.2, this.ctx.currentTime);
+
+          this.masterGain = this.ctx.createGain();
+          this.masterGain.gain.setValueAtTime(0.75, this.ctx.currentTime);
+
+          this.compressor.connect(this.masterGain);
+          this.masterGain.connect(this.ctx.destination);
+
+          // Generate 1-second white noise buffer for explosions & thruster
+          const bufferSize = this.ctx.sampleRate * 1.5;
+          this.noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+          const output = this.noiseBuffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            output[i] = Math.random() * 2 - 1;
+          }
+
+          this.setupGravityDrone();
+          this.initialized = true;
+        } catch (e) {
+          console.warn('Web Audio API not supported or blocked:', e);
+        }
+      }
+
+      resume() {
+        if (!this.initialized) {
+          this.init();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      setupGravityDrone() {
+        if (!this.ctx) return;
+        // Two slightly detuned sub-oscillators creating a slow menacing acoustic beat
+        this.droneOsc1 = this.ctx.createOscillator();
+        this.droneOsc2 = this.ctx.createOscillator();
+        this.droneFilter = this.ctx.createBiquadFilter();
+        this.droneGain = this.ctx.createGain();
+
+        this.droneOsc1.type = 'sawtooth';
+        this.droneOsc1.frequency.setValueAtTime(54, this.ctx.currentTime);
+
+        this.droneOsc2.type = 'triangle';
+        this.droneOsc2.frequency.setValueAtTime(55.2, this.ctx.currentTime);
+
+        this.droneFilter.type = 'lowpass';
+        this.droneFilter.frequency.setValueAtTime(110, this.ctx.currentTime);
+        this.droneFilter.Q.setValueAtTime(4, this.ctx.currentTime);
+
+        this.droneGain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+
+        this.droneOsc1.connect(this.droneFilter);
+        this.droneOsc2.connect(this.droneFilter);
+        this.droneFilter.connect(this.droneGain);
+        this.droneGain.connect(this.compressor);
+
+        this.droneOsc1.start();
+        this.droneOsc2.start();
+      }
+
+      updateGravityHum(proximityRatio) {
+        // proximityRatio: 0 (far) to 1 (at event horizon)
+        if (!this.initialized || !this.droneFilter) return;
+        const now = this.ctx.currentTime;
+        const cutoff = 90 + proximityRatio * 520;
+        const vol = 0.12 + proximityRatio * 0.38;
+        this.droneFilter.frequency.setTargetAtTime(cutoff, now, 0.1);
+        this.droneGain.gain.setTargetAtTime(vol, now, 0.1);
+      }
+
+      playShoot(polarity) {
+        if (!this.initialized) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        if (polarity === 'repel') {
+          // Sharp, bright, high-energy cyan laser zap
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(940, now);
+          osc.frequency.exponentialRampToValueAtTime(180, now + 0.08);
+
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        } else {
+          // Deep resonant magnetic graviton pulse
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(360, now);
+          osc.frequency.exponentialRampToValueAtTime(95, now + 0.12);
+
+          gain.gain.setValueAtTime(0.28, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+        }
+
+        osc.connect(gain);
+        gain.connect(this.compressor);
+        osc.start(now);
+        osc.stop(now + 0.13);
+      }
+
+      playPolaritySwitch(polarity) {
+        if (!this.initialized) return;
+        const now = this.ctx.currentTime;
+
+        // Distinct dual-tone musical chord
+        const notes = polarity === 'repel' ? [587.33, 880] : [349.23, 440]; // D5+A5 vs F4+A4
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.03);
+          osc.frequency.exponentialRampToValueAtTime(freq * 1.25, now + 0.22);
+
+          gain.gain.setValueAtTime(0.2, now + idx * 0.03);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+          osc.connect(gain);
+          gain.connect(this.compressor);
+          osc.start(now + idx * 0.03);
+          osc.stop(now + 0.26);
+        });
+      }
+
+      playExplosion(isLarge = false) {
+        if (!this.initialized || !this.noiseBuffer) return;
+        const now = this.ctx.currentTime;
+
+        // White noise node through sweeping low-pass filter
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = this.noiseBuffer;
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(isLarge ? 900 : 600, now);
+        filter.frequency.exponentialRampToValueAtTime(35, now + (isLarge ? 0.75 : 0.4));
+
+        const noiseGain = this.ctx.createGain();
+        noiseGain.gain.setValueAtTime(isLarge ? 0.5 : 0.35, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + (isLarge ? 0.8 : 0.45));
+
+        noise.connect(filter);
+        filter.connect(noiseGain);
+        noiseGain.connect(this.compressor);
+
+        // Sub-bass thud transient
+        const subOsc = this.ctx.createOscillator();
+        const subGain = this.ctx.createGain();
+        subOsc.type = 'sine';
+        subOsc.frequency.setValueAtTime(isLarge ? 130 : 90, now);
+        subOsc.frequency.exponentialRampToValueAtTime(28, now + 0.35);
+
+        subGain.gain.setValueAtTime(0.45, now);
+        subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+        subOsc.connect(subGain);
+        subGain.connect(this.compressor);
+
+        noise.start(now);
+        noise.stop(now + 0.85);
+        subOsc.start(now);
+        subOsc.stop(now + 0.36);
+      }
+
+      playSingularityIngest() {
+        if (!this.initialized) return;
+        const now = this.ctx.currentTime;
+
+        // Vacuum implosion / vortex swallow sound
+        const osc = this.ctx.createOscillator();
+        const filter = this.ctx.createBiquadFilter();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(420, now);
+        osc.frequency.exponentialRampToValueAtTime(32, now + 0.45);
+
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(650, now);
+        filter.frequency.exponentialRampToValueAtTime(80, now + 0.45);
+        filter.Q.setValueAtTime(8, now);
+
+        gain.gain.setValueAtTime(0.05, now);
+        gain.gain.linearRampToValueAtTime(0.4, now + 0.12);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.compressor);
+
+        osc.start(now);
+        osc.stop(now + 0.52);
+      }
+
+      playShieldHit() {
+        if (!this.initialized) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(220, now);
+        osc.frequency.exponentialRampToValueAtTime(55, now + 0.18);
+
+        gain.gain.setValueAtTime(0.35, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+
+        osc.connect(gain);
+        gain.connect(this.compressor);
+        osc.start(now);
+        osc.stop(now + 0.22);
+      }
+    }
+
+    /**
+     * =========================================================================
+     * 3. ParticlePool Module: High-Performance Vector Particle System
+     * =========================================================================
+     */
+    class Particle {
+      constructor() {
+        this.pos = new VectorMath();
+        this.vel = new VectorMath();
+        this.color = '#00f0ff';
+        this.size = 2;
+        this.endSize = 0;
+        this.life = 0;
+        this.maxLife = 1;
+        this.shape = 'spark'; // 'spark', 'line', 'ring', 'shard'
+        this.angle = 0;
+        this.length = 8;
+        this.active = false;
+      }
+
+      init(x, y, vx, vy, color, size, maxLife, shape = 'spark', options = {}) {
+        this.pos.set(x, y);
+        this.vel.set(vx, vy);
+        this.color = color;
+        this.size = size;
+        this.endSize = options.endSize !== undefined ? options.endSize : 0;
+        this.life = maxLife;
+        this.maxLife = maxLife;
+        this.shape = shape;
+        this.angle = options.angle || Math.atan2(vy, vx);
+        this.length = options.length || 8;
+        this.active = true;
+      }
+
+      update(dt, blackHole) {
+        if (!this.active) return;
+        this.life -= dt;
+        if (this.life <= 0) {
+          this.active = false;
+          return;
+        }
+
+        // Singularity gravitational pull on energetic particles
+        if (blackHole && this.shape !== 'ring') {
+          const grav = blackHole.getAcceleration(this.pos, 0.4);
+          this.vel.x += grav.x * dt;
+          this.vel.y += grav.y * dt;
+        }
+
+        this.pos.x += this.vel.x * dt;
+        this.pos.y += this.vel.y * dt;
+        this.angle = Math.atan2(this.vel.y, this.vel.x);
+      }
+
+      draw(ctx) {
+        if (!this.active) return;
+        const progress = 1 - (this.life / this.maxLife);
+        const alpha = Math.max(0, 1 - progress);
+        const currentSize = this.size + (this.endSize - this.size) * progress;
+
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.strokeStyle = this.color;
+        ctx.fillStyle = this.color;
+        ctx.lineWidth = 1.5;
+
+        if (this.shape === 'spark') {
+          ctx.beginPath();
+          ctx.arc(this.pos.x, this.pos.y, Math.max(0.8, currentSize), 0, Math.PI * 2);
+          ctx.fill();
+        } else if (this.shape === 'line') {
+          const tailLen = this.length * (1 - progress * 0.5);
+          ctx.beginPath();
+          ctx.moveTo(this.pos.x, this.pos.y);
+          ctx.lineTo(
+            this.pos.x - Math.cos(this.angle) * tailLen,
+            this.pos.y - Math.sin(this.angle) * tailLen
+          );
+          ctx.stroke();
+        } else if (this.shape === 'ring') {
+          ctx.beginPath();
+          ctx.arc(this.pos.x, this.pos.y, currentSize, 0, Math.PI * 2);
+          ctx.stroke();
+        } else if (this.shape === 'shard') {
+          ctx.translate(this.pos.x, this.pos.y);
+          ctx.rotate(this.angle);
+          ctx.beginPath();
+          ctx.moveTo(currentSize, 0);
+          ctx.lineTo(-currentSize, currentSize * 0.6);
+          ctx.lineTo(-currentSize * 0.5, 0);
+          ctx.lineTo(-currentSize, -currentSize * 0.6);
+          ctx.closePath();
+          ctx.stroke();
+        }
+
+        ctx.restore();
+      }
+    }
+
+    class ParticlePool {
+      constructor(maxCount = 900) {
+        this.particles = Array.from({ length: maxCount }, () => new Particle());
+        this.cursor = 0;
+      }
+
+      spawn(x, y, vx, vy, color, size, maxLife, shape, options) {
+        const p = this.particles[this.cursor];
+        p.init(x, y, vx, vy, color, size, maxLife, shape, options);
+        this.cursor = (this.cursor + 1) % this.particles.length;
+        return p;
+      }
+
+      spawnBurst(x, y, color, count = 24, speed = 180, isLarge = false) {
+        for (let i = 0; i < count; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const mag = (Math.random() * 0.8 + 0.3) * speed;
+          const vx = Math.cos(angle) * mag;
+          const vy = Math.sin(angle) * mag;
+          const maxLife = (Math.random() * 0.4 + 0.25) * (isLarge ? 1.6 : 1.0);
+          const shape = Math.random() > 0.4 ? 'line' : 'shard';
+
+          this.spawn(x, y, vx, vy, color, Math.random() * 3 + 2, maxLife, shape, {
+            length: Math.random() * 12 + 6
+          });
+        }
+      }
+
+      spawnShockwave(x, y, color, maxRadius = 140, duration = 0.5) {
+        this.spawn(x, y, 0, 0, color, 4, duration, 'ring', { endSize: maxRadius });
+      }
+
+      spawnThruster(x, y, angle, color) {
+        const spread = (Math.random() - 0.5) * 0.55;
+        const speed = -(Math.random() * 140 + 80);
+        const vx = Math.cos(angle + spread) * speed;
+        const vy = Math.sin(angle + spread) * speed;
+        this.spawn(x, y, vx, vy, color, Math.random() * 2.5 + 1.2, 0.22, 'line', {
+          length: Math.random() * 8 + 4
+        });
+      }
+
+      update(dt, blackHole) {
+        for (let i = 0; i < this.particles.length; i++) {
+          if (this.particles[i].active) {
+            this.particles[i].update(dt, blackHole);
+          }
+        }
+      }
+
+      draw(ctx) {
+        for (let i = 0; i < this.particles.length; i++) {
+          if (this.particles[i].active) {
+            this.particles[i].draw(ctx);
+          }
+        }
+      }
+    }
+
+    /**
+     * =========================================================================
+     * 4. WarpGrid: Spacetime Gravitational Deflection Vector Grid
+     * =========================================================================
+     */
+    class WarpGrid {
+      constructor(cols = 24, rows = 16) {
+        this.cols = cols;
+        this.rows = rows;
+        this.points = [];
+        this.ripples = [];
+      }
+
+      resize(width, height) {
+        this.width = width;
+        this.height = height;
+        this.points = [];
+        for (let r = 0; r <= this.rows; r++) {
+          for (let c = 0; c <= this.cols; c++) {
+            this.points.push({
+              origX: (c / this.cols) * width,
+              origY: (r / this.rows) * height,
+              x: (c / this.cols) * width,
+              y: (r / this.rows) * height,
+              c, r
+            });
+          }
+        }
+      }
+
+      addImpulse(x, y, strength = 35) {
+        this.ripples.push({ x, y, radius: 0, maxRadius: 280, strength, alpha: 1 });
+      }
+
+      update(dt, blackHole) {
+        // Expand and decay ripples
+        for (let i = this.ripples.length - 1; i >= 0; i--) {
+          const rip = this.ripples[i];
+          rip.radius += 380 * dt;
+          rip.alpha = 1 - (rip.radius / rip.maxRadius);
+          if (rip.radius >= rip.maxRadius) {
+            this.ripples.splice(i, 1);
+          }
+        }
+
+        // Warp grid nodes toward the black hole singularity
+        const bhPos = blackHole ? blackHole.pos : null;
+        for (let i = 0; i < this.points.length; i++) {
+          const pt = this.points[i];
+          let wx = pt.origX;
+          let wy = pt.origY;
+
+          if (bhPos) {
+            const dx = bhPos.x - pt.origX;
+            const dy = bhPos.y - pt.origY;
+            const dist = Math.hypot(dx, dy);
+            // Gravitational convergence displacement
+            const warp = Math.min(65, (38000 / (dist * dist + 4500)));
+            wx += (dx / (dist + 0.001)) * warp;
+            wy += (dy / (dist + 0.001)) * warp;
+          }
+
+          // Apply wave ripples
+          for (let j = 0; j < this.ripples.length; j++) {
+            const rip = this.ripples[j];
+            const rdx = pt.origX - rip.x;
+            const rdy = pt.origY - rip.y;
+            const rdist = Math.hypot(rdx, rdy);
+            const delta = Math.abs(rdist - rip.radius);
+            if (delta < 50) {
+              const push = (1 - delta / 50) * rip.strength * rip.alpha;
+              wx += (rdx / (rdist + 0.001)) * push;
+              wy += (rdy / (rdist + 0.001)) * push;
+            }
+          }
+
+          pt.x = wx;
+          pt.y = wy;
+        }
+      }
+
+      draw(ctx) {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(0, 240, 255, 0.075)';
+        ctx.lineWidth = 1;
+
+        // Horizontal lines
+        for (let r = 0; r <= this.rows; r++) {
+          ctx.beginPath();
+          for (let c = 0; c <= this.cols; c++) {
+            const pt = this.points[r * (this.cols + 1) + c];
+            if (c === 0) ctx.moveTo(pt.x, pt.y);
+            else ctx.lineTo(pt.x, pt.y);
+          }
+          ctx.stroke();
+        }
+
+        // Vertical lines
+        for (let c = 0; c <= this.cols; c++) {
+          ctx.beginPath();
+          for (let r = 0; r <= this.rows; r++) {
+            const pt = this.points[r * (this.cols + 1) + c];
+            if (r === 0) ctx.moveTo(pt.x, pt.y);
+            else ctx.lineTo(pt.x, pt.y);
+          }
+          ctx.stroke();
+        }
+
+        ctx.restore();
+      }
+    }
+
+    /**
+     * =========================================================================
+     * 5. BlackHole Module: Central Gravitational Singularity Mechanics
+     * =========================================================================
+     */
+    class BlackHole {
+      constructor(x, y) {
+        this.pos = new VectorMath(x, y);
+        this.mass = 480000;       // Gravitational standard parameter G*M
+        this.softening = 45;      // Epsilon to prevent singularity divergence
+        this.eventHorizon = 40;   // Ingestion boundary
+        this.photonSphere = 78;   // High-intensity light ring
+        this.accretionDisk = 175; // Outer matter ring
+        this.rotationAngle = 0;
+        this.pulseTime = 0;
+        this.distortionWaves = [];
+      }
+
+      setCenter(x, y) {
+        this.pos.set(x, y);
+      }
+
+      /**
+       * Inverse-Square Law Gravitational Acceleration:
+       * a = - (G * M) / (r^2 + epsilon^2) * r_hat
+       */
+      getAcceleration(targetPos, massMultiplier = 1.0) {
+        const dx = this.pos.x - targetPos.x;
+        const dy = this.pos.y - targetPos.y;
+        const distSq = dx * dx + dy * dy;
+        const dist = Math.sqrt(distSq);
+
+        const effMass = this.mass * massMultiplier;
+        const softenedDistSq = distSq + this.softening * this.softening;
+        const accelMag = effMass / softenedDistSq;
+
+        return new VectorMath(
+          (dx / (dist + 0.0001)) * accelMag,
+          (dy / (dist + 0.0001)) * accelMag
+        );
+      }
+
+      checkHorizon(targetPos, targetRadius = 0) {
+        return this.pos.dist(targetPos) < (this.eventHorizon + targetRadius);
+      }
+
+      update(dt) {
+        this.rotationAngle += 1.4 * dt;
+        this.pulseTime += dt * 2.2;
+
+        // Periodic spacetime lensing wave expansion
+        if (Math.random() < 0.04) {
+          this.distortionWaves.push({
+            radius: this.eventHorizon,
+            maxRadius: this.accretionDisk * 1.5,
+            alpha: 0.8
+          });
+        }
+
+        for (let i = this.distortionWaves.length - 1; i >= 0; i--) {
+          const wave = this.distortionWaves[i];
+          wave.radius += 110 * dt;
+          wave.alpha = Math.max(0, 0.8 * (1 - wave.radius / wave.maxRadius));
+          if (wave.radius >= wave.maxRadius) {
+            this.distortionWaves.splice(i, 1);
+          }
+        }
+      }
+
+      draw(ctx) {
+        ctx.save();
+        const pulse = Math.sin(this.pulseTime) * 3;
+
+        // 1. Gravitational Lensing Rings
+        for (let i = 0; i < this.distortionWaves.length; i++) {
+          const wave = this.distortionWaves[i];
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(0, 240, 255, ${wave.alpha * 0.4})`;
+          ctx.lineWidth = 1.5;
+          ctx.arc(this.pos.x, this.pos.y, wave.radius, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        // 2. Accretion Disk Swirling Geometry
+        ctx.save();
+        ctx.translate(this.pos.x, this.pos.y);
+        ctx.rotate(this.rotationAngle);
+
+        const diskArcs = 6;
+        for (let i = 0; i < diskArcs; i++) {
+          const arcAngle = (i / diskArcs) * Math.PI * 2;
+          ctx.strokeStyle = i % 2 === 0 ? 'rgba(0, 240, 255, 0.45)' : 'rgba(255, 0, 127, 0.45)';
+          ctx.lineWidth = 2;
+          ctx.shadowColor = i % 2 === 0 ? '#00f0ff' : '#ff007f';
+          ctx.shadowBlur = 12;
+
+          ctx.beginPath();
+          ctx.arc(0, 0, this.accretionDisk + Math.sin(this.pulseTime + i) * 6, arcAngle, arcAngle + Math.PI * 0.45);
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // 3. Photon Sphere (Intense Neon Boundary)
+        ctx.beginPath();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2.5;
+        ctx.shadowColor = '#00f0ff';
+        ctx.shadowBlur = 20;
+        ctx.arc(this.pos.x, this.pos.y, this.photonSphere + pulse * 0.5, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Inner Photon Shell
+        ctx.beginPath();
+        ctx.strokeStyle = '#ff007f';
+        ctx.lineWidth = 1.5;
+        ctx.shadowColor = '#ff007f';
+        ctx.shadowBlur = 10;
+        ctx.arc(this.pos.x, this.pos.y, this.eventHorizon + 6, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // 4. Pure Black Void Core (Event Horizon)
+        ctx.beginPath();
+        ctx.fillStyle = '#010103';
+        ctx.shadowBlur = 0;
+        ctx.arc(this.pos.x, this.pos.y, this.eventHorizon, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      }
+    }
+
+    /**
+     * =========================================================================
+     * 6. Bullet & Projectile System
+     * =========================================================================
+     */
+    class Bullet {
+      constructor() {
+        this.pos = new VectorMath();
+        this.vel = new VectorMath();
+        this.polarity = 'repel'; // 'repel' (cyan) or 'attract' (magenta)
+        this.life = 0;
+        this.maxLife = 1.8;
+        this.active = false;
+        this.radius = 4;
+      }
+
+      spawn(x, y, vx, vy, polarity) {
+        this.pos.set(x, y);
+        this.vel.set(vx, vy);
+        this.polarity = polarity;
+        this.life = this.maxLife;
+        this.active = true;
+      }
+
+      update(dt, blackHole) {
+        if (!this.active) return;
+        this.life -= dt;
+        if (this.life <= 0) {
+          this.active = false;
+          return;
+        }
+
+        // Bullets also experience subtle gravitational deflection
+        if (blackHole) {
+          const grav = blackHole.getAcceleration(this.pos, 0.65);
+          this.vel.x += grav.x * dt;
+          this.vel.y += grav.y * dt;
+        }
+
+        this.pos.x += this.vel.x * dt;
+        this.pos.y += this.vel.y * dt;
+      }
+
+      draw(ctx) {
+        if (!this.active) return;
+        const isRepel = this.polarity === 'repel';
+        const color = isRepel ? '#00f0ff' : '#ff007f';
+
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.fillStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 10;
+
+        const heading = this.vel.heading();
+        const length = 14;
+
+        ctx.beginPath();
+        ctx.moveTo(this.pos.x + Math.cos(heading) * 6, this.pos.y + Math.sin(heading) * 6);
+        ctx.lineTo(this.pos.x - Math.cos(heading) * length, this.pos.y - Math.sin(heading) * length);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(this.pos.x, this.pos.y, 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      }
+    }
+
+    /**
+     * =========================================================================
+     * 7. Player Module: Symplectic Euler Orbital Ship with Polarity Weaponry
+     * =========================================================================
+     */
+    class Player {
+      constructor(x, y) {
+        this.pos = new VectorMath(x, y);
+        this.vel = new VectorMath(0, 0);
+        this.acc = new VectorMath(0, 0);
+        this.angle = 0;
+        this.radius = 16;
+        this.mass = 1.0;
+        this.thrustPower = 480;
+        this.vacuumDamping = 0.994; // Realistic light vacuum drag
+        this.polarity = 'repel';    // 'repel' or 'attract'
+        this.fireCooldown = 0;
+        this.fireRate = 0.11;       // Seconds between shots
+        this.shields = 3;
+        this.maxShields = 3;
+        this.invulnerableTimer = 0;
+        this.isDead = false;
+        this.spaghettifyProgress = 0;
+        this.shipGeometry = [
+          { x: 18, y: 0 },
+          { x: -14, y: 12 },
+          { x: -8, y: 0 },
+          { x: -14, y: -12 }
+        ];
+      }
+
+      reset(x, y) {
+        this.pos.set(x, y);
+        this.vel.set(0, 0);
+        this.acc.set(0, 0);
+        this.shields = this.maxShields;
+        this.invulnerableTimer = 1.5;
+        this.isDead = false;
+        this.spaghettifyProgress = 0;
+        this.polarity = 'repel';
+      }
+
+      togglePolarity(audio, particles, warpGrid) {
+        this.polarity = this.polarity === 'repel' ? 'attract' : 'repel';
+        const color = this.polarity === 'repel' ? '#00f0ff' : '#ff007f';
+
+        audio.playPolaritySwitch(this.polarity);
+        particles.spawnShockwave(this.pos.x, this.pos.y, color, 90, 0.35);
+        if (warpGrid) {
+          warpGrid.addImpulse(this.pos.x, this.pos.y, 45);
+        }
+      }
+
+      takeDamage(audio, particles) {
+        if (this.invulnerableTimer > 0 || this.isDead) return false;
+
+        this.shields--;
+        this.invulnerableTimer = 1.6;
+        audio.playShieldHit();
+        particles.spawnBurst(this.pos.x, this.pos.y, '#ffffff', 20, 160);
+
+        if (this.shields <= 0) {
+          this.isDead = true;
+          audio.playExplosion(true);
+          particles.spawnBurst(this.pos.x, this.pos.y, '#ff3344', 45, 260, true);
+          return true;
+        }
+        return false;
+      }
+
+      /**
+       * Symplectic Euler Numerical Integration:
+       * v_{t+dt} = v_t + a_t * dt
+       * x_{t+dt} = x_t + v_{t+dt} * dt
+       */
+      update(dt, input, blackHole, particles) {
+        if (this.isDead) return;
+
+        if (this.invulnerableTimer > 0) {
+          this.invulnerableTimer -= dt;
+        }
+
+        // Aiming angle towards crosshair
+        const mouseVec = VectorMath.sub(input.mousePos, this.pos);
+        this.angle = mouseVec.heading();
+
+        // 1. Calculate Thruster Vector Force
+        const thrust = new VectorMath(0, 0);
+        if (input.keys['KeyW'] || input.keys['ArrowUp']) thrust.y -= 1;
+        if (input.keys['KeyS'] || input.keys['ArrowDown']) thrust.y += 1;
+        if (input.keys['KeyA'] || input.keys['ArrowLeft']) thrust.x -= 1;
+        if (input.keys['KeyD'] || input.keys['ArrowRight']) thrust.x += 1;
+
+        if (thrust.magSq() > 0) {
+          thrust.norm().scale(this.thrustPower);
+          // Emit rear thruster vector fire particles
+          const exhaustAngle = Math.atan2(-thrust.y, -thrust.x);
+          const color = this.polarity === 'repel' ? '#00f0ff' : '#ff007f';
+          particles.spawnThruster(this.pos.x, this.pos.y, exhaustAngle, color);
+        }
+
+        // 2. Central Inverse-Square Gravitational Force
+        const grav = blackHole ? blackHole.getAcceleration(this.pos, this.mass) : new VectorMath();
+
+        // Net Acceleration: a = (F_thrust + F_grav) / m
+        this.acc.set(
+          (thrust.x + grav.x) / this.mass,
+          (thrust.y + grav.y) / this.mass
+        );
+
+        // 3. Symplectic Euler Velocity Update
+        this.vel.x = (this.vel.x + this.acc.x * dt) * this.vacuumDamping;
+        this.vel.y = (this.vel.y + this.acc.y * dt) * this.vacuumDamping;
+
+        // 4. Symplectic Euler Position Update (using updated velocity)
+        this.pos.x += this.vel.x * dt;
+        this.pos.y += this.vel.y * dt;
+
+        // Firing weapon cooldown
+        if (this.fireCooldown > 0) {
+          this.fireCooldown -= dt;
+        }
+
+        // Check Event Horizon Singularity Ingestion
+        if (blackHole && blackHole.checkHorizon(this.pos, this.radius * 0.5)) {
+          this.isDead = true;
+          this.spaghettifyProgress = 1.0;
+        }
+      }
+
+      shoot(bullets, audio, particles) {
+        if (this.isDead || this.fireCooldown > 0) return null;
+
+        this.fireCooldown = this.fireRate;
+        audio.playShoot(this.polarity);
+
+        // Compute dual wingtip muzzle offsets
+        const offsetAngle = this.angle + Math.PI / 2;
+        const wingDist = 10;
+        const noseDist = 18;
+
+        const leftMuzzleX = this.pos.x + Math.cos(this.angle) * noseDist + Math.cos(offsetAngle) * wingDist;
+        const leftMuzzleY = this.pos.y + Math.sin(this.angle) * noseDist + Math.sin(offsetAngle) * wingDist;
+
+        const rightMuzzleX = this.pos.x + Math.cos(this.angle) * noseDist - Math.cos(offsetAngle) * wingDist;
+        const rightMuzzleY = this.pos.y + Math.sin(this.angle) * noseDist - Math.sin(offsetAngle) * wingDist;
+
+        const bulletSpeed = 820;
+        const bulletVel = VectorMath.fromAngle(this.angle, bulletSpeed).add(this.vel);
+
+        const b1 = bullets.getAvailable();
+        if (b1) b1.spawn(leftMuzzleX, leftMuzzleY, bulletVel.x, bulletVel.y, this.polarity);
+
+        const b2 = bullets.getAvailable();
+        if (b2) b2.spawn(rightMuzzleX, rightMuzzleY, bulletVel.x, bulletVel.y, this.polarity);
+
+        const color = this.polarity === 'repel' ? '#00f0ff' : '#ff007f';
+        particles.spawn(leftMuzzleX, leftMuzzleY, 0, 0, color, 3, 0.1, 'spark');
+        particles.spawn(rightMuzzleX, rightMuzzleY, 0, 0, color, 3, 0.1, 'spark');
+      }
+
+      /**
+       * Forecast and render future Symplectic Euler orbital trajectory
+       */
+      drawTrajectory(ctx, blackHole) {
+        if (this.isDead || !blackHole) return;
+
+        ctx.save();
+        const steps = 45;
+        const simDt = 0.032;
+
+        let simX = this.pos.x;
+        let simY = this.pos.y;
+        let simVx = this.vel.x;
+        let simVy = this.vel.y;
+
+        ctx.beginPath();
+        ctx.moveTo(simX, simY);
+
+        let dangerPath = false;
+        for (let i = 0; i < steps; i++) {
+          const grav = blackHole.getAcceleration(new VectorMath(simX, simY), this.mass);
+          simVx = (simVx + grav.x * simDt) * this.vacuumDamping;
+          simVy = (simVy + grav.y * simDt) * this.vacuumDamping;
+          simX += simVx * simDt;
+          simY += simVy * simDt;
+
+          if (blackHole.checkHorizon(new VectorMath(simX, simY), 10)) {
+            dangerPath = true;
+          }
+
+          if (i % 2 === 0) {
+            ctx.lineTo(simX, simY);
+          } else {
+            ctx.moveTo(simX, simY);
+          }
+        }
+
+        ctx.strokeStyle = dangerPath ? 'rgba(255, 51, 68, 0.55)' : (this.polarity === 'repel' ? 'rgba(0, 240, 255, 0.35)' : 'rgba(255, 0, 127, 0.35)');
+        ctx.lineWidth = 1.2;
+        ctx.setLineDash([4, 4]);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      draw(ctx) {
+        if (this.isDead) return;
+
+        ctx.save();
+        ctx.translate(this.pos.x, this.pos.y);
+        ctx.rotate(this.angle);
+
+        const isRepel = this.polarity === 'repel';
+        const color = isRepel ? '#00f0ff' : '#ff007f';
+
+        // Invulnerability flicker
+        if (this.invulnerableTimer > 0 && Math.floor(Date.now() / 60) % 2 === 0) {
+          ctx.globalAlpha = 0.4;
+        }
+
+        // Draw Ship Neon Vector Geometry
+        ctx.strokeStyle = color;
+        ctx.fillStyle = '#060a14';
+        ctx.lineWidth = 2;
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 12;
+
+        ctx.beginPath();
+        for (let i = 0; i < this.shipGeometry.length; i++) {
+          const pt = this.shipGeometry[i];
+          if (i === 0) ctx.moveTo(pt.x, pt.y);
+          else ctx.lineTo(pt.x, pt.y);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Cockpit vector core
+        ctx.beginPath();
+        ctx.fillStyle = '#ffffff';
+        ctx.arc(2, 0, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Protective Vector Shield Rings
+        if (this.shields > 0) {
+          ctx.beginPath();
+          ctx.strokeStyle = '#00ff88';
+          ctx.lineWidth = 1.2;
+          ctx.shadowColor = '#00ff88';
+          ctx.shadowBlur = 8;
+          ctx.arc(0, 0, this.radius + 6, 0, Math.PI * 2 * (this.shields / this.maxShields));
+          ctx.stroke();
+        }
+
+        ctx.restore();
+      }
+    }
+
+    /**
+     * =========================================================================
+     * 8. Enemy & EnemyManager: Hostile Swarm AI with Gravitational Dynamics
+     * =========================================================================
+     */
+    class Enemy {
+      constructor() {
+        this.pos = new VectorMath();
+        this.vel = new VectorMath();
+        this.acc = new VectorMath();
+        this.type = 'drone'; // 'drone', 'cruiser', 'pulsar'
+        this.radius = 12;
+        this.mass = 1.0;
+        this.health = 1;
+        this.maxHealth = 1;
+        this.points = 100;
+        this.speed = 180;
+        this.active = false;
+        this.shootTimer = 0;
+        this.rotationAngle = 0;
+      }
+
+      init(x, y, type = 'drone') {
+        this.pos.set(x, y);
+        this.vel.set(0, 0);
+        this.acc.set(0, 0);
+        this.type = type;
+        this.active = true;
+        this.rotationAngle = Math.random() * Math.PI * 2;
+
+        if (type === 'drone') {
+          this.radius = 11;
+          this.mass = 0.8;
+          this.health = 1;
+          this.maxHealth = 1;
+          this.points = 150;
+          this.speed = 210;
+        } else if (type === 'cruiser') {
+          this.radius = 18;
+          this.mass = 2.4;
+          this.health = 3;
+          this.maxHealth = 3;
+          this.points = 350;
+          this.speed = 130;
+          this.shootTimer = Math.random() * 2 + 1;
+        } else if (type === 'pulsar') {
+          this.radius = 24;
+          this.mass = 5.0;
+          this.health = 6;
+          this.maxHealth = 6;
+          this.points = 700;
+          this.speed = 85;
+          this.shootTimer = Math.random() * 1.5 + 1;
+        }
+      }
+
+      applyImpulse(impulseVec) {
+        this.vel.x += impulseVec.x / this.mass;
+        this.vel.y += impulseVec.y / this.mass;
+      }
+
+      update(dt, player, blackHole, enemyBullets, particles) {
+        if (!this.active) return;
+
+        this.rotationAngle += 2.0 * dt;
+
+        // 1. Steering Force towards Player or Orbit Strategy
+        const steer = new VectorMath();
+        if (player && !player.isDead) {
+          const toPlayer = VectorMath.sub(player.pos, this.pos);
+          const distToPlayer = toPlayer.mag();
+
+          if (this.type === 'drone') {
+            // Aggressive seeking intercept
+            steer.copy(toPlayer).norm().scale(this.speed);
+          } else if (this.type === 'cruiser') {
+            // Maintain stable perimeter distance while strafing
+            if (distToPlayer > 260) {
+              steer.copy(toPlayer).norm().scale(this.speed);
+            } else if (distToPlayer < 180) {
+              steer.copy(toPlayer).norm().scale(-this.speed);
+            } else {
+              // Tangential orbit circling
+              steer.set(-toPlayer.y, toPlayer.x).norm().scale(this.speed);
+            }
+
+            // Firing burst laser
+            this.shootTimer -= dt;
+            if (this.shootTimer <= 0) {
+              this.shootTimer = 2.2;
+              const bulletVel = toPlayer.clone().norm().scale(420);
+              const b = enemyBullets.getAvailable();
+              if (b) b.spawn(this.pos.x, this.pos.y, bulletVel.x, bulletVel.y, 'repel');
+            }
+          } else if (this.type === 'pulsar') {
+            // Slow orbital dreadnought
+            steer.copy(toPlayer).norm().scale(this.speed * 0.6);
+            this.shootTimer -= dt;
+            if (this.shootTimer <= 0) {
+              this.shootTimer = 2.5;
+              // Radial 4-way pulse
+              for (let i = 0; i < 4; i++) {
+                const angle = this.rotationAngle + (i * Math.PI) / 2;
+                const b = enemyBullets.getAvailable();
+                if (b) {
+                  b.spawn(this.pos.x, this.pos.y, Math.cos(angle) * 320, Math.sin(angle) * 320, 'repel');
+                }
+              }
+            }
+          }
+        }
+
+        // 2. Gravitational Acceleration from Singularity
+        const grav = blackHole ? blackHole.getAcceleration(this.pos, this.mass) : new VectorMath();
+
+        // 3. Symplectic Euler Integration
+        this.acc.set(
+          (steer.x * 1.5 + grav.x) / this.mass,
+          (steer.y * 1.5 + grav.y) / this.mass
+        );
+
+        this.vel.x = (this.vel.x + this.acc.x * dt) * 0.992;
+        this.vel.y = (this.vel.y + this.acc.y * dt) * 0.992;
+
+        this.pos.x += this.vel.x * dt;
+        this.pos.y += this.vel.y * dt;
+      }
+
+      draw(ctx) {
+        if (!this.active) return;
+        ctx.save();
+        ctx.translate(this.pos.x, this.pos.y);
+        ctx.rotate(this.rotationAngle);
+
+        ctx.lineWidth = 1.8;
+
+        if (this.type === 'drone') {
+          // Sharp neon red/orange triangle
+          ctx.strokeStyle = '#ff3344';
+          ctx.fillStyle = 'rgba(255, 51, 68, 0.15)';
+          ctx.shadowColor = '#ff3344';
+          ctx.shadowBlur = 10;
+
+          ctx.beginPath();
+          ctx.moveTo(this.radius, 0);
+          ctx.lineTo(-this.radius * 0.8, this.radius * 0.7);
+          ctx.lineTo(-this.radius * 0.3, 0);
+          ctx.lineTo(-this.radius * 0.8, -this.radius * 0.7);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+        } else if (this.type === 'cruiser') {
+          // Neon amber rotating diamond
+          ctx.strokeStyle = '#ffb700';
+          ctx.fillStyle = 'rgba(255, 183, 0, 0.15)';
+          ctx.shadowColor = '#ffb700';
+          ctx.shadowBlur = 12;
+
+          ctx.beginPath();
+          ctx.moveTo(this.radius, 0);
+          ctx.lineTo(0, this.radius * 0.7);
+          ctx.lineTo(-this.radius, 0);
+          ctx.lineTo(0, -this.radius * 0.7);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+
+          // Inner rotating core
+          ctx.beginPath();
+          ctx.arc(0, 0, 4, 0, Math.PI * 2);
+          ctx.stroke();
+        } else if (this.type === 'pulsar') {
+          // Heavy neon violet hexagon
+          ctx.strokeStyle = '#a855f7';
+          ctx.fillStyle = 'rgba(168, 85, 247, 0.2)';
+          ctx.shadowColor = '#a855f7';
+          ctx.shadowBlur = 15;
+
+          ctx.beginPath();
+          for (let i = 0; i < 6; i++) {
+            const angle = (i * Math.PI) / 3;
+            const px = Math.cos(angle) * this.radius;
+            const py = Math.sin(angle) * this.radius;
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+
+          // Heavy armor core
+          ctx.strokeRect(-this.radius * 0.35, -this.radius * 0.35, this.radius * 0.7, this.radius * 0.7);
+        }
+
+        ctx.restore();
+      }
+    }
+
+    class BulletPool {
+      constructor(size = 180) {
+        this.bullets = Array.from({ length: size }, () => new Bullet());
+      }
+
+      getAvailable() {
+        return this.bullets.find(b => !b.active) || null;
+      }
+
+      update(dt, blackHole) {
+        for (let i = 0; i < this.bullets.length; i++) {
+          if (this.bullets[i].active) {
+            this.bullets[i].update(dt, blackHole);
+          }
+        }
+      }
+
+      draw(ctx) {
+        for (let i = 0; i < this.bullets.length; i++) {
+          if (this.bullets[i].active) {
+            this.bullets[i].draw(ctx);
+          }
+        }
+      }
+    }
+
+    class EnemyManager {
+      constructor(maxEnemies = 45) {
+        this.enemies = Array.from({ length: maxEnemies }, () => new Enemy());
+        this.enemyBullets = new BulletPool(100);
+        this.spawnTimer = 0;
+        this.wave = 1;
+        this.waveTimer = 0;
+        this.enemiesInWave = 12;
+        this.spawnedInWave = 0;
+        this.totalKills = 0;
+        this.singularityKills = 0;
+      }
+
+      reset() {
+        this.enemies.forEach(e => (e.active = false));
+        this.enemyBullets.bullets.forEach(b => (b.active = false));
+        this.wave = 1;
+        this.waveTimer = 0;
+        this.enemiesInWave = 10;
+        this.spawnedInWave = 0;
+        this.spawnTimer = 1.0;
+        this.totalKills = 0;
+        this.singularityKills = 0;
+      }
+
+      spawnEnemy(width, height, blackHole) {
+        const inactive = this.enemies.find(e => !e.active);
+        if (!inactive) return;
+
+        // Spawn along perimeter of viewport away from singularity
+        let x, y;
+        const edge = Math.floor(Math.random() * 4);
+        const margin = 30;
+
+        if (edge === 0) { // Top
+          x = Math.random() * width;
+          y = -margin;
+        } else if (edge === 1) { // Right
+          x = width + margin;
+          y = Math.random() * height;
+        } else if (edge === 2) { // Bottom
+          x = Math.random() * width;
+          y = height + margin;
+        } else { // Left
+          x = -margin;
+          y = Math.random() * height;
+        }
+
+        // Determine enemy archetype based on current wave
+        let type = 'drone';
+        const rand = Math.random();
+        if (this.wave >= 3 && rand < 0.25) {
+          type = 'pulsar';
+        } else if (this.wave >= 2 && rand < 0.5) {
+          type = 'cruiser';
+        }
+
+        inactive.init(x, y, type);
+        this.spawnedInWave++;
+      }
+
+      update(dt, player, blackHole, particles, audio, onScore) {
+        this.enemyBullets.update(dt, blackHole);
+
+        // Wave progression logic
+        this.spawnTimer -= dt;
+        if (this.spawnTimer <= 0 && this.spawnedInWave < this.enemiesInWave) {
+          this.spawnTimer = Math.max(0.5, 2.2 - this.wave * 0.18);
+          this.spawnEnemy(window.innerWidth, window.innerHeight, blackHole);
+        }
+
+        // Check if wave cleared
+        const activeCount = this.enemies.filter(e => e.active).length;
+        if (this.spawnedInWave >= this.enemiesInWave && activeCount === 0) {
+          this.wave++;
+          this.spawnedInWave = 0;
+          this.enemiesInWave = 10 + this.wave * 5;
+          this.spawnTimer = 2.0;
+          if (onScore) onScore(1000 * this.wave, 'WAVE CLEARED');
+        }
+
+        // Update active enemies and check singularity swallowing
+        for (let i = 0; i < this.enemies.length; i++) {
+          const enemy = this.enemies[i];
+          if (!enemy.active) continue;
+
+          enemy.update(dt, player, blackHole, this.enemyBullets, particles);
+
+          // Check if consumed by Black Hole Singularity Event Horizon!
+          if (blackHole && blackHole.checkHorizon(enemy.pos, enemy.radius * 0.4)) {
+            enemy.active = false;
+            this.singularityKills++;
+            this.totalKills++;
+
+            audio.playSingularityIngest();
+            // Singularity swallow gives 3x points!
+            if (onScore) {
+              onScore(enemy.points * 3, 'SINGULARITY FEED x3');
+            }
+
+            // Spaghettification matter accretion flare
+            particles.spawnBurst(blackHole.pos.x, blackHole.pos.y, '#ffffff', 28, 220);
+            particles.spawnShockwave(blackHole.pos.x, blackHole.pos.y, '#ff007f', 160, 0.4);
+          }
+        }
+      }
+
+      draw(ctx) {
+        this.enemyBullets.draw(ctx);
+        for (let i = 0; i < this.enemies.length; i++) {
+          if (this.enemies[i].active) {
+            this.enemies[i].draw(ctx);
+          }
+        }
+      }
+    }
+
+    /**
+     * =========================================================================
+     * 9. Floating Combat Text HUD Manager
+     * =========================================================================
+     */
+    class FloatingTextManager {
+      constructor() {
+        this.texts = [];
+      }
+
+      spawn(x, y, text, color = '#00f0ff') {
+        this.texts.push({
+          x, y, text, color,
+          alpha: 1.0,
+          vy: -50,
+          life: 0.9
+        });
+      }
+
+      update(dt) {
+        for (let i = this.texts.length - 1; i >= 0; i--) {
+          const t = this.texts[i];
+          t.y += t.vy * dt;
+          t.life -= dt;
+          t.alpha = Math.max(0, t.life / 0.9);
+          if (t.life <= 0) {
+            this.texts.splice(i, 1);
+          }
+        }
+      }
+
+      draw(ctx) {
+        ctx.save();
+        ctx.font = 'bold 12px "Courier New", Courier, monospace';
+        ctx.textAlign = 'center';
+        for (let i = 0; i < this.texts.length; i++) {
+          const t = this.texts[i];
+          ctx.fillStyle = t.color;
+          ctx.globalAlpha = t.alpha;
+          ctx.shadowColor = t.color;
+          ctx.shadowBlur = 8;
+          ctx.fillText(t.text, t.x, t.y);
+        }
+        ctx.restore();
+      }
+    }
+
+    /**
+     * =========================================================================
+     * 10. GameEngine Module: Core Loop, Input Dispatch, Collision & State
+     * =========================================================================
+     */
+    class GameEngine {
+      constructor() {
+        this.canvas = document.getElementById('gameCanvas');
+        this.ctx = this.canvas.getContext('2d');
+
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+
+        // Sub-modules
+        this.audio = new AudioSynth();
+        this.particles = new ParticlePool(1000);
+        this.warpGrid = new WarpGrid(24, 16);
+        this.blackHole = new BlackHole(this.width / 2, this.height / 2);
+        this.player = new Player(this.width / 2, this.height / 2 + 180);
+        this.playerBullets = new BulletPool(160);
+        this.enemyManager = new EnemyManager(50);
+        this.floatingTexts = new FloatingTextManager();
+
+        // Game State
+        this.state = 'start'; // 'start', 'playing', 'gameover'
+        this.score = 0;
+        this.multiplier = 1.0;
+        this.multStreak = 0;
+        this.peakMultiplier = 1.0;
+        this.highScore = parseInt(localStorage.getItem('shattered_vector_highscore') || '0', 10);
+
+        // Input Tracking
+        this.input = {
+          keys: {},
+          mousePos: new VectorMath(this.width / 2, this.height / 2),
+          mouseDown: false
+        };
+
+        this.lastTime = 0;
+        this.setupEventListeners();
+        this.resize();
+        this.updateHUD();
+      }
+
+      resize() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+
+        this.blackHole.setCenter(this.width / 2, this.height / 2);
+        this.warpGrid.resize(this.width, this.height);
+      }
+
+      setupEventListeners() {
+        window.addEventListener('resize', () => this.resize());
+
+        // Keyboard inputs
+        window.addEventListener('keydown', (e) => {
+          this.input.keys[e.code] = true;
+
+          if (this.state === 'playing') {
+            if (e.code === 'Space') {
+              e.preventDefault();
+              this.player.togglePolarity(this.audio, this.particles, this.warpGrid);
+              this.updateHUD();
+            }
+          } else if (this.state === 'start' && (e.code === 'Space' || e.code === 'Enter')) {
+            this.startGame();
+          } else if (this.state === 'gameover' && (e.code === 'Space' || e.code === 'Enter')) {
+            this.startGame();
+          }
+        });
+
+        window.addEventListener('keyup', (e) => {
+          this.input.keys[e.code] = false;
+        });
+
+        // Mouse & Pointer inputs
+        window.addEventListener('mousemove', (e) => {
+          this.input.mousePos.set(e.clientX, e.clientY);
+        });
+
+        window.addEventListener('mousedown', (e) => {
+          this.audio.resume();
+          if (e.button === 0) { // Left click
+            this.input.mouseDown = true;
+          } else if (e.button === 2) { // Right click toggles polarity
+            e.preventDefault();
+            if (this.state === 'playing') {
+              this.player.togglePolarity(this.audio, this.particles, this.warpGrid);
+              this.updateHUD();
+            }
+          }
+        });
+
+        window.addEventListener('mouseup', (e) => {
+          if (e.button === 0) {
+            this.input.mouseDown = false;
+          }
+        });
+
+        // Prevent default context menu for smooth right-click polarity toggling
+        window.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        // Button Click handlers
+        document.getElementById('btn-start').addEventListener('click', () => {
+          this.audio.resume();
+          this.startGame();
+        });
+
+        document.getElementById('btn-restart').addEventListener('click', () => {
+          this.audio.resume();
+          this.startGame();
+        });
+      }
+
+      startGame() {
+        this.state = 'playing';
+        this.score = 0;
+        this.multiplier = 1.0;
+        this.multStreak = 0;
+        this.peakMultiplier = 1.0;
+
+        document.getElementById('modal-start').classList.add('hidden');
+        document.getElementById('modal-gameover').classList.add('hidden');
+
+        this.player.reset(this.width / 2, this.height / 2 + 200);
+        // Initial tangential velocity for stable initial orbit
+        this.player.vel.set(220, 0);
+
+        this.playerBullets.bullets.forEach(b => (b.active = false));
+        this.enemyManager.reset();
+        this.updateHUD();
+      }
+
+      onPlayerDeath(cause) {
+        this.state = 'gameover';
+        if (this.score > this.highScore) {
+          this.highScore = this.score;
+          localStorage.setItem('shattered_vector_highscore', this.highScore);
+        }
+
+        document.getElementById('gameover-cause').textContent = cause;
+        document.getElementById('stat-final-score').textContent = this.score.toLocaleString();
+        document.getElementById('stat-peak-mult').textContent = `x${this.peakMultiplier.toFixed(1)}`;
+        document.getElementById('stat-wave').textContent = this.enemyManager.wave;
+        document.getElementById('stat-singularity-kills').textContent = this.enemyManager.singularityKills;
+        document.getElementById('stat-total-kills').textContent = this.enemyManager.totalKills;
+
+        document.getElementById('modal-gameover').classList.remove('hidden');
+      }
+
+      addScore(basePoints, label = '') {
+        const points = Math.round(basePoints * this.multiplier);
+        this.score += points;
+        this.multStreak++;
+
+        if (this.multStreak % 5 === 0 && this.multiplier < 5.0) {
+          this.multiplier = Math.min(5.0, this.multiplier + 0.5);
+          if (this.multiplier > this.peakMultiplier) {
+            this.peakMultiplier = this.multiplier;
+          }
+        }
+
+        if (label) {
+          this.floatingTexts.spawn(this.player.pos.x, this.player.pos.y - 25, `+${points} ${label}`, '#ffb700');
+        }
+        this.updateHUD();
+      }
+
+      handleCollisions() {
+        // 1. Player Bullets vs Enemies
+        for (let i = 0; i < this.playerBullets.bullets.length; i++) {
+          const bullet = this.playerBullets.bullets[i];
+          if (!bullet.active) continue;
+
+          for (let j = 0; j < this.enemyManager.enemies.length; j++) {
+            const enemy = this.enemyManager.enemies[j];
+            if (!enemy.active) continue;
+
+            const dist = bullet.pos.dist(enemy.pos);
+            if (dist < enemy.radius + bullet.radius) {
+              bullet.active = false;
+              enemy.health--;
+
+              // POLARITY MECHANICS KINETIC IMPULSE:
+              if (bullet.polarity === 'repel') {
+                // REPEL: Explosive outward force pushing swarm away from player/bullet
+                const repelDir = VectorMath.sub(enemy.pos, bullet.pos).norm();
+                enemy.applyImpulse(repelDir.scale(420));
+                this.particles.spawnBurst(bullet.pos.x, bullet.pos.y, '#00f0ff', 12, 140);
+              } else {
+                // ATTRACT: Tractor impulse pulling enemy towards singularity / impact point
+                const toSingularity = VectorMath.sub(this.blackHole.pos, enemy.pos).norm();
+                enemy.applyImpulse(toSingularity.scale(380));
+                this.particles.spawnBurst(bullet.pos.x, bullet.pos.y, '#ff007f', 14, 160);
+              }
+
+              if (enemy.health <= 0) {
+                enemy.active = false;
+                this.enemyManager.totalKills++;
+                this.audio.playExplosion(enemy.type === 'pulsar');
+                this.particles.spawnBurst(enemy.pos.x, enemy.pos.y, enemy.type === 'drone' ? '#ff3344' : '#ffb700', 24, 200);
+                this.warpGrid.addImpulse(enemy.pos.x, enemy.pos.y, 25);
+                this.addScore(enemy.points);
+              }
+              break;
+            }
+          }
+        }
+
+        // 2. Enemy Bullets vs Player
+        for (let i = 0; i < this.enemyManager.enemyBullets.bullets.length; i++) {
+          const b = this.enemyManager.enemyBullets.bullets[i];
+          if (!b.active) continue;
+
+          if (b.pos.dist(this.player.pos) < this.player.radius + b.radius) {
+            b.active = false;
+            const killed = this.player.takeDamage(this.audio, this.particles);
+            this.updateHUD();
+            if (killed) {
+              this.onPlayerDeath('DESTROYED BY HOSTILE FIRE');
+            }
+          }
+        }
+
+        // 3. Enemy Body vs Player Collision
+        for (let i = 0; i < this.enemyManager.enemies.length; i++) {
+          const enemy = this.enemyManager.enemies[i];
+          if (!enemy.active) continue;
+
+          if (enemy.pos.dist(this.player.pos) < this.player.radius + enemy.radius) {
+            enemy.active = false;
+            this.particles.spawnBurst(enemy.pos.x, enemy.pos.y, '#ff3344', 20, 180);
+            const killed = this.player.takeDamage(this.audio, this.particles);
+            this.updateHUD();
+            if (killed) {
+              this.onPlayerDeath('RAMMED BY HOSTILE DRONE');
+            }
+          }
+        }
+
+        // 4. Player vs Singularity Event Horizon
+        if (this.blackHole.checkHorizon(this.player.pos, this.player.radius * 0.4)) {
+          this.player.isDead = true;
+          this.audio.playSingularityIngest();
+          this.particles.spawnBurst(this.player.pos.x, this.player.pos.y, '#00f0ff', 35, 240, true);
+          this.onPlayerDeath('CONSUMED BY EVENT HORIZON');
+        }
+      }
+
+      updateHUD() {
+        document.getElementById('hud-score').textContent = this.score.toString().padStart(6, '0');
+        document.getElementById('hud-mult').textContent = `x${this.multiplier.toFixed(1)}`;
+        document.getElementById('hud-wave').textContent = this.enemyManager.wave.toString().padStart(2, '0');
+        document.getElementById('hud-high-score').textContent = this.highScore.toString().padStart(6, '0');
+        document.getElementById('hud-singularity-kills').textContent = this.enemyManager.singularityKills;
+
+        // Polarity display indicator
+        const polarityBox = document.getElementById('hud-polarity-box');
+        const polarityText = document.getElementById('hud-polarity-text');
+        if (this.player.polarity === 'repel') {
+          polarityBox.className = 'polarity-box polarity-repel';
+          polarityText.textContent = 'REPEL';
+        } else {
+          polarityBox.className = 'polarity-box polarity-attract';
+          polarityText.textContent = 'ATTRACT';
+        }
+
+        // Shield pips
+        const shieldPips = document.querySelectorAll('.shield-pip');
+        shieldPips.forEach((pip, idx) => {
+          if (idx < this.player.shields) {
+            pip.classList.remove('lost');
+          } else {
+            pip.classList.add('lost');
+          }
+        });
+      }
+
+      update(dt) {
+        // Cap dt to prevent physics tunneling during tab switches
+        const cappedDt = Math.min(dt, 0.05);
+
+        this.blackHole.update(cappedDt);
+        this.warpGrid.update(cappedDt, this.blackHole);
+
+        // Calculate proximity to singularity for audio drone and UI alert
+        const distToHole = this.player.pos.dist(this.blackHole.pos);
+        const proximityRatio = Math.max(0, 1 - (distToHole - this.blackHole.eventHorizon) / 380);
+        this.audio.updateGravityHum(proximityRatio);
+
+        const alertEl = document.getElementById('hud-gravity-alert');
+        if (proximityRatio > 0.65 && this.state === 'playing') {
+          alertEl.style.display = 'block';
+        } else {
+          alertEl.style.display = 'none';
+        }
+
+        const gPull = ((this.blackHole.mass / (distToHole * distToHole + 2000)) / 100).toFixed(1);
+        document.getElementById('hud-grav-pull').textContent = `${gPull} G`;
+
+        if (this.state === 'playing') {
+          this.player.update(cappedDt, this.input, this.blackHole, this.particles);
+
+          if (this.input.mouseDown) {
+            this.player.shoot(this.playerBullets, this.audio, this.particles);
+          }
+
+          this.playerBullets.update(cappedDt, this.blackHole);
+          this.enemyManager.update(cappedDt, this.player, this.blackHole, this.particles, this.audio, (pts, label) => {
+            this.addScore(pts, label);
+          });
+
+          this.handleCollisions();
+        }
+
+        this.particles.update(cappedDt, this.blackHole);
+        this.floatingTexts.update(cappedDt);
+      }
+
+      render() {
+        this.ctx.fillStyle = '#020206';
+        this.ctx.fillRect(0, 0, this.width, this.height);
+
+        // 1. Spacetime Gravitational Deflection Grid
+        this.warpGrid.draw(this.ctx);
+
+        // 2. Singularity Black Hole & Accretion Ring
+        this.blackHole.draw(this.ctx);
+
+        // 3. Projected Symplectic Euler Trajectory Line
+        if (this.state === 'playing') {
+          this.player.drawTrajectory(this.ctx, this.blackHole);
+        }
+
+        // 4. Bullets & Particle Pools
+        this.playerBullets.draw(this.ctx);
+        this.enemyManager.draw(this.ctx);
+        this.particles.draw(this.ctx);
+
+        // 5. Player Ship
+        this.player.draw(this.ctx);
+
+        // 6. Floating Vector Combat Text
+        this.floatingTexts.draw(this.ctx);
+
+        // 7. Vector Reticle / Crosshair
+        this.drawReticle();
+      }
+
+      drawReticle() {
+        const mx = this.input.mousePos.x;
+        const my = this.input.mousePos.y;
+        const color = this.player.polarity === 'repel' ? '#00f0ff' : '#ff007f';
+
+        this.ctx.save();
+        this.ctx.strokeStyle = color;
+        this.ctx.lineWidth = 1.5;
+        this.ctx.shadowColor = color;
+        this.ctx.shadowBlur = 8;
+
+        // Circular sight
+        this.ctx.beginPath();
+        this.ctx.arc(mx, my, 12, 0, Math.PI * 2);
+        this.ctx.stroke();
+
+        // Crosshairs
+        this.ctx.beginPath();
+        this.ctx.moveTo(mx - 18, my);
+        this.ctx.lineTo(mx - 6, my);
+        this.ctx.moveTo(mx + 6, my);
+        this.ctx.lineTo(mx + 18, my);
+        this.ctx.moveTo(mx, my - 18);
+        this.ctx.lineTo(mx, my - 6);
+        this.ctx.moveTo(mx, my + 6);
+        this.ctx.lineTo(mx, my + 18);
+        this.ctx.stroke();
+
+        this.ctx.restore();
+      }
+
+      loop(timestamp) {
+        if (!this.lastTime) this.lastTime = timestamp;
+        const dt = (timestamp - this.lastTime) / 1000;
+        this.lastTime = timestamp;
+
+        this.update(dt);
+        this.render();
+
+        requestAnimationFrame((t) => this.loop(t));
+      }
+
+      start() {
+        requestAnimationFrame((t) => this.loop(t));
+      }
+    }
+
+    // Initialize Game Engine on Window Load
+    window.addEventListener('load', () => {
+      const engine = new GameEngine();
+      engine.start();
+    });
+  </script>
+</body>
+</html>
