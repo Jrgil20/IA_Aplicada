@@ -47,6 +47,17 @@ Running local models is technically and economically justified **only** in the f
 - **Problem:** General cloud models lack deterministic adherence to strict, niche internal standards (e.g., custom AST linting, proprietary DSLs, or Clean Architecture refactoring constraints).
 - **Solution:** Fine-tune a lightweight model (1.5B or 7B) using low-rank adapters (LoRA) on curated synthetic datasets (as demonstrated in the *Edge Clean Copilot* semester project). A fine-tuned 1.5B model can outperform a 70B general model on a single, deterministic transformation task.
 
+### 3.4. SLA Guarantees & Vendor Outage Decoupling (Mission-Critical Cores)
+- **Problem:** Mission-critical transactional engines (core banking, industrial control, payment settlement, telecom routing) require contractual "Five Nines" (99.999%) availability. Public cloud APIs can suffer from third-party vendor outages, rate limiting (`HTTP 429`), network route flapping, and latency spikes outside the enterprise's control.
+- **Solution:** Local and on-premises inference eliminates external WAN dependencies, removing upstream rate-limit quotas and guaranteeing deterministic compute latency on owned bare-metal infrastructure.
+
+### 3.5. Data Tiering & The Sanitizing Gateway Pattern (Defense in Depth)
+- **Problem:** Enterprises cannot legally or operationally expose customer PII, trade secrets, credit profiles, or proprietary algorithms to third-party model inference.
+- **Solution:** Strict isolation between peripheral development and core execution:
+  - **Peripheral Zone (Cloud):** Fast frontier / sub-frontier models (e.g., Claude Haiku, Gemini Flash) handle public documentation, generic boilerplate, and abstract architecture design.
+  - **Core Zone (Local / Private VPC):** Air-gapped on-prem SLMs process sensitive, high-classification data with zero data egress.
+  - **Sanitizing Gateway Proxy:** A lightweight local model (1.5B–7B) inspects, redacts, and pseudonymizes payloads before any non-sensitive logic is dispatched to external cloud APIs.
+
 ---
 
 ## 4. Hardware Sizing & Economic Thresholds
@@ -76,28 +87,30 @@ At current frontier API pricing:
 
 ## 5. Architectural Recommendation: The Hybrid Tiering Pattern
 
-Rather than choosing exclusively between cloud or local, modern AI-augmented software engineering follows the **Tiered Inversion Pattern**:
+Rather than choosing exclusively between cloud or local, enterprise AI architecture follows the **Tiered Defense-in-Depth Pattern**:
 
 ```
-+-------------------------------------------------------------------------+
-|                        Tier 1: Cloud Frontier (Brain)                    |
-|                (Gemini Flash / Claude Sonnet / GPT-4o)                  |
-|  - System Architecture & Spec Decomposition                             |
-|  - Multi-file Clean Architecture refactoring                            |
-|  - Procedural Audio & Graphics engine orchestration                      |
-+-------------------------------------------------------------------------+
-                                    |
-                                    v
-+-------------------------------------------------------------------------+
-|                       Tier 2: Edge / Local SLMs (Limbs)                 |
-|               (Qwen2.5-Coder-1.5B / 7B on llama.cpp)                    |
-|  - Continuous keystroke autocomplete (< 40ms TTFT)                      |
-|  - Offline fallback when disconnected from WAN                          |
-|  - Deterministic AST linting and repetitive boilerplate generation      |
-+-------------------------------------------------------------------------+
++-----------------------------------------------------------------------------------+
+|                        ZONE 1: PERIPHERAL & DEVELOPMENT (CLOUD)                   |
+|                  Models: Claude Haiku / Gemini Flash / GPT-4o                     |
+|  - System Architecture & Spec Decomposition                                       |
+|  - Generic boilerplate & Clean Architecture skeleton generation                   |
+|  - Abstract algorithms without proprietary or sensitive data payloads             |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v  [Sanitizing Gateway / Local PII Redactor]
++-----------------------------------------------------------------------------------+
+|                           ZONE 2: MISSION-CRITICAL CORE (LOCAL)                   |
+|                Models: Specialized SLMs (1.5B–7B on DGX Spark / On-Prem)          |
+|  - PII scrubbing, customer records, proprietary trading logic, ledger state       |
+|  - Real-time keystroke autocomplete (< 40ms TTFT)                                 |
+|  - Five-Nines (99.999%) SLA guarantee decoupled from public internet outages      |
+|  - Zero-egress compliance (HIPAA, GDPR, financial sovereignty)                    |
++-----------------------------------------------------------------------------------+
 ```
 
 ### Rule of Thumb for Architects
 - **Do not purchase dedicated hardware solely to mimic general cloud reasoning.**
 - **Use Cloud Frontier models for ideation, planning, architectural review, and heavy synthesis.**
 - **Deploy localized, fine-tuned SLMs for fast, deterministic, offline, and high-frequency edge execution.**
+- **Enforce strict data tiering: never route sensitive domain state to public APIs when a local SLM can enforce the boundary.**

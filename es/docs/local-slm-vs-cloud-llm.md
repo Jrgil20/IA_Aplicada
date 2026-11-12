@@ -47,6 +47,17 @@ Ejecutar modelos en local se justifica técnica y económicamente **únicamente*
 - **Problema:** Los modelos generales en la nube carecen de apego determinista a estándares internos muy estrictos (ej. linting AST propietario, DSLs internas o reglas de Clean Architecture).
 - **Solución:** Entrenar un modelo liviano (1.5B o 7B) mediante adaptadores de bajo rango (LoRA) con datasets sintéticos curados (como se demostró en el proyecto de semestre *Edge Clean Copilot*). Un modelo de 1.5B ajustado puede superar a un modelo general de 70B en una tarea de transformación acotada y determinista.
 
+### 3.4. Garantía de SLAs y Desacople de Caídas de Proveedores (Cores de Misión Crítica)
+- **Problema:** Los motores transaccionales críticos (core bancario, control industrial, liquidación de pagos, ruteo de telecomunicaciones) requieren contractualmente "Cinco Nueves" (99.999%) de disponibilidad. Las APIs públicas en la nube sufren caídas de proveedores, límites de tasa (`HTTP 429`), fluctuaciones de ruteo WAN y picos de latencia fuera del control corporativo.
+- **Solución:** La inferencia local y on-premise elimina la dependencia de la WAN externa, suprime las cuotas de tasa upstream y garantiza latencia de cómputo determinista sobre infraestructura física propia.
+
+### 3.5. Clasificación de Datos y el Patrón Sanitizing Gateway (Defensa en Profundidad)
+- **Problema:** Las empresas no pueden exponer legal u operativamente datos personales (PII), secretos comerciales, perfiles crediticios o algoritmos propietarios a inferencia en la nube pública.
+- **Solución:** Aislamiento estricto entre el desarrollo periférico y la ejecución en el core:
+  - **Zona Periférica (Nube):** Modelos rápidos de frontera / semi-frontera (ej. Claude Haiku, Gemini Flash) procesan documentación pública, boilerplate genérico y diseño arquitectónico abstracto.
+  - **Zona Core (Local / VPC Privada):** SLMs on-premise desconectados (air-gapped) procesan datos sensibles de alta clasificación con cero fuga hacia internet.
+  - **Proxy Sanitizing Gateway:** Un modelo local liviano (1.5B–7B) inspecciona, redacta y seudonimiza la carga útil antes de que cualquier lógica no sensible sea derivada a APIs externas.
+
 ---
 
 ## 4. Dimensionamiento de Hardware y Umbrales Económicos
@@ -76,28 +87,30 @@ A los precios actuales de APIs de frontera:
 
 ## 5. Recomendación Arquitectónica: Patrón Híbrido por Capas
 
-En lugar de elegir ciegamente entre la nube o local, la ingeniería de software moderna con IA adopta el **Patrón de Inversión por Capas**:
+En lugar de elegir ciegamente entre la nube o local, la arquitectura corporativa de IA adopta el **Patrón de Defensa en Profundidad por Capas**:
 
 ```
-+-------------------------------------------------------------------------+
-|                       Capa 1: Frontera Cloud (Cerebro)                  |
-|                (Gemini Flash / Claude Sonnet / GPT-4o)                  |
-|  - Arquitectura de sistemas y descomposición de especificaciones        |
-|  - Refactorización multi-archivo en Clean Architecture                  |
-|  - Orquestación de motores gráficos y audio procedural                   |
-+-------------------------------------------------------------------------+
-                                    |
-                                    v
-+-------------------------------------------------------------------------+
-|                     Capa 2: SLMs en el Edge/Local (Brazos)              |
-|               (Qwen2.5-Coder-1.5B / 7B sobre llama.cpp)                 |
-|  - Autocompletado continuo por pulsación de tecla (< 40ms TTFT)         |
-|  - Modo offline ante caídas de conexión WAN                             |
-|  - Linting determinista de AST y generación de boilerplate repetitivo   |
-+-------------------------------------------------------------------------+
++-----------------------------------------------------------------------------------+
+|                        ZONA 1: PERIFÉRICA Y DESARROLLO (NUBE)                     |
+|                  Modelos: Claude Haiku / Gemini Flash / GPT-4o                    |
+|  - Arquitectura de sistemas y descomposición de especificaciones                  |
+|  - Generación de boilerplate genérico y esqueleto de Clean Architecture           |
+|  - Algoritmos abstractos sin datos confidenciales ni secretos comerciales         |
++-----------------------------------------------------------------------------------+
+                                          |
+                                          v  [Sanitizing Gateway / Redactor PII Local]
++-----------------------------------------------------------------------------------+
+|                           ZONA 2: CORE DE MISIÓN CRÍTICA (LOCAL)                  |
+|               Modelos: SLMs Especializados (1.5B–7B en DGX Spark / On-Prem)       |
+|  - Limpieza de PII, registros de clientes, lógica propietaria, estado de libros   |
+|  - Autocompletado en tiempo real en pulsación de tecla (< 40ms TTFT)              |
+|  - Garantía de SLA de Cinco Nueves (99.999%) desacoplada de caídas de internet    |
+|  - Cumplimiento estricto de cero fuga (HIPAA, GDPR, soberanía financiera)         |
++-----------------------------------------------------------------------------------+
 ```
 
 ### Regla de Oro para Arquitectos
 - **No compres hardware dedicado únicamente para simular razonamiento general de la nube.**
 - **Utilizá modelos de frontera en la nube para ideación, planeamiento, revisión arquitectónica y síntesis pesada.**
 - **Desplegá SLMs locales especializados para ejecución determinista, offline, ultrarrápida y de alta frecuencia en el borde.**
+- **Aplica clasificación de datos estricta: nunca envíes estado sensible del dominio a APIs públicas cuando un SLM local puede garantizar el perímetro.**
