@@ -130,5 +130,5 @@ This single command inspects:
 3. **CLI & Benchmark health** (28 Vitest unit tests, Clean Architecture Score harness).
 4. **Immediate fork choices** (Laptop offline cold staging vs DGX Spark hot burst).
 
-For deep architectural documentation, consult [`proyecto/docs/progress-and-milestones.md`](file:///home/jr_g/Develop/IA_Aplicada/proyecto/docs/progress-and-milestones.md) and [`proyecto/docs/detailed-roadmap.md`](file:///home/jr_g/Develop/IA_Aplicada/proyecto/docs/detailed-roadmap.md).
+For deep architectural documentation, consult [`proyecto/docs/project/project-analysis.md`](file:///home/jr_g/Develop/IA_Aplicada/proyecto/docs/project/project-analysis.md), [`proyecto/docs/history/progress-and-milestones.md`](file:///home/jr_g/Develop/IA_Aplicada/proyecto/docs/history/progress-and-milestones.md), and [`proyecto/docs/history/detailed-roadmap.md`](file:///home/jr_g/Develop/IA_Aplicada/proyecto/docs/history/detailed-roadmap.md).
 

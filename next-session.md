@@ -16,7 +16,7 @@
 
 ## 1. Goal
 
-Replace unattributed and hard-coded benchmark numbers with a reproducible base-vs-fine-tune comparison on the DGX Spark. Context and findings: `proyecto/docs/evaluation-audit-2026-11-05.md`.
+Replace unattributed and hard-coded benchmark numbers with a reproducible base-vs-fine-tune comparison on the DGX Spark. Context and findings: `proyecto/docs/evaluation/evaluation-audit-2026-11-05.md`.
 
 ## 2. Steps
 
@@ -28,7 +28,7 @@ Replace unattributed and hard-coded benchmark numbers with a reproducible base-v
 | 4 | `cat reports/spark-*/RESULT.md` (latest) | All checks ticked and a verdict line. |
 | 5 | Ask the user to run the `scp -r ...` line printed at the end (from the laptop), or copy the folder yourself if you are on the laptop. | Folder in `proyecto/evaluation/reports/`. |
 
-Detailed plan: `proyecto/docs/spark-day-plan.md`. Manual fallback: `proyecto/docs/spark-eval-runbook.md`.
+Detailed plan: `proyecto/docs/evaluation/spark-day-plan.md`. Manual fallback: `proyecto/docs/evaluation/spark-eval-runbook.md`.
 
 ## 3. If preflight fails
 
@@ -53,9 +53,9 @@ Detailed plan: `proyecto/docs/spark-day-plan.md`. Manual fallback: `proyecto/doc
 | Action | File |
 | :-- | :-- |
 | Replace base/cloud values with measured numbers, or keep them labeled "unmeasured" if not measured. | `proyecto/evaluation/compare_models.py` |
-| Update scores and wording to match the report (with the uncertainty from section 4). | `proyecto/README.md`, `proyecto/docs/final-report-and-presentation.md`, `proyecto/docs/progress-and-milestones.md` |
+| Update scores and wording to match the report (with the uncertainty from section 4). | `proyecto/README.md`, `proyecto/docs/project/final-report-and-presentation.md`, `proyecto/docs/history/progress-and-milestones.md` |
 | Mirror every change in Spanish. | `proyecto/es/...` |
-| Add the measured results to the audit (new subsection). | `proyecto/docs/evaluation-audit-2026-11-05.md` (+ `es/`) |
+| Add the measured results to the audit (new subsection). | `proyecto/docs/evaluation/evaluation-audit-2026-11-05.md` (+ `es/`) |
 | Propose (do not apply without asking) edits to the public model card. | `proyecto/MODEL_CARD.md` |
 
 Then: commit inside `proyecto/` (Conventional Commits, English, end with the attribution line the session provides), push, commit the updated submodule pointer in this repo, push.

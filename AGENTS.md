@@ -25,7 +25,7 @@ Course repo (UCAB Applied AI) with three content areas: `docs/` (knowledge base:
 
 Fine-tuned SLM (Qwen2.5-Coder-1.5B-Instruct, LoRA) quantized to GGUF Q4_K_M, served via `llama.cpp`, wrapped by a hexagonal TypeScript CLI that refactors code toward Clean Architecture/DDD offline. Operating model: "Cold Staging, Hot Burst" — develop/test offline on a laptop with mocks, then burst to the DGX Spark cluster (over SSH) for distillation/training.
 
-Start a session with `python3 proyecto/status.py` (zero-dependency health/next-steps dashboard) and `proyecto/docs/progress-and-milestones.md`. The `edge-clean-copilot` skill (`.agents/skills/edge-clean-copilot/SKILL.md`) is the operational guide.
+Start a session with `python3 proyecto/status.py` (zero-dependency health/next-steps dashboard) and the project reference in `proyecto/docs/project/project-analysis.md` (or historical log at `proyecto/docs/history/progress-and-milestones.md`). The `edge-clean-copilot` skill (`.agents/skills/edge-clean-copilot/SKILL.md`) is the operational guide.
 
 ### Pipeline (data flows left to right)
 

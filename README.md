@@ -48,8 +48,10 @@ All content in `/docs`, `/proyecto`, and `/labs` follows **AI-first documentatio
 ### Sections
 
 - [**Project (`/proyecto`)**](./proyecto/README.md):
-  - [Technical Proposal: Edge Clean Copilot](./proyecto/propuesta.md)
-  - [Idea Bank](./proyecto/ideas.md)
+  - [Project Analysis & Assessment](./proyecto/docs/project/project-analysis.md)
+  - [Retrospective & Lessons Learned](./proyecto/docs/project/retrospective.md)
+  - [Technical Proposal: Edge Clean Copilot](./proyecto/docs/project/propuesta.md)
+  - [Idea Bank](./proyecto/docs/project/ideas.md)
 - [**Labs (`/labs`)**](./labs/README.md):
   - [Lab 01: Environment Setup & Local Inference](./labs/lab-01.md)
 - [**Documentation (`/docs`)**](./docs/README.md):
