@@ -34,3 +34,4 @@ Guide to parameter-efficient fine-tuning for language models.
 - [Useful Commands](./useful-commands.md) — Command cheat sheet for terminal, hardware, llama.cpp, and GGUF.
 - [Environment Specifications](./environment.md) — Comparison between the DGX Spark workstation and the edge deployment environment.
 - [Local SLMs vs. Cloud LLMs](./local-slm-vs-cloud-llm.md) — Architectural decision record, economic ROI thresholds, and hybrid tiering guide.
+- [Cost-Aware Routing](./cost-aware-routing.md) — Design note (not implemented): cascade of rules, local SLM, and frontier LLM to cut cost on small queries.
