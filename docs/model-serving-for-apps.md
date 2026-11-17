@@ -87,7 +87,7 @@ Measure first: record time-to-first-token, tokens/s, queue depth, and error rate
 | Area | Requirement |
 |------|-------------|
 | Network | Bind to `127.0.0.1` or a private interface; expose only through a gateway or tunnel |
-| Auth | `--api-key` plus a gateway. **vLLM caveat:** its `--api-key` only covers `/v1`, `/v2`, and `/inference`; other endpoints such as `/invocations` stay unauthenticated, so never expose vLLM directly |
+| Auth | `--api-key` plus a gateway. **vLLM caveat:** its `--api-key` only covers the `/v1`, `/v2`, `/inference`, and `/cohere` prefixes. Other endpoints stay unauthenticated, including `/invocations` (same inference as `/v1`), operational controls such as `/pause`, `/abort_requests`, and `/update_weights`, and utilities such as `/metrics` and `/tokenize`. Never expose vLLM directly; put a reverse proxy in front that allowlists only the endpoints you need (vLLM security docs, fetched 2026-11-17) |
 | Limits | Max tokens, request timeout, input size cap, rate limits |
 | Health | Health endpoint, restart policy, readiness before routing traffic |
 | Observability | Latency, tokens, errors, escalation tier; no sensitive prompts in logs |

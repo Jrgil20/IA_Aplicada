@@ -2,7 +2,7 @@
 
 > **Referencia AI-first.** "Caché" abarca tres mecanismos distintos con ahorros y riesgos diferentes. Parte del conjunto de ruteo por costo: [Enrutamiento por Costo](./enrutamiento-por-costo.md), [Casos de Uso](./casos-de-uso-ia-aplicada.md), [Escalado](./escalado-cargas-ia.md), [Playbook: Costos y Ahorros](./playbook/costos-y-ahorros.md).
 >
-> **Estado de verificación (2026-11-17):** las cifras de Anthropic provienen de la referencia de la API de Claude incluida en Claude Code (precios en caché del 2026-11-03). Los flags de `llama.cpp` se leyeron de `llama-server --help` en el build local `0.8.0-dev (build 11982)`. El comportamiento de vLLM proviene de la documentación oficial de vLLM. Los precios y valores por defecto cambian: volver a verificarlos antes de depender de ellos.
+> **Estado de verificación (2026-11-17):** las cifras de Anthropic provienen de la referencia de la API de Claude incluida en Claude Code (precios en caché del 2026-11-03); precios y multiplicadores confirmados contra la página oficial de precios el 2026-11-17. Los flags de `llama.cpp` se leyeron de `llama-server --help` en el build local `0.8.0-dev (build 11982)`. El comportamiento de vLLM proviene de la documentación oficial de vLLM. Los precios y valores por defecto cambian: volver a verificarlos antes de depender de ellos.
 
 ---
 

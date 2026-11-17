@@ -33,7 +33,7 @@
 | Elemento | Requisito |
 |----------|-----------|
 | Red | Enlace privado; exponer vía gateway o túnel SSH |
-| Autenticación | API key o autenticación en el gateway en cada endpoint. Verificar qué cubre realmente la clave del servidor: el `--api-key` de vLLM protege solo `/v1`, `/v2` e `/inference`, y deja abiertos endpoints como `/invocations` (documentación de vLLM, verificado 2026-11-17). `llama-server` se enlaza a `127.0.0.1` por defecto y admite `--api-key` |
+| Autenticación | API key o autenticación en el gateway en cada endpoint. Verificar qué cubre realmente la clave del servidor: el `--api-key` de vLLM protege solo `/v1`, `/v2`, `/inference` y `/cohere`, y deja abiertos `/invocations` y endpoints de control como `/update_weights`, así que hay que filtrar endpoints con un proxy inverso (documentación de seguridad de vLLM, consultada 2026-11-17). `llama-server` se enlaza a `127.0.0.1` por defecto y admite `--api-key` |
 | Secretos | Entorno o gestor de secretos; nunca en prompts, repos ni logs |
 | Pesos y artefactos | Nunca commiteados; hash fijado |
 | Logging | Sin prompts sensibles; límite de retención |

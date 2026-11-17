@@ -2,7 +2,7 @@
 
 > **How to model and reduce AI cost.** The worked example uses list prices to show the arithmetic; it is **not** a measured saving. Real savings must come from your own usage data.
 >
-> **Verification status (2026-11-17):** Claude prices, caching multipliers, and batch discount come from the Claude API reference bundled with Claude Code (pricing cached 2026-11-03). Re-check the official pricing page before budgeting.
+> **Verification status (2026-11-17):** Claude prices, caching multipliers, and batch discount come from the Claude API reference bundled with Claude Code (pricing cached 2026-11-03) and were confirmed against the official pricing page `platform.claude.com/docs/en/about-claude/pricing` on 2026-11-17. Re-check before budgeting. Not covered here: US-only inference (`inference_geo`) adds a 1.1× multiplier on Claude 4.6 and later models.
 
 ---
 
@@ -27,7 +27,7 @@ monthly cost     ≈ Σ requests × cost per request + retries + fixed costs
 
 | Model | Input | Output | Cache read |
 |-------|-------|--------|------------|
-| Claude Haiku 5.5 | $0.10 | $0.50 | ~0.1× input |
+| Claude Haiku 5.5 | $0.10 | $0.50 | $0.01 |
 | Claude Sonnet 5.5 | $2.00 | $10.00 | $0.10 |
 | Claude Opus 5.5 | $4.00 | $20.00 | $0.20 |
 

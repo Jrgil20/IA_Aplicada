@@ -2,7 +2,7 @@
 
 > **Cómo modelar y reducir el costo de la IA.** El ejemplo trabajado usa precios de lista para mostrar la aritmética; **no** es un ahorro medido. Los ahorros reales deben salir de tus propios datos de uso.
 >
-> **Estado de verificación (2026-11-17):** los precios de Claude, los multiplicadores de caché y el descuento de batch provienen de la referencia de la API de Claude incluida en Claude Code (precios en caché del 2026-11-03). Volver a revisar la página oficial de precios antes de presupuestar.
+> **Estado de verificación (2026-11-17):** los precios de Claude, los multiplicadores de caché y el descuento de batch provienen de la referencia de la API de Claude incluida en Claude Code (precios en caché del 2026-11-03) y se confirmaron contra la página oficial de precios `platform.claude.com/docs/en/about-claude/pricing` el 2026-11-17. Volver a revisar antes de presupuestar. No cubierto aquí: la inferencia solo en EE. UU. (`inference_geo`) añade un multiplicador de 1.1× en los modelos Claude 4.6 y posteriores. Volver a revisar la página oficial de precios antes de presupuestar.
 
 ---
 
@@ -27,7 +27,7 @@ monthly cost     ≈ Σ requests × cost per request + retries + fixed costs
 
 | Modelo | Entrada | Salida | Lectura de caché |
 |--------|---------|--------|------------------|
-| Claude Haiku 5.5 | $0.10 | $0.50 | ~0.1× entrada |
+| Claude Haiku 5.5 | $0.10 | $0.50 | $0.01 |
 | Claude Sonnet 5.5 | $2.00 | $10.00 | $0.10 |
 | Claude Opus 5.5 | $4.00 | $20.00 | $0.20 |
 

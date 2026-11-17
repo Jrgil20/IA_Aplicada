@@ -87,7 +87,7 @@ Medir primero: registrar time-to-first-token, tokens/s, profundidad de cola y ta
 | Área | Requisito |
 |------|-----------|
 | Red | Enlazar a `127.0.0.1` o a una interfaz privada; exponer solo mediante un gateway o un túnel |
-| Autenticación | `--api-key` más un gateway. **Advertencia sobre vLLM:** su `--api-key` solo cubre `/v1`, `/v2` e `/inference`; otros endpoints como `/invocations` quedan sin autenticar, así que nunca exponer vLLM directamente |
+| Autenticación | `--api-key` más un gateway. **Advertencia sobre vLLM:** su `--api-key` solo cubre los prefijos `/v1`, `/v2`, `/inference` y `/cohere`. Los demás endpoints quedan sin autenticar, incluidos `/invocations` (la misma inferencia que `/v1`), controles operativos como `/pause`, `/abort_requests` y `/update_weights`, y utilidades como `/metrics` y `/tokenize`. Nunca exponer vLLM directamente; poner delante un proxy inverso que permita solo los endpoints necesarios (documentación de seguridad de vLLM, consultada 2026-11-17) |
 | Límites | Máximo de tokens, timeout de solicitud, tope de tamaño de entrada, rate limits |
 | Salud | Endpoint de salud, política de reinicio, readiness antes de enrutar tráfico |
 | Observabilidad | Latencia, tokens, errores, nivel de escalado; sin prompts sensibles en los logs |

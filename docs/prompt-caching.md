@@ -2,7 +2,7 @@
 
 > **AI-first reference.** "Caching" covers three distinct mechanisms with different savings and risks. Part of the cost-routing set: [Cost-Aware Routing](./cost-aware-routing.md), [Use Cases](./applied-ai-use-cases.md), [Scaling](./scaling-ai-workloads.md), [Playbook: Cost and Savings](./playbook/cost-and-savings.md).
 >
-> **Verification status (2026-11-17):** Anthropic figures come from the Claude API reference bundled with Claude Code (pricing cached 2026-11-03). `llama.cpp` flags were read from `llama-server --help` on the local build `0.8.0-dev (build 11982)`. vLLM behavior comes from the official vLLM docs. Prices and defaults change: re-check before relying on them.
+> **Verification status (2026-11-17):** Anthropic figures come from the Claude API reference bundled with Claude Code (pricing cached 2026-11-03); prices and multipliers confirmed against the official pricing page on 2026-11-17. `llama.cpp` flags were read from `llama-server --help` on the local build `0.8.0-dev (build 11982)`. vLLM behavior comes from the official vLLM docs. Prices and defaults change: re-check before relying on them.
 
 ---
 

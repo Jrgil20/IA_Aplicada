@@ -33,7 +33,7 @@
 | Item | Requirement |
 |------|-------------|
 | Network | Private bind; expose via gateway or SSH tunnel |
-| Authentication | API key or gateway auth on every endpoint. Check what the server's key actually covers: vLLM's `--api-key` protects only `/v1`, `/v2`, and `/inference`, leaving endpoints such as `/invocations` open (vLLM docs, verified 2026-11-17). `llama-server` binds to `127.0.0.1` by default and supports `--api-key` |
+| Authentication | API key or gateway auth on every endpoint. Check what the server's key actually covers: vLLM's `--api-key` protects only `/v1`, `/v2`, `/inference`, and `/cohere`, leaving `/invocations` and control endpoints such as `/update_weights` open, so allowlist endpoints in a reverse proxy (vLLM security docs, fetched 2026-11-17). `llama-server` binds to `127.0.0.1` by default and supports `--api-key` |
 | Secrets | Environment or secret manager; never in prompts, repos, or logs |
 | Weights and artifacts | Never committed; hash pinned |
 | Logging | No sensitive prompts; retention limit |
