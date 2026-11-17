@@ -108,4 +108,4 @@ Debe devolver `ucab-spark2` de inmediato sin pedir contraseña ni intervención 
 > **Diagnóstico en caso de falla:**
 > Si el Paso 2 falla aun con el cable conectado:
 > 1. Revisar la salida de `ip -br a` y `nmcli connection show`.
-> 2. Consultar la [Guía de Diagnóstico de Red](../../docs/dgx/network-troubleshooting.md) para verificar el estado de portadora física (`carrier`), resolución ARP (`ip neigh`) y tablas de enrutamiento.
+> 2. Consultar la [Guía de Diagnóstico de Red](../../../docs/dgx/network-troubleshooting.md) para verificar el estado de portadora física (`carrier`), resolución ARP (`ip neigh`) y tablas de enrutamiento.

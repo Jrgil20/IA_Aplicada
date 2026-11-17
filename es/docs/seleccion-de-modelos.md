@@ -17,7 +17,7 @@
 | Criterio | Pregunta | Por qué importa |
 |----------|----------|-----------------|
 | Ajuste a la tarea | ¿Código, chat, extracción, clasificación, multilingüe? | Los modelos especializados superan a los generales más grandes solo si la tarea coincide |
-| Clase de tamaño | ¿Qué nivel de la [matriz de dimensionamiento](./local-slm-vs-cloud-llm.md) cabe en el hardware? | Define memoria y velocidad |
+| Clase de tamaño | ¿Qué nivel de la [matriz de dimensionamiento](./local-slm-vs-cloud-llm.md#42-matriz-de-dimensionamiento-de-hardware) cabe en el hardware? | Define memoria y velocidad |
 | Instruct vs. base | ¿Sigue instrucciones sin ajustes? | Los base sirven para fine-tuning; los instruct para uso directo |
 | Longitud de contexto | ¿La entrada real más larga cabe en la ventana? | El truncamiento degrada respuestas en silencio |
 | Idioma | ¿Maneja los idiomas de la app (p. ej. español)? | Los modelos pequeños suelen debilitarse fuera del inglés |
