@@ -46,13 +46,31 @@ query → [0] policy gate → [1] cache / rules → [2] local SLM → [3] confid
 | Confidence thresholds on SLM output | Low | Small calibration set | Needs calibration; SLM logprobs can be overconfident |
 | Learned router (embedding + classifier) | Medium | Yes | Only if volume justifies it |
 
-## 5. Validation Plan (required before any claim)
+## 5. Caveats Before Building a Cascade (verified 2026-11-17)
+
+| Caveat | Consequence |
+|--------|-------------|
+| Provider prompt caches are per model | Each tier has its own cache; a cascade forfeits cache reuse across tiers |
+| A capable model at lower effort may match an older model at high effort | Measure "one model, lower effort" first; it may beat a cascade on cost and simplicity |
+| Escalated requests pay twice (cheap attempt + expensive retry) | Savings depend on the share answered well at the cheap tier |
+| Router mistakes are silent | Log the tier per request and sample escalated and non-escalated answers |
+| Cost per completed task is the real metric | A cheap first attempt that fails and retries can cost more |
+
+## 6. Validation Plan (required before any claim)
 
 1. Label benchmark queries with which tier answers them acceptably.
 2. Run the cascade on the benchmark; compare CAS and escalation rate vs. always-frontier and always-local.
 3. Report savings only from measured token counts and prices. **Do not publish estimated savings or latency figures** (project rule: no unmeasured metrics).
 
-## 6. Open Questions
+## 7. Related Guides
+
+| Guide | Covers |
+|-------|--------|
+| [Applied AI Use Cases](./applied-ai-use-cases.md) | Which tier fits which task |
+| [Scaling AI Workloads](./scaling-ai-workloads.md) | Model escalation vs. compute scaling |
+| [Prompt Caching](./prompt-caching.md) | Tier 1 caches and prefix caching |
+
+## 8. Open Questions
 
 | # | Question |
 |---|----------|
