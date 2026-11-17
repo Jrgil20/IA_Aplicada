@@ -62,7 +62,7 @@ Antes de cambiar de modelo, revisa la configuración del modelo que ya usas (Cla
 | Batch API | 50% de descuento para trabajo no urgente | Asíncrono, hasta 24 horas |
 | Salidas estructuradas | Menos respuestas inválidas y reintentos | Valida el formato, no la corrección |
 
-Precios de referencia por millón de tokens de entrada/salida: Haiku 5.5 $0.10/$0.50, Sonnet 5.5 $2/$10, Opus 5.5 $4/$20 (en caché 2026-11-03; ver [Costos y Ahorros](./costos-y-ahorros.md)). El salto de Haiku a Sonnet es de unas 20×, así que escala solo los casos que lo necesitan.
+Precios de referencia por millón de tokens de entrada/salida: Haiku 5.5 $0.10/$0.50, Sonnet 5.5 $2/$10, Opus 5.5 $4/$20 (confirmados contra la página oficial de precios el 2026-11-17; ver [Costos y Ahorros](./costos-y-ahorros.md)). El salto de Haiku a Sonnet es de unas 20×, así que escala solo los casos que lo necesitan.
 
 ## 7. Matriz Rápida
 

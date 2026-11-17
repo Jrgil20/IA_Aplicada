@@ -62,7 +62,7 @@ Before changing models, check the settings of the model you already use (Claude 
 | Batch API | 50% off for non-urgent work | Asynchronous, up to 24 hours |
 | Structured outputs | Fewer invalid answers and retries | Validates format, not correctness |
 
-Reference prices per million input/output tokens: Haiku 5.5 $0.10/$0.50, Sonnet 5.5 $2/$10, Opus 5.5 $4/$20 (cached 2026-11-03; see [Cost and Savings](./cost-and-savings.md)). The jump from Haiku to Sonnet is about 20×, so escalate only the cases that need it.
+Reference prices per million input/output tokens: Haiku 5.5 $0.10/$0.50, Sonnet 5.5 $2/$10, Opus 5.5 $4/$20 (confirmed against the official pricing page on 2026-11-17; see [Cost and Savings](./cost-and-savings.md)). The jump from Haiku to Sonnet is about 20×, so escalate only the cases that need it.
 
 ## 7. Quick Matrix
 
