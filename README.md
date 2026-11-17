@@ -55,6 +55,7 @@ All content in `/docs`, `/proyecto`, and `/labs` follows **AI-first documentatio
 - [**Labs (`/labs`)**](./labs/README.md):
   - [Lab 01: Environment Setup & Local Inference](./labs/lab-01.md)
 - [**Documentation (`/docs`)**](./docs/README.md):
+  - [**Applied AI Playbook**](./docs/playbook/README.md) — decisions, costs, privacy, hardening, evaluation, production
   - [NVIDIA DGX Spark](./docs/dgx/README.md)
   - [CUDA & GPU Acceleration](./docs/cuda/README.md)
   - [LoRA & QLoRA (PEFT)](./docs/qlora/README.md)

@@ -46,14 +46,15 @@ Todo el contenido en `/docs`, `/proyecto` y `/labs` sigue principios de **docume
 
 ### Secciones
 
-- [**Proyecto (`/proyecto`)**](./proyecto/es/README.md):
-  - [Análisis y Evaluación del Proyecto](./proyecto/es/docs/project/project-analysis.md)
-  - [Retrospectiva y Lecciones Aprendidas](./proyecto/es/docs/project/retrospective.md)
-  - [Propuesta Técnica: Edge Clean Copilot](./proyecto/es/docs/project/propuesta.md)
-  - [Banco de Ideas](./proyecto/es/docs/project/ideas.md)
+- [**Proyecto (`/proyecto`)**](../proyecto/es/README.md):
+  - [Análisis y Evaluación del Proyecto](../proyecto/es/docs/project/project-analysis.md)
+  - [Retrospectiva y Lecciones Aprendidas](../proyecto/es/docs/project/retrospective.md)
+  - [Propuesta Técnica: Edge Clean Copilot](../proyecto/es/docs/project/propuesta.md)
+  - [Banco de Ideas](../proyecto/es/docs/project/ideas.md)
 - [**Laboratorios (`/labs`)**](./labs/README.md):
   - [Lab 01: Configuración de Entorno & Inferencia Local](./labs/lab-01.md)
 - [**Documentación (`/docs`)**](./docs/README.md):
+  - [**Playbook de IA Aplicada**](./docs/playbook/README.md) — decisiones, costos, privacidad, hardening, evaluación, producción
   - [NVIDIA DGX Spark](./docs/dgx/README.md)
   - [CUDA & GPU Acceleration](./docs/cuda/README.md)
   - [LoRA & QLoRA (PEFT)](./docs/qlora/README.md)
@@ -64,4 +65,4 @@ Todo el contenido en `/docs`, `/proyecto` y `/labs` sigue principios de **docume
 
 ## Licencia
 
-Distribuido bajo la licencia especificada en [LICENSE](./LICENSE).
+Distribuido bajo la licencia especificada en [LICENSE](../LICENSE).

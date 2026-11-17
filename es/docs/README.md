@@ -4,6 +4,12 @@
 
 ---
 
+## Playbook de IA Aplicada (empieza aquí para productos)
+
+**[Índice del playbook](./playbook/README.md)** — la capa práctica: cuándo usar IA, qué arquitectura, qué nivel de modelo (quedarse, subir, ir más barato, ir privado), costos y ahorros, privacidad, hardening, evaluación y preparación para producción. Los módulos siguientes son el trasfondo técnico.
+
+---
+
 ## Módulos de Documentación
 
 ### 1. [NVIDIA DGX Spark (`/dgx`)](./dgx/README.md)
@@ -35,3 +41,8 @@ Guía de adaptación eficiente de parámetros para modelos de lenguaje.
 - [Especificaciones de Entorno](./entorno.md) — Comparativa entre la estación DGX Spark y el entorno edge de despliegue.
 - [SLMs Locales vs. LLMs en la Nube](./local-slm-vs-cloud-llm.md) — Registro de decisión arquitectónica, ROI económico y patrón híbrido.
 - [Enrutamiento por Costo](./enrutamiento-por-costo.md) — Nota de diseño (no implementada): cascada de reglas, SLM local y LLM de frontera para reducir costo en consultas pequeñas.
+- [Casos de Uso de IA Aplicada](./casos-de-uso-ia-aplicada.md) — Qué nivel (reglas, caché, SLM local, nube) encaja con cada tarea y cuándo escalar.
+- [Escalado de Cargas de IA](./escalado-cargas-ia.md) — Escalado de modelo vs. de cómputo: laptop, DGX Spark, nube.
+- [Caché de Prompts](./cache-de-prompts.md) — Caché de respuesta, semántica y de prefijo/KV: cuándo usar cada una, cifras verificadas y riesgos.
+- [Servir Modelos para Apps](./servir-modelos-para-apps.md) — Runtimes (llama.cpp, vLLM, Ollama, APIs), flags, capacidad, topologías, checklist de producción.
+- [Selección de Modelos](./seleccion-de-modelos.md) — Proceso y criterios para elegir y reemplazar un modelo.

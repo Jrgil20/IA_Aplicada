@@ -63,6 +63,9 @@ Running local models is technically and economically justified **only** in the f
 ## 4. Hardware Sizing & Economic Thresholds
 
 ### 4.1. The Capital Expense vs. Token Budget Equation
+
+> [!WARNING]
+> **Unverified figures (review 2026-11-17):** the hardware cost range, the Flash price, and the annual developer token consumption below were not traced to a source. Recompute with current price lists and your own measured usage before using them. For a verified method and a worked example with Claude list prices, see [Playbook: Cost and Savings](./playbook/cost-and-savings.md).
 To run a 30B model with 4 concurrent slots at 32k context requires **~24 GB to 32 GB of dedicated high-speed VRAM**:
 
 $$\text{Total Cost of Local Workstation} \approx \$2,500 - \$4,500 \text{ USD}$$

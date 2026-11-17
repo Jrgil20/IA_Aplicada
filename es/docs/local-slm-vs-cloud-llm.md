@@ -63,6 +63,9 @@ Ejecutar modelos en local se justifica técnica y económicamente **únicamente*
 ## 4. Dimensionamiento de Hardware y Umbrales Económicos
 
 ### 4.1. Ecuación: Gasto de Capital vs. Presupuesto de Tokens
+
+> [!WARNING]
+> **Cifras no verificadas (revisión 2026-11-17):** el rango de costo de hardware, el precio de Flash y el consumo anual de tokens por desarrollador no se trazaron a una fuente. Recalcularlos con listas de precios vigentes y tu propio uso medido antes de usarlos. Para un método verificado y un ejemplo con precios de lista de Claude, ver [Playbook: Costos y Ahorros](./playbook/costos-y-ahorros.md).
 Para correr un modelo de 30B con 4 slots concurrentes a 32k de contexto se requieren **~24 GB a 32 GB de VRAM de alta velocidad**:
 
 $$\text{Costo Total de Estación Local} \approx \$2.500 - \$4.500 \text{ USD}$$
